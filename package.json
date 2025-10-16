@@ -1,0 +1,21 @@
+{
+  "name": "fashion-ai-platform-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for Fashion AI Platform - магазин модной одежды с AI-примеркой",
+  "scripts": {
+    "start": "http-server -p 3000 -o",
+    "dev": "http-server -p 3000 -o -c-1",
+    "serve": "python -m http.server 3000"
+  },
+  "keywords": [
+    "fashion",
+    "ai",
+    "ecommerce",
+    "frontend"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}

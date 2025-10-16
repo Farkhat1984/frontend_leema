@@ -1,0 +1,17 @@
+/* Authentication pages styles */
+/* These styles are specifically for login and callback pages */
+
+/* Already included in style.css, so this can be a lightweight file */
+/* or you can extract auth-specific styles here */
+
+.login-page {
+    /* Already defined in style.css */
+}
+
+.login-box {
+    /* Already defined in style.css */
+}
+
+.google-btn {
+    /* Already defined in style.css */
+}

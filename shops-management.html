@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление магазинами - Fashion AI Platform</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/shop.css">
+    <style>
+        .management-page {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .back-btn {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: #5568d3;
+        }
+
+        .filters-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .filters-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .filters-header h3 {
+            margin: 0;
+        }
+
+        .toggle-filters {
+            background: none;
+            border: none;
+            color: #667eea;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .filters-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #666;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .quick-filters {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .quick-filter-btn {
+            padding: 8px 16px;
+            border: 1px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .quick-filter-btn:hover,
+        .quick-filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .filter-actions button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .apply-filters {
+            background: #667eea;
+            color: white;
+        }
+
+        .reset-filters {
+            background: #f3f4f6;
+            color: #666;
+        }
+
+        .bulk-actions {
+            background: white;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .bulk-select {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .bulk-actions-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .bulk-action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .bulk-action-btn.approve {
+            background: #10b981;
+            color: white;
+        }
+
+        .bulk-action-btn.block {
+            background: #ef4444;
+            color: white;
+        }
+
+        .sorting-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .sort-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .sort-controls select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        .sort-order-btn {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .shops-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .shop-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: grid;
+            grid-template-columns: 40px 80px 1fr auto;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .shop-checkbox {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .shop-checkbox input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .shop-avatar {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .shop-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .shop-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .shop-owner {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .shop-balance {
+            font-size: 20px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .shop-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .shop-badges {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge.approved {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge.blocked {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .shop-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .action-btn.view {
+            background: #667eea;
+            color: white;
+        }
+
+        .action-btn.approve {
+            background: #10b981;
+            color: white;
+        }
+
+        .action-btn.block {
+            background: #ef4444;
+            color: white;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .page-btn {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .page-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .page-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-info {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+            color: #6b7280;
+        }
+
+        .no-shops {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .no-shops h3 {
+            color: #6b7280;
+            margin-bottom: 10px;
+        }
+
+        .no-shops p {
+            color: #9ca3af;
+        }
+    </style>
+</head>
+<body>
+    <div class="management-page">
+        <!-- Header -->
+        <div class="page-header">
+            <div>
+                <h1>🏪 Управление магазинами</h1>
+                <p style="color: #6b7280; margin-top: 5px;">Все магазины платформы с расширенным управлением</p>
+            </div>
+            <a href="admin.html" class="back-btn">← Назад к админке</a>
+        </div>
+
+        <div id="alertContainer"></div>
+
+        <!-- Filters Panel -->
+        <div class="filters-panel">
+            <div class="filters-header">
+                <h3>🔍 Фильтры</h3>
+                <button class="toggle-filters" onclick="toggleFilters()">Свернуть ▼</button>
+            </div>
+            <div class="filters-content" id="filtersContent">
+                <div class="filter-group">
+                    <label>Статус одобрения</label>
+                    <select id="filterApproved">
+                        <option value="all">Все</option>
+                        <option value="true">Одобренные</option>
+                        <option value="false">Не одобренные</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Баланс от</label>
+                    <input type="number" id="filterMinBalance" placeholder="0">
+                </div>
+                <div class="filter-group">
+                    <label>Баланс до</label>
+                    <input type="number" id="filterMaxBalance" placeholder="10000">
+                </div>
+
+                <div class="quick-filters">
+                    <button class="quick-filter-btn" onclick="applyQuickFilter('pending')">⏳ Не одобренные</button>
+                    <button class="quick-filter-btn" onclick="applyQuickFilter('top-balance')">💰 Топ по балансу</button>
+                    <button class="quick-filter-btn" onclick="applyQuickFilter('most-products')">📦 Больше товаров</button>
+                    <button class="quick-filter-btn" onclick="applyQuickFilter('approved')">✅ Одобренные</button>
+                </div>
+
+                <div class="filter-actions">
+                    <button class="apply-filters" onclick="applyFilters()">Применить фильтры</button>
+                    <button class="reset-filters" onclick="resetFilters()">Сбросить</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bulk Actions -->
+        <div class="bulk-actions">
+            <div class="bulk-select">
+                <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                <label for="selectAll">Выбрать все</label>
+                <span id="selectedCount">0 выбрано</span>
+            </div>
+            <div class="bulk-actions-buttons">
+                <button class="bulk-action-btn approve" onclick="bulkAction('approve')">✅ Одобрить</button>
+                <button class="bulk-action-btn block" onclick="bulkAction('block')">🚫 Заблокировать</button>
+            </div>
+        </div>
+
+        <!-- Sorting -->
+        <div class="sorting-panel">
+            <div class="sort-controls">
+                <label>Сортировка:</label>
+                <select id="sortBy" onchange="applySort()">
+                    <option value="created_at">По дате регистрации</option>
+                    <option value="shop_name">По названию</option>
+                    <option value="balance">По балансу</option>
+                </select>
+                <button class="sort-order-btn" id="sortOrderBtn" onclick="toggleSortOrder()">↓</button>
+            </div>
+            <div class="pagination-info" id="topPaginationInfo"></div>
+        </div>
+
+        <!-- Shops List -->
+        <div id="shopsContainer">
+            <div class="loading">Загрузка магазинов...</div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="paginationContainer"></div>
+    </div>
+
+    <script src="assets/js/config.js?v=5"></script>
+    <script src="assets/js/shops-management.js?v=1"></script>
+</body>
+</html>

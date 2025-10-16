@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Обработка платежа...</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+        }
+
+        .container {
+            text-align: center;
+            color: white;
+            max-width: 600px;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 30px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .success-box {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            color: #333;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .success-icon {
+            font-size: 60px;
+            color: #10b981;
+            margin-bottom: 20px;
+        }
+
+        .error-icon {
+            font-size: 60px;
+            color: #ef4444;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+        p {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-top: 20px;
+            cursor: pointer;
+            border: none;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+        }
+
+        .details {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .details-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .details-row:last-child {
+            border-bottom: none;
+        }
+
+        .details-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .details-value {
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div id="processingState">
+            <div class="spinner"></div>
+            <h1>Обработка платежа...</h1>
+            <p>Пожалуйста, подождите. Мы завершаем ваш платеж.</p>
+        </div>
+    </div>
+
+    <script>
+        // Inline config - determine API URL
+        const hostname = window.location.hostname;
+        const API_URL = (hostname === 'localhost' || hostname === '127.0.0.1')
+            ? 'http://localhost:8000'
+            : 'https://api.leema.kz';
+
+        console.log('Environment:', hostname);
+        console.log('API_URL:', API_URL);
+
+        async function processPayment() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            const payerID = urlParams.get('PayerID');
+
+            console.log('Payment success callback:', { token, payerID });
+
+            if (!token) {
+                showError('Отсутствует токен платежа');
+                return;
+            }
+
+            try {
+                // Get auth token
+                const authToken = localStorage.getItem('token');
+                if (!authToken) {
+                    showError('Вы не авторизованы. Перенаправление на страницу входа...');
+                    setTimeout(() => {
+                        window.location.href = '/index.html';
+                    }, 2000);
+                    return;
+                }
+
+                // Decode and verify token structure (just for debugging)
+                try {
+                    const tokenParts = authToken.split('.');
+                    if (tokenParts.length === 3) {
+                        const payload = JSON.parse(atob(tokenParts[1]));
+                        console.log('Token payload:', payload);
+                        console.log('Token has user_id:', 'user_id' in payload);
+                        console.log('Token has sub:', 'sub' in payload);
+                    }
+                } catch (e) {
+                    console.error('Could not decode token:', e);
+                }
+
+                // Capture payment
+                console.log('=== STARTING PAYMENT CAPTURE ===');
+                console.log('Order ID (token):', token);
+                console.log('PayerID:', payerID);
+                console.log('Auth token:', authToken ? 'Present' : 'Missing');
+                console.log('Capture URL:', `${API_URL}/api/v1/payments/capture/${token}`);
+
+                const response = await fetch(`${API_URL}/api/v1/payments/capture/${token}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                console.log('Capture response status:', response.status);
+                console.log('Capture response ok:', response.ok);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Capture failed - raw response:', errorText);
+                    let errorData;
+                    try {
+                        errorData = JSON.parse(errorText);
+                    } catch (e) {
+                        errorData = { detail: 'Ошибка обработки платежа: ' + errorText };
+                    }
+
+                    // If authentication error, provide more helpful message
+                    if (response.status === 401) {
+                        throw new Error(
+                            'Ошибка аутентификации. ' +
+                            'Возможно, ваш токен устарел. ' +
+                            'Попробуйте войти заново. ' +
+                            'Детали: ' + (errorData.detail || errorText)
+                        );
+                    }
+
+                    throw new Error(errorData.detail || 'Ошибка обработки платежа');
+                }
+
+                const result = await response.json();
+                console.log('=== PAYMENT CAPTURED SUCCESSFULLY ===');
+                console.log('Result:', JSON.stringify(result, null, 2));
+
+                // Show success
+                showSuccess(result);
+            } catch (error) {
+                console.error('Payment processing error:', error);
+                showError(error.message);
+            }
+        }
+
+        function showSuccess(data) {
+            const container = document.querySelector('.container');
+            const accountType = localStorage.getItem('accountType') || 'user';
+
+            // Determine redirect URL based on account type
+            let redirectUrl = '/index.html';
+            if (accountType === 'admin') {
+                redirectUrl = '/admin.html';
+            } else if (accountType === 'shop') {
+                redirectUrl = '/index.html';
+            }
+
+            container.innerHTML = `
+                <div class="success-box">
+                    <div class="success-icon">✓</div>
+                    <h1>Платеж успешно завершен!</h1>
+                    <p>Ваш баланс был успешно пополнен.</p>
+                    ${data.amount ? `
+                        <div class="details">
+                            <div class="details-row">
+                                <span class="details-label">Сумма:</span>
+                                <span class="details-value">$${data.amount.toFixed(2)}</span>
+                            </div>
+                            ${data.new_balance ? `
+                                <div class="details-row">
+                                    <span class="details-label">Новый баланс:</span>
+                                    <span class="details-value">$${data.new_balance.toFixed(2)}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    ` : ''}
+                    <button class="btn" onclick="window.location.href='${redirectUrl}'">Вернуться в панель</button>
+                </div>
+            `;
+
+            // Auto redirect after 5 seconds
+            setTimeout(() => {
+                window.location.href = redirectUrl;
+            }, 5000);
+        }
+
+        function showError(message) {
+            const container = document.querySelector('.container');
+            const accountType = localStorage.getItem('accountType') || 'user';
+
+            let redirectUrl = '/index.html';
+            if (accountType === 'admin') {
+                redirectUrl = '/admin.html';
+            } else if (accountType === 'shop') {
+                redirectUrl = '/index.html';
+            }
+
+            container.innerHTML = `
+                <div class="success-box">
+                    <div class="error-icon">✕</div>
+                    <h1>Ошибка платежа</h1>
+                    <p>${message}</p>
+                    <button class="btn" onclick="window.location.href='${redirectUrl}'">Вернуться в панель</button>
+                </div>
+            `;
+        }
+
+        // Start processing when page loads
+        processPayment();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fashion AI Platform - Панель магазина</title>
+    <link rel="stylesheet" href="../assets/css/layouts/style.css">
+    <link rel="stylesheet" href="../assets/css/pages/shop.css">
+</head>
+
+<body>
+    <!-- Панель магазина -->
+    <div id="shopDashboard" class="dashboard">
+        <div class="header">
+            <h1>Панель магазина</h1>
+            <div class="user-info">
+                <div class="user-avatar" id="shopAvatar">М</div>
+                <span id="shopName">Мой магазин</span>
+                <button class="logout-btn" onclick="logout()">Выйти</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <div id="alertContainer"></div>
+
+            <!-- Статистика -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Всего товаров</h3>
+                    <div class="value" id="totalProducts">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Активных</h3>
+                    <div class="value" id="activeProducts">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Просмотры</h3>
+                    <div class="value" id="totalViews">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Примерки</h3>
+                    <div class="value" id="totalTryOns">0</div>
+                </div>
+            </div>
+
+            <!-- Профиль магазина -->
+            <div class="section">
+                <h2>Профиль магазина</h2>
+                <p style="color: #666; margin-bottom: 20px;">Управляйте настройками вашего магазина</p>
+                <button class="btn btn-primary" onclick="window.location.href='./profile/index.html'" style="font-size: 16px; padding: 12px 24px;">
+                    ⚙️ Перейти к профилю
+                </button>
+            </div>
+
+            <!-- Биллинг и платежи -->
+            <div class="section">
+                <h2>Биллинг и платежи</h2>
+                <p style="color: #666; margin-bottom: 20px;">Управляйте балансом, транзакциями и подписками</p>
+                <button class="btn btn-primary" onclick="window.location.href='./billing/index.html'" style="font-size: 16px; padding: 12px 24px;">
+                    💳 Перейти к биллингу
+                </button>
+            </div>
+
+            <!-- Товары -->
+            <div class="section">
+                <h2>Управление товарами</h2>
+                <p style="color: #666; margin-bottom: 20px;">Управляйте своими товарами на отдельной странице</p>
+                <button class="btn btn-primary" onclick="window.location.href='./products/index.html'" style="font-size: 16px; padding: 12px 24px;">
+                    📦 Перейти к моим товарам
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/core/config.js?v=5"></script>
+    <script src="../assets/js/core/websocket.js?v=5"></script>
+    <script src="../assets/js/core/notifications.js?v=5"></script>
+    <script src="../assets/js/pages/shop/dashboard.js?v=5"></script>
+</body>
+
+</html>

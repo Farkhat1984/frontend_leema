@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои товары - Fashion AI Platform</title>
+    <link rel="stylesheet" href="../../assets/css/layouts/style.css">
+    <link rel="stylesheet" href="../../assets/css/pages/shop.css">
+</head>
+
+<body>
+    <!-- Панель магазина - секция товаров -->
+    <div id="shopProductsPage" class="dashboard">
+        <div class="header">
+            <h1>Мои товары</h1>
+            <div class="user-info">
+                <div class="user-avatar" id="shopAvatar">М</div>
+                <span id="shopName">Мой магазин</span>
+                <button class="logout-btn" onclick="logout()">Выйти</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <div id="alertContainer"></div>
+
+            <!-- Навигация назад -->
+            <div style="margin-bottom: 20px;">
+                <button class="btn btn-secondary" onclick="window.location.href='/shop/index.html'">
+                    ← Вернуться на главную
+                </button>
+            </div>
+
+            <!-- Товары -->
+            <div class="section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>Мои товары</h2>
+                    <button class="btn btn-primary" onclick="openAddProductModal()">+ Добавить товар</button>
+                </div>
+                <div id="productsList" class="products-grid"></div>
+
+                <!-- Пагинация -->
+                <div id="shopPaginationContainer" class="pagination" style="display: none;">
+                    <button class="btn btn-secondary" id="shopPrevPageBtn" onclick="changeShopPage(-1)">Предыдущая</button>
+                    <span id="shopPageInfo" style="margin: 0 20px; font-weight: 600;">Страница 1</span>
+                    <button class="btn btn-secondary" id="shopNextPageBtn" onclick="changeShopPage(1)">Следующая</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно добавления товара -->
+    <div id="addProductModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close-modal" onclick="closeAddProductModal()">&times;</span>
+                <h2>Добавить товар</h2>
+            </div>
+            <div class="form-group">
+                <label>Название товара *</label>
+                <input type="text" id="productName" placeholder="Например: Красное платье">
+            </div>
+            <div class="form-group">
+                <label>Описание</label>
+                <textarea id="productDescription" placeholder="Опишите ваш товар"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Цена (USD) *</label>
+                <input type="number" id="productPrice" placeholder="49.99" step="0.01" min="0">
+            </div>
+            <div class="form-group">
+                <label>Изображения товара</label>
+                <input type="file" id="productImages" accept="image/jpeg,image/jpg,image/png,image/webp" multiple>
+                <small style="color: #666; display: block; margin-top: 5px;">Можно выбрать несколько изображений (JPEG,
+                    PNG, WEBP)</small>
+            </div>
+            <button class="btn btn-primary" onclick="createProduct()">Создать товар</button>
+            <button class="btn btn-secondary" onclick="closeAddProductModal()">Отмена</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно редактирования товара -->
+    <div id="editProductModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close-modal" onclick="closeEditProductModal()">&times;</span>
+                <h2>Редактировать товар</h2>
+            </div>
+            <input type="hidden" id="editProductId">
+            <div class="form-group">
+                <label>Название товара *</label>
+                <input type="text" id="editProductName">
+            </div>
+            <div class="form-group">
+                <label>Описание</label>
+                <textarea id="editProductDescription"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Цена (USD) *</label>
+                <input type="number" id="editProductPrice" step="0.01" min="0">
+            </div>
+            <div class="form-group">
+                <label>Изображения товара</label>
+                <input type="file" id="editProductImages" accept="image/jpeg,image/jpg,image/png,image/webp" multiple>
+                <small style="color: #666; display: block; margin-top: 5px;">Можно выбрать несколько изображений (JPEG,
+                    PNG, WEBP). Чтобы удалить изображение, нажмите на крестик ✕</small>
+                <div id="currentImages" style="margin-top: 10px;"></div>
+            </div>
+            <button class="btn btn-primary" onclick="updateProduct()">Сохранить</button>
+            <button class="btn btn-secondary" onclick="closeEditProductModal()">Отмена</button>
+        </div>
+    </div>
+
+    <!-- Custom confirmation dialog -->
+    <div id="confirmDialog" class="confirm-dialog">
+        <div class="confirm-dialog-content">
+            <h3 id="confirmMessage">Вы уверены?</h3>
+            <div class="confirm-dialog-buttons">
+                <button class="btn btn-secondary" onclick="closeConfirmDialog(false)">Отмена</button>
+                <button class="btn btn-danger" onclick="closeConfirmDialog(true)">Удалить</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../assets/js/config.js?v=5"></script>
+    <script src="../../assets/js/websocket.js?v=5"></script>
+    <script src="../../assets/js/notifications.js?v=5"></script>
+    <script src="../../assets/js/shop.js?v=5"></script>
+    <script>
+        // Initialize products page on load
+        window.onload = async function () {
+            console.log('Loading products page...');
+            const token = localStorage.getItem('token');
+            const accountType = localStorage.getItem('accountType');
+
+            console.log('Token:', token);
+            console.log('AccountType:', accountType);
+
+            if (!token || accountType !== 'shop') {
+                console.log('Not authenticated as shop, redirecting to index');
+                window.location.href = '../index.html';
+                return;
+            }
+
+            console.log('Authenticated as shop, loading products page');
+            document.getElementById('shopProductsPage').style.display = 'block';
+
+            try {
+                // Initialize WebSocket for shop
+                initShopWebSocket();
+
+                // Load shop info
+                const shopInfo = await apiRequest('/api/v1/shops/me');
+                document.getElementById('shopName').textContent = shopInfo.shop_name;
+                document.getElementById('shopAvatar').textContent = shopInfo.shop_name[0].toUpperCase();
+
+                // Load products
+                await loadShopProducts();
+            } catch (error) {
+                showAlert('Ошибка загрузки данных: ' + error.message, 'error');
+            }
+        };
+    </script>
+</body>
+
+</html>

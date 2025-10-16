@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fashion AI Platform - Панель управления</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/shop.css">
+</head>
+
+<body>
+    <!-- Страница входа -->
+    <div id="loginPage" class="login-page">
+        <div class="login-box">
+            <h1>Fashion AI Platform</h1>
+            <p>Выберите тип аккаунта для входа через Google</p>
+
+            <div class="login-buttons">
+                <button class="google-btn" onclick="loginWithGoogle('user')">
+                    <svg viewBox="0 0 24 24">
+                        <path fill="#4285F4"
+                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                        <path fill="#34A853"
+                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                        <path fill="#FBBC05"
+                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                        <path fill="#EA4335"
+                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                    </svg>
+                    Войти как пользователь
+                </button>
+
+                <button class="google-btn secondary" onclick="loginWithGoogle('shop')">
+                    <svg viewBox="0 0 24 24">
+                        <path fill="#4285F4"
+                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                        <path fill="#34A853"
+                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                        <path fill="#FBBC05"
+                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                        <path fill="#EA4335"
+                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                    </svg>
+                    Войти как магазин
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Панель магазина -->
+    <div id="shopDashboard" class="dashboard">
+        <div class="header">
+            <h1>Панель магазина</h1>
+            <div class="user-info">
+                <div class="user-avatar" id="shopAvatar">М</div>
+                <span id="shopName">Мой магазин</span>
+                <button class="logout-btn" onclick="logout()">Выйти</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <div id="alertContainer"></div>
+
+            <!-- Статистика -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Всего товаров</h3>
+                    <div class="value" id="totalProducts">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Активных</h3>
+                    <div class="value" id="activeProducts">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Просмотры</h3>
+                    <div class="value" id="totalViews">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Примерки</h3>
+                    <div class="value" id="totalTryOns">0</div>
+                </div>
+            </div>
+
+            <!-- Профиль магазина -->
+            <div class="section">
+                <h2>Профиль магазина</h2>
+                <p style="color: #666; margin-bottom: 20px;">Управляйте настройками вашего магазина</p>
+                <button class="btn btn-primary" onclick="window.location.href='/shop/profile.html'" style="font-size: 16px; padding: 12px 24px;">
+                    ⚙️ Перейти к профилю
+                </button>
+            </div>
+
+            <!-- Биллинг и платежи -->
+            <div class="section">
+                <h2>Биллинг и платежи</h2>
+                <p style="color: #666; margin-bottom: 20px;">Управляйте балансом, транзакциями и подписками</p>
+                <button class="btn btn-primary" onclick="window.location.href='/shop/billing.html'" style="font-size: 16px; padding: 12px 24px;">
+                    💳 Перейти к биллингу
+                </button>
+            </div>
+
+            <!-- Товары -->
+            <div class="section">
+                <h2>Управление товарами</h2>
+                <p style="color: #666; margin-bottom: 20px;">Управляйте своими товарами на отдельной странице</p>
+                <button class="btn btn-primary" onclick="window.location.href='/shop/products.html'" style="font-size: 16px; padding: 12px 24px;">
+                    📦 Перейти к моим товарам
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/config.js?v=5"></script>
+    <script src="assets/js/websocket.js?v=5"></script>
+    <script src="assets/js/notifications.js?v=5"></script>
+    <script src="assets/js/shop.js?v=5"></script>
+</body>
+
+</html>

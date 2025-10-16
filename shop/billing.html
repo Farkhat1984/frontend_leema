@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Биллинг и платежи - Fashion AI Platform</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/shop.css">
+</head>
+
+<body>
+    <!-- Страница биллинга -->
+    <div id="shopBillingPage" class="dashboard">
+        <div class="header">
+            <h1>💳 Биллинг и платежи</h1>
+            <div class="user-info">
+                <div class="user-avatar" id="shopAvatar">М</div>
+                <span id="shopName">Мой магазин</span>
+                <button class="logout-btn" onclick="logout()">Выйти</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <div id="alertContainer"></div>
+
+            <!-- Навигация назад -->
+            <div style="margin-bottom: 20px;">
+                <button class="btn btn-secondary" onclick="window.location.href='/shop/index.html'">
+                    ← Вернуться на главную
+                </button>
+            </div>
+
+            <!-- Баланс -->
+            <div class="stats-grid" style="margin-bottom: 30px;">
+                <div class="stat-card">
+                    <h3>Доступный баланс</h3>
+                    <div class="value" style="color: #667eea;" id="shopBalance">$0.00</div>
+                    <button class="btn btn-primary" onclick="window.location.href='/topup.html'"
+                        style="margin-top: 15px;">💰 Пополнить баланс</button>
+                </div>
+                <div class="stat-card">
+                    <h3>Заработано всего</h3>
+                    <div class="value" id="shopTotalEarnings">$0.00</div>
+                </div>
+            </div>
+
+            <!-- Активная подписка на товары -->
+            <div class="section">
+                <h3>Активные подписки на товары</h3>
+                <div id="activeRents" style="margin-bottom: 20px;"></div>
+            </div>
+
+            <!-- История транзакций -->
+            <div class="section">
+                <h3>История транзакций</h3>
+                <div id="shopTransactions" style="max-height: 400px; overflow-y: auto;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/config.js?v=5"></script>
+    <script src="../assets/js/websocket.js?v=5"></script>
+    <script src="../assets/js/notifications.js?v=5"></script>
+    <script src="../assets/js/shop.js?v=5"></script>
+    <script>
+        // Initialize billing page on load
+        window.onload = async function () {
+            console.log('Loading billing page...');
+            const token = localStorage.getItem('token');
+            const accountType = localStorage.getItem('accountType');
+
+            console.log('Token:', token);
+            console.log('AccountType:', accountType);
+
+            if (!token || accountType !== 'shop') {
+                console.log('Not authenticated as shop, redirecting to index');
+                window.location.href = '../index.html';
+                return;
+            }
+
+            console.log('Authenticated as shop, loading billing page');
+            document.getElementById('shopBillingPage').style.display = 'block';
+
+            try {
+                // Initialize WebSocket for shop
+                initShopWebSocket();
+                
+                // Load shop info
+                const shopInfo = await apiRequest('/api/v1/shops/me');
+                document.getElementById('shopName').textContent = shopInfo.shop_name;
+                document.getElementById('shopAvatar').textContent = shopInfo.shop_name[0].toUpperCase();
+
+                // Load analytics for total earnings
+                const analytics = await apiRequest('/api/v1/shops/me/analytics');
+                
+                // Load balance and billing
+                document.getElementById('shopBalance').textContent = `$${shopInfo.balance.toFixed(2)}`;
+                document.getElementById('shopTotalEarnings').textContent = `$${analytics.total_revenue || 0}`;
+
+                // Load transactions
+                await loadShopTransactions();
+
+                // Load active rents
+                await loadActiveRents();
+            } catch (error) {
+                showAlert('Ошибка загрузки данных: ' + error.message, 'error');
+            }
+        };
+    </script>
+</body>
+
+</html>

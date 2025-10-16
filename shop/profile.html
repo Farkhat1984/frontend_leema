@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль магазина - Fashion AI Platform</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/shop.css">
+</head>
+
+<body>
+    <!-- Страница профиля магазина -->
+    <div id="shopProfilePage" class="dashboard">
+        <div class="header">
+            <h1>Профиль магазина</h1>
+            <div class="user-info">
+                <div class="user-avatar" id="shopAvatar">М</div>
+                <span id="shopName">Мой магазин</span>
+                <button class="logout-btn" onclick="logout()">Выйти</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <div id="alertContainer"></div>
+
+            <!-- Навигация назад -->
+            <div style="margin-bottom: 20px;">
+                <button class="btn btn-secondary" onclick="window.location.href='/shop/index.html'">
+                    ← Вернуться на главную
+                </button>
+            </div>
+
+            <!-- Профиль магазина -->
+            <div class="section">
+                <h2>Профиль магазина</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Название магазина</label>
+                        <input type="text" id="profileShopName" placeholder="Название вашего магазина">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="profileEmail" disabled>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Описание</label>
+                    <textarea id="profileDescription" placeholder="Расскажите о вашем магазине"></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="updateShopProfile()">Сохранить изменения</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/config.js?v=5"></script>
+    <script src="../assets/js/websocket.js?v=5"></script>
+    <script src="../assets/js/notifications.js?v=5"></script>
+    <script src="../assets/js/shop.js?v=5"></script>
+    <script>
+        // Initialize profile page on load
+        window.onload = async function () {
+            console.log('Loading profile page...');
+            const token = localStorage.getItem('token');
+            const accountType = localStorage.getItem('accountType');
+
+            console.log('Token:', token);
+            console.log('AccountType:', accountType);
+
+            if (!token || accountType !== 'shop') {
+                console.log('Not authenticated as shop, redirecting to index');
+                window.location.href = '../index.html';
+                return;
+            }
+
+            console.log('Authenticated as shop, loading profile page');
+            document.getElementById('shopProfilePage').style.display = 'block';
+
+            try {
+                // Initialize WebSocket for shop
+                initShopWebSocket();
+                
+                // Load shop info
+                const shopInfo = await apiRequest('/api/v1/shops/me');
+                document.getElementById('shopName').textContent = shopInfo.shop_name;
+                document.getElementById('shopAvatar').textContent = shopInfo.shop_name[0].toUpperCase();
+                document.getElementById('profileShopName').value = shopInfo.shop_name;
+                document.getElementById('profileEmail').value = shopInfo.email;
+                document.getElementById('profileDescription').value = shopInfo.description || '';
+            } catch (error) {
+                showAlert('Ошибка загрузки данных: ' + error.message, 'error');
+            }
+        };
+    </script>
+</body>
+
+</html>
