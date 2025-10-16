@@ -54,7 +54,15 @@
 
             <!-- Модерация товаров -->
             <div class="section">
-                <h2>Товары на модерации</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>Управление товарами</h2>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-secondary" onclick="filterByStatus('all')" id="filterAll">Все</button>
+                        <button class="btn btn-secondary" onclick="filterByStatus('pending')" id="filterPending">На модерации</button>
+                        <button class="btn btn-secondary" onclick="filterByStatus('approved')" id="filterApproved">Одобренные</button>
+                        <button class="btn btn-secondary" onclick="filterByStatus('rejected')" id="filterRejected">Отклоненные</button>
+                    </div>
+                </div>
                 <div id="moderationQueue" class="products-grid"></div>
                 
                 <!-- Пагинация -->
@@ -71,7 +79,7 @@
     <script src="../../assets/js/core/websocket.js?v=4"></script>
     <script src="../../assets/js/core/notifications.js?v=4"></script>
     <script src="../../assets/js/shared/common.js?v=1"></script>
-    <script src="../../assets/js/pages/admin/products.js?v=1"></script>
+    <script src="../../assets/js/pages/admin/products.js?v=2"></script>
 </body>
 
 </html>

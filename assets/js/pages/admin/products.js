@@ -5,6 +5,7 @@ console.log('admin-products.js loaded');
 let currentPage = 1;
 const itemsPerPage = 12;
 let allProducts = [];
+let currentFilter = 'pending'; // По умолчанию показываем только товары на модерации
 
 async function loadPageData() {
     try {
@@ -31,28 +32,55 @@ async function loadProductsStats() {
 
 async function loadModerationQueue() {
     try {
-        const products = await apiRequest('/api/v1/admin/moderation/queue');
+        // Загружаем все товары, не только pending
+        const products = await apiRequest('/api/v1/admin/products');
         allProducts = products;
         const container = document.getElementById('moderationQueue');
 
         if (products.length === 0) {
-            container.innerHTML = '<div class="empty-state"><p>Нет товаров на модерации</p></div>';
+            container.innerHTML = '<div class="empty-state"><p>Нет товаров</p></div>';
             document.getElementById('paginationContainer').style.display = 'none';
             return;
         }
 
         renderProductsPage();
     } catch (error) {
-        showAlert('Ошибка загрузки очереди: ' + error.message, 'error');
+        showAlert('Ошибка загрузки товаров: ' + error.message, 'error');
     }
 }
 
 function renderProductsPage() {
     const container = document.getElementById('moderationQueue');
+    
+    // Фильтруем товары по статусу
+    const filteredProducts = currentFilter === 'all' 
+        ? allProducts 
+        : allProducts.filter(p => p.status === currentFilter);
+    
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    const productsToShow = allProducts.slice(startIndex, endIndex);
-    const totalPages = Math.ceil(allProducts.length / itemsPerPage);
+    const productsToShow = filteredProducts.slice(startIndex, endIndex);
+    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+
+    // Обновляем активную кнопку фильтра
+    ['filterAll', 'filterPending', 'filterApproved', 'filterRejected'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.classList.remove('active');
+    });
+    const activeFilterMap = {
+        'all': 'filterAll',
+        'pending': 'filterPending',
+        'approved': 'filterApproved',
+        'rejected': 'filterRejected'
+    };
+    const activeBtn = document.getElementById(activeFilterMap[currentFilter]);
+    if (activeBtn) activeBtn.classList.add('active');
+
+    if (productsToShow.length === 0) {
+        container.innerHTML = '<div class="empty-state"><p>Нет товаров с выбранным статусом</p></div>';
+        document.getElementById('paginationContainer').style.display = 'none';
+        return;
+    }
 
     container.innerHTML = productsToShow.map(product => {
         const imageUrl = product.images && product.images.length > 0 ? formatImageUrl(product.images[0]) : null;
@@ -115,12 +143,18 @@ function renderProductsPage() {
                 
                 <!-- Секция 4: Действия -->
                 <div class="product-actions">
-                    <button class="btn btn-success" onclick="moderateProduct(${product.id}, 'approve')">
-                        Одобрить
-                    </button>
-                    <button class="btn btn-danger" onclick="moderateProduct(${product.id}, 'reject')">
-                        Отклонить
-                    </button>
+                    ${product.status === 'pending' ? `
+                        <button class="btn btn-success" onclick="moderateProduct(${product.id}, 'approve')">
+                            Одобрить
+                        </button>
+                        <button class="btn btn-danger" onclick="moderateProduct(${product.id}, 'reject')">
+                            Отклонить
+                        </button>
+                    ` : `
+                        <div style="color: #666; font-size: 14px; text-align: center;">
+                            ${product.status === 'approved' ? 'Товар одобрен' : 'Товар отклонен'}
+                        </div>
+                    `}
                 </div>
             </div>
         `;
@@ -129,7 +163,7 @@ function renderProductsPage() {
     // Обновляем пагинацию
     if (totalPages > 1) {
         document.getElementById('paginationContainer').style.display = 'flex';
-        document.getElementById('pageInfo').textContent = `Страница ${currentPage} из ${totalPages}`;
+        document.getElementById('pageInfo').textContent = `Страница ${currentPage} из ${totalPages} (${filteredProducts.length} товаров)`;
         document.getElementById('prevPageBtn').disabled = currentPage === 1;
         document.getElementById('nextPageBtn').disabled = currentPage === totalPages;
     } else {
@@ -141,6 +175,12 @@ function changePage(direction) {
     currentPage += direction;
     renderProductsPage();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function filterByStatus(status) {
+    currentFilter = status;
+    currentPage = 1; // Сбрасываем на первую страницу при смене фильтра
+    renderProductsPage();
 }
 
 async function moderateProduct(productId, action) {
@@ -162,8 +202,14 @@ async function moderateProduct(productId, action) {
         await apiRequest(endpoint, 'POST', { action, notes });
         showAlert(`Товар успешно ${action === 'approve' ? 'одобрен' : 'отклонен'}`, 'success');
         
-        // Перезагружаем список товаров чтобы обновить данные
-        await loadModerationQueue();
+        // Обновляем статус товара на странице без перезагрузки всего списка
+        const productIndex = allProducts.findIndex(p => p.id === productId);
+        if (productIndex !== -1) {
+            allProducts[productIndex].status = action === 'approve' ? 'approved' : 'rejected';
+            renderProductsPage();
+        }
+        
+        // Обновляем статистику
         await loadProductsStats();
     } catch (error) {
         showAlert('Ошибка модерации: ' + error.message, 'error');
@@ -186,3 +232,4 @@ function onProductUpdate(data) {
 // Make functions globally accessible
 window.moderateProduct = moderateProduct;
 window.changePage = changePage;
+window.filterByStatus = filterByStatus;
