@@ -394,7 +394,6 @@ function renderShopProductsPage() {
     }
 
     console.log('✅ DOM updated, container.innerHTML length:', container.innerHTML.length);
-}
     console.log('✅ Products rendered successfully');
 }
 

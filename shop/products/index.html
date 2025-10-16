@@ -151,7 +151,7 @@
     <script src="../../assets/js/core/config.js?v=5"></script>
     <script src="../../assets/js/core/websocket.js?v=5"></script>
     <script src="../../assets/js/core/notifications.js?v=5"></script>
-    <script src="../../assets/js/pages/shop/dashboard.js?v=7"></script>
+    <script src="../../assets/js/pages/shop/dashboard.js?v=8"></script>
     <script>
         // Initialize products page on load
         window.onload = async function () {
@@ -183,7 +183,10 @@
                 // Load products
                 await loadShopProducts();
             } catch (error) {
-                showAlert('Ошибка загрузки данных: ' + error.message, 'error');
+                console.error('Ошибка загрузки данных:', error);
+                if (typeof showAlert !== 'undefined') {
+                    showAlert('Ошибка загрузки данных: ' + error.message, 'error');
+                }
             }
         };
     </script>
