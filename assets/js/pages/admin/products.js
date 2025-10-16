@@ -35,11 +35,12 @@ async function loadProductsStats() {
 async function loadModerationQueue() {
     try {
         // Загружаем все товары, не только pending
-        const products = await apiRequest('/api/v1/admin/products/all');
-        allProducts = products;
+        const response = await apiRequest('/api/v1/admin/products/all');
+        // API возвращает объект с products, total, page и т.д.
+        allProducts = response.products || response || [];
         const container = document.getElementById('moderationQueue');
 
-        if (products.length === 0) {
+        if (allProducts.length === 0) {
             container.innerHTML = '<div class="empty-state"><p>Нет товаров</p></div>';
             document.getElementById('paginationContainer').style.display = 'none';
             return;
@@ -57,7 +58,7 @@ function renderProductsPage() {
     // Фильтруем товары по статусу
     let filteredProducts = currentFilter === 'all' 
         ? allProducts 
-        : allProducts.filter(p => p.status === currentFilter);
+        : allProducts.filter(p => p.moderation_status === currentFilter);
     
     // Применяем поиск
     if (searchQuery.trim()) {
@@ -171,14 +172,14 @@ function renderProductsPage() {
                 
                 <!-- Секция 3: Статус -->
                 <div class="product-status-section">
-                    <span class="product-status ${product.status === 'approved' ? 'status-approved' : product.status === 'rejected' ? 'status-rejected' : 'status-pending'}">
-                        ${product.status === 'approved' ? 'Одобрен' : product.status === 'rejected' ? 'Отклонен' : 'На рассмотрении'}
+                    <span class="product-status ${product.moderation_status === 'approved' ? 'status-approved' : product.moderation_status === 'rejected' ? 'status-rejected' : 'status-pending'}">
+                        ${product.moderation_status === 'approved' ? 'Одобрен' : product.moderation_status === 'rejected' ? 'Отклонен' : 'На рассмотрении'}
                     </span>
                 </div>
                 
                 <!-- Секция 4: Действия -->
                 <div class="product-actions">
-                    ${product.status === 'pending' ? `
+                    ${product.moderation_status === 'pending' ? `
                         <button class="btn btn-success" onclick="moderateProduct(${product.id}, 'approve')">
                             Одобрить
                         </button>
@@ -187,7 +188,7 @@ function renderProductsPage() {
                         </button>
                     ` : `
                         <div style="color: #666; font-size: 14px; text-align: center;">
-                            ${product.status === 'approved' ? 'Товар одобрен' : 'Товар отклонен'}
+                            ${product.moderation_status === 'approved' ? 'Товар одобрен' : 'Товар отклонен'}
                         </div>
                     `}
                 </div>
@@ -252,7 +253,7 @@ async function moderateProduct(productId, action) {
         // Обновляем статус товара на странице без перезагрузки всего списка
         const productIndex = allProducts.findIndex(p => p.id === productId);
         if (productIndex !== -1) {
-            allProducts[productIndex].status = action === 'approve' ? 'approved' : 'rejected';
+            allProducts[productIndex].moderation_status = action === 'approve' ? 'approved' : 'rejected';
             renderProductsPage();
         }
         
