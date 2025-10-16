@@ -8,6 +8,9 @@ let accountType = localStorage.getItem('accountType');
 let shopCurrentPage = 1;
 const shopItemsPerPage = 12;
 let shopAllProducts = [];
+let shopSearchQuery = '';
+let shopSortBy = 'newest';
+let shopStatusFilter = 'all';
 
 // Проверка авторизации при загрузке
 window.onload = async function () {
@@ -232,10 +235,57 @@ function renderShopProductsPage() {
         return;
     }
 
+    // Фильтруем товары
+    let filteredProducts = shopAllProducts;
+    
+    // Фильтр по статусу
+    if (shopStatusFilter !== 'all') {
+        filteredProducts = filteredProducts.filter(p => p.moderation_status === shopStatusFilter);
+    }
+    
+    // Поиск
+    if (shopSearchQuery.trim()) {
+        const query = shopSearchQuery.toLowerCase();
+        filteredProducts = filteredProducts.filter(p => 
+            (p.name && p.name.toLowerCase().includes(query)) ||
+            (p.description && p.description.toLowerCase().includes(query))
+        );
+    }
+    
+    // Сортировка
+    filteredProducts = [...filteredProducts].sort((a, b) => {
+        switch(shopSortBy) {
+            case 'newest':
+                return new Date(b.created_at) - new Date(a.created_at);
+            case 'oldest':
+                return new Date(a.created_at) - new Date(b.created_at);
+            case 'price_low':
+                return (a.price || 0) - (b.price || 0);
+            case 'price_high':
+                return (b.price || 0) - (a.price || 0);
+            case 'name_az':
+                return (a.name || '').localeCompare(b.name || '');
+            case 'name_za':
+                return (b.name || '').localeCompare(a.name || '');
+            default:
+                return 0;
+        }
+    });
+
     const startIndex = (shopCurrentPage - 1) * shopItemsPerPage;
     const endIndex = startIndex + shopItemsPerPage;
-    const productsToShow = shopAllProducts.slice(startIndex, endIndex);
-    const totalPages = Math.ceil(shopAllProducts.length / shopItemsPerPage);
+    const productsToShow = filteredProducts.slice(startIndex, endIndex);
+    const totalPages = Math.ceil(filteredProducts.length / shopItemsPerPage);
+
+    if (productsToShow.length === 0) {
+        const message = shopSearchQuery.trim() 
+            ? `Не найдено товаров по запросу "${shopSearchQuery}"` 
+            : 'У вас пока нет товаров';
+        container.innerHTML = `<div class="empty-state"><p>${message}</p></div>`;
+        const paginationContainer = document.getElementById('shopPaginationContainer');
+        if (paginationContainer) paginationContainer.style.display = 'none';
+        return;
+    }
 
     console.log('🎨 Rendering', productsToShow.length, 'products to DOM');
     container.innerHTML = productsToShow.map(product => {
@@ -316,7 +366,7 @@ function renderShopProductsPage() {
             const prevBtn = document.getElementById('shopPrevPageBtn');
             const nextBtn = document.getElementById('shopNextPageBtn');
 
-            if (pageInfo) pageInfo.textContent = `Страница ${shopCurrentPage} из ${totalPages}`;
+            if (pageInfo) pageInfo.textContent = `Страница ${shopCurrentPage} из ${totalPages} (${filteredProducts.length} товаров)`;
             if (prevBtn) prevBtn.disabled = shopCurrentPage === 1;
             if (nextBtn) nextBtn.disabled = shopCurrentPage === totalPages;
         } else {
@@ -325,6 +375,7 @@ function renderShopProductsPage() {
     }
 
     console.log('✅ DOM updated, container.innerHTML length:', container.innerHTML.length);
+}
     console.log('✅ Products rendered successfully');
 }
 
@@ -1006,6 +1057,25 @@ logout = function() {
     originalLogout();
 };
 
+// Shop search and filter handlers
+function handleShopSearch() {
+    shopSearchQuery = document.getElementById('shopSearchInput').value;
+    shopCurrentPage = 1; // Reset to first page
+    renderShopProductsPage();
+}
+
+function handleShopSort() {
+    shopSortBy = document.getElementById('shopSortSelect').value;
+    shopCurrentPage = 1; // Reset to first page
+    renderShopProductsPage();
+}
+
+function handleShopStatusFilter() {
+    shopStatusFilter = document.getElementById('shopStatusFilter').value;
+    shopCurrentPage = 1; // Reset to first page
+    renderShopProductsPage();
+}
+
 // Make functions globally accessible for inline onclick handlers
 window.loginWithGoogle = loginWithGoogle;
 window.logout = logout;
@@ -1020,3 +1090,6 @@ window.updateShopProfile = updateShopProfile;
 window.payRent = payRent;
 window.topUpShopBalance = topUpShopBalance;
 window.changeShopPage = changeShopPage;
+window.handleShopSearch = handleShopSearch;
+window.handleShopSort = handleShopSort;
+window.handleShopStatusFilter = handleShopStatusFilter;

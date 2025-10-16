@@ -6,6 +6,8 @@ let currentPage = 1;
 const itemsPerPage = 12;
 let allProducts = [];
 let currentFilter = 'pending'; // По умолчанию показываем только товары на модерации
+let searchQuery = '';
+let sortBy = 'newest';
 
 async function loadPageData() {
     try {
@@ -33,7 +35,7 @@ async function loadProductsStats() {
 async function loadModerationQueue() {
     try {
         // Загружаем все товары, не только pending
-        const products = await apiRequest('/api/v1/admin/products');
+        const products = await apiRequest('/api/v1/admin/products/all');
         allProducts = products;
         const container = document.getElementById('moderationQueue');
 
@@ -53,9 +55,39 @@ function renderProductsPage() {
     const container = document.getElementById('moderationQueue');
     
     // Фильтруем товары по статусу
-    const filteredProducts = currentFilter === 'all' 
+    let filteredProducts = currentFilter === 'all' 
         ? allProducts 
         : allProducts.filter(p => p.status === currentFilter);
+    
+    // Применяем поиск
+    if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase();
+        filteredProducts = filteredProducts.filter(p => 
+            (p.name && p.name.toLowerCase().includes(query)) ||
+            (p.shop_name && p.shop_name.toLowerCase().includes(query)) ||
+            (p.description && p.description.toLowerCase().includes(query))
+        );
+    }
+    
+    // Применяем сортировку
+    filteredProducts = [...filteredProducts].sort((a, b) => {
+        switch(sortBy) {
+            case 'newest':
+                return new Date(b.created_at) - new Date(a.created_at);
+            case 'oldest':
+                return new Date(a.created_at) - new Date(b.created_at);
+            case 'price_low':
+                return (a.price || 0) - (b.price || 0);
+            case 'price_high':
+                return (b.price || 0) - (a.price || 0);
+            case 'name_az':
+                return (a.name || '').localeCompare(b.name || '');
+            case 'name_za':
+                return (b.name || '').localeCompare(a.name || '');
+            default:
+                return 0;
+        }
+    });
     
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
@@ -77,7 +109,10 @@ function renderProductsPage() {
     if (activeBtn) activeBtn.classList.add('active');
 
     if (productsToShow.length === 0) {
-        container.innerHTML = '<div class="empty-state"><p>Нет товаров с выбранным статусом</p></div>';
+        const message = searchQuery.trim() 
+            ? `Не найдено товаров по запросу "${searchQuery}"` 
+            : 'Нет товаров с выбранным статусом';
+        container.innerHTML = `<div class="empty-state"><p>${message}</p></div>`;
         document.getElementById('paginationContainer').style.display = 'none';
         return;
     }
@@ -183,6 +218,18 @@ function filterByStatus(status) {
     renderProductsPage();
 }
 
+function handleSearch() {
+    searchQuery = document.getElementById('searchInput').value;
+    currentPage = 1; // Сбрасываем на первую страницу при поиске
+    renderProductsPage();
+}
+
+function handleSort() {
+    sortBy = document.getElementById('sortSelect').value;
+    currentPage = 1; // Сбрасываем на первую страницу при смене сортировки
+    renderProductsPage();
+}
+
 async function moderateProduct(productId, action) {
     try {
         let notes = null;
@@ -233,3 +280,5 @@ function onProductUpdate(data) {
 window.moderateProduct = moderateProduct;
 window.changePage = changePage;
 window.filterByStatus = filterByStatus;
+window.handleSearch = handleSearch;
+window.handleSort = handleSort;

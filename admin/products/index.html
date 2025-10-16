@@ -56,13 +56,33 @@
             <div class="section">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h2>Управление товарами</h2>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn btn-secondary" onclick="filterByStatus('all')" id="filterAll">Все</button>
-                        <button class="btn btn-secondary" onclick="filterByStatus('pending')" id="filterPending">На модерации</button>
-                        <button class="btn btn-secondary" onclick="filterByStatus('approved')" id="filterApproved">Одобренные</button>
-                        <button class="btn btn-secondary" onclick="filterByStatus('rejected')" id="filterRejected">Отклоненные</button>
-                    </div>
                 </div>
+                
+                <!-- Поиск и фильтры -->
+                <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; align-items: center;">
+                    <input type="text" id="searchInput" placeholder="🔍 Поиск по названию или магазину..." 
+                           style="flex: 1; min-width: 250px; padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;"
+                           oninput="handleSearch()">
+                    
+                    <select id="sortSelect" onchange="handleSort()" 
+                            style="padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; cursor: pointer;">
+                        <option value="newest">Сначала новые</option>
+                        <option value="oldest">Сначала старые</option>
+                        <option value="price_low">Цена: по возрастанию</option>
+                        <option value="price_high">Цена: по убыванию</option>
+                        <option value="name_az">Название: А-Я</option>
+                        <option value="name_za">Название: Я-А</option>
+                    </select>
+                </div>
+                
+                <!-- Фильтры по статусу -->
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <button class="btn btn-secondary active" onclick="filterByStatus('pending')" id="filterPending">На модерации</button>
+                    <button class="btn btn-secondary" onclick="filterByStatus('all')" id="filterAll">Все</button>
+                    <button class="btn btn-secondary" onclick="filterByStatus('approved')" id="filterApproved">Одобренные</button>
+                    <button class="btn btn-secondary" onclick="filterByStatus('rejected')" id="filterRejected">Отклоненные</button>
+                </div>
+                
                 <div id="moderationQueue" class="products-grid"></div>
                 
                 <!-- Пагинация -->
@@ -79,7 +99,7 @@
     <script src="../../assets/js/core/websocket.js?v=4"></script>
     <script src="../../assets/js/core/notifications.js?v=4"></script>
     <script src="../../assets/js/shared/common.js?v=1"></script>
-    <script src="../../assets/js/pages/admin/products.js?v=2"></script>
+    <script src="../../assets/js/pages/admin/products.js?v=3"></script>
 </body>
 
 </html>

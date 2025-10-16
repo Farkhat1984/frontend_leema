@@ -37,6 +37,32 @@
                     <h2>Мои товары</h2>
                     <button class="btn btn-primary" onclick="openAddProductModal()">+ Добавить товар</button>
                 </div>
+                
+                <!-- Поиск и фильтры -->
+                <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; align-items: center;">
+                    <input type="text" id="shopSearchInput" placeholder="🔍 Поиск по названию или описанию..." 
+                           style="flex: 1; min-width: 250px; padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;"
+                           oninput="handleShopSearch()">
+                    
+                    <select id="shopSortSelect" onchange="handleShopSort()" 
+                            style="padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; cursor: pointer;">
+                        <option value="newest">Сначала новые</option>
+                        <option value="oldest">Сначала старые</option>
+                        <option value="price_low">Цена: по возрастанию</option>
+                        <option value="price_high">Цена: по убыванию</option>
+                        <option value="name_az">Название: А-Я</option>
+                        <option value="name_za">Название: Я-А</option>
+                    </select>
+                    
+                    <select id="shopStatusFilter" onchange="handleShopStatusFilter()" 
+                            style="padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; cursor: pointer;">
+                        <option value="all">Все статусы</option>
+                        <option value="pending">На модерации</option>
+                        <option value="approved">Одобренные</option>
+                        <option value="rejected">Отклоненные</option>
+                    </select>
+                </div>
+                
                 <div id="productsList" class="products-grid"></div>
 
                 <!-- Пагинация -->
