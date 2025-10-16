@@ -205,11 +205,21 @@ async function loadShopProducts() {
 
     try {
         const products = await apiRequest('/api/v1/shops/me/products');
-        console.log('📦 Products received:', products.length, products);
-        shopAllProducts = products;
+        console.log('📦 Products received:', products ? products.length : 0, 'First product:', products && products[0]);
+        
+        if (!Array.isArray(products)) {
+            console.error('❌ Products is not an array:', typeof products, products);
+            shopAllProducts = [];
+        } else {
+            shopAllProducts = products;
+        }
+        
         console.log('📍 Container element:', container);
+        console.log('🔍 shopStatusFilter:', shopStatusFilter);
+        console.log('🔍 shopSearchQuery:', shopSearchQuery);
+        console.log('🔍 shopSortBy:', shopSortBy);
 
-        if (products.length === 0) {
+        if (shopAllProducts.length === 0) {
             console.log('⚠️ No products, showing empty state');
             container.innerHTML = '<div class="empty-state"><p>У вас пока нет товаров</p></div>';
             const paginationContainer = document.getElementById('shopPaginationContainer');
@@ -235,12 +245,21 @@ function renderShopProductsPage() {
         return;
     }
 
+    console.log('🎨 renderShopProductsPage - Total products:', shopAllProducts.length);
+    console.log('🔍 Current filter:', shopStatusFilter, 'Search:', shopSearchQuery, 'Sort:', shopSortBy);
+
     // Фильтруем товары
-    let filteredProducts = shopAllProducts;
+    let filteredProducts = [...shopAllProducts];
     
     // Фильтр по статусу
     if (shopStatusFilter !== 'all') {
-        filteredProducts = filteredProducts.filter(p => p.moderation_status === shopStatusFilter);
+        console.log('📋 Filtering by status:', shopStatusFilter);
+        filteredProducts = filteredProducts.filter(p => {
+            const status = p.moderation_status || p.status || 'pending';
+            console.log('Product:', p.name, 'Status:', status);
+            return status === shopStatusFilter;
+        });
+        console.log('📋 After status filter:', filteredProducts.length);
     }
     
     // Поиск
