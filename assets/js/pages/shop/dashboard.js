@@ -1059,21 +1059,30 @@ logout = function() {
 
 // Shop search and filter handlers
 function handleShopSearch() {
-    shopSearchQuery = document.getElementById('shopSearchInput').value;
-    shopCurrentPage = 1; // Reset to first page
-    renderShopProductsPage();
+    const input = document.getElementById('shopSearchInput');
+    if (input) {
+        shopSearchQuery = input.value;
+        shopCurrentPage = 1; // Reset to first page
+        renderShopProductsPage();
+    }
 }
 
 function handleShopSort() {
-    shopSortBy = document.getElementById('shopSortSelect').value;
-    shopCurrentPage = 1; // Reset to first page
-    renderShopProductsPage();
+    const select = document.getElementById('shopSortSelect');
+    if (select) {
+        shopSortBy = select.value;
+        shopCurrentPage = 1; // Reset to first page
+        renderShopProductsPage();
+    }
 }
 
 function handleShopStatusFilter() {
-    shopStatusFilter = document.getElementById('shopStatusFilter').value;
-    shopCurrentPage = 1; // Reset to first page
-    renderShopProductsPage();
+    const select = document.getElementById('shopStatusFilter');
+    if (select) {
+        shopStatusFilter = select.value;
+        shopCurrentPage = 1; // Reset to first page
+        renderShopProductsPage();
+    }
 }
 
 // Make functions globally accessible for inline onclick handlers
