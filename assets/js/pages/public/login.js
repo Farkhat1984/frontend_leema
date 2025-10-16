@@ -2,12 +2,14 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Если уже авторизован, редирект
     if (AuthService.isAuthenticated()) {
+        const accountType = localStorage.getItem('accountType');
         const role = AuthService.getUserRole();
-        if (role === 'admin') {
-            window.location.href = '/admin/index.html';
-        } else if (role === 'shop') {
+        
+        if (accountType === 'shop') {
             window.location.href = '/shop/index.html';
-        } else if (role === 'user') {
+        } else if (role === 'admin') {
+            window.location.href = '/admin/index.html';
+        } else {
             window.location.href = '/user/dashboard.html';
         }
         return;
@@ -16,16 +18,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Функция входа через Google
 function loginWithGoogle(accountType) {
-    // Сохраняем тип аккаунта
-    localStorage.setItem('accountType', accountType);
+    // admin это тоже user, просто с другой ролью
+    const apiAccountType = accountType === 'admin' ? 'user' : accountType;
+    
+    // Сохраняем запрошенный тип для callback
+    localStorage.setItem('requestedAccountType', accountType);
     
     // Генерируем state для безопасности
     const state = Math.random().toString(36).substring(7);
     localStorage.setItem('oauth_state', state);
     
     // Редирект на Google OAuth
-    const redirectUri = window.location.origin + '/public/auth/callback.html';
-    const clientId = config.GOOGLE_CLIENT_ID || '776699022658-svd5a6a8hskotmj9hd6lrhtunekslb4r.apps.googleusercontent.com';
+    // Используем фиксированный URI который настроен в Google Console
+    const redirectUri = 'https://www.leema.kz/public/auth/callback.html';
+    const clientId = CONFIG.GOOGLE_CLIENT_ID;
     
     const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
         `client_id=${clientId}&` +

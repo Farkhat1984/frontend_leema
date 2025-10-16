@@ -13,13 +13,13 @@ const CONFIG = {
     // API URLs для разных окружений
     apiUrls: {
         local: 'http://localhost:8000',  // Локальный сервер API для разработки
-        production: 'https://api.leema.kz'  // Продакшн API
+        production: 'https://www.api.leema.kz'  // Продакшн API
     },
     
     // WebSocket URLs
     wsUrls: {
         local: 'ws://localhost:8000/ws',
-        production: 'wss://api.leema.kz/ws'
+        production: 'wss://www.api.leema.kz/ws'
     },
     
     // Получить текущий API URL
@@ -30,7 +30,10 @@ const CONFIG = {
     // Получить текущий WebSocket URL
     getWsUrl() {
         return this.wsUrls[this.environment];
-    }
+    },
+    
+    // Google OAuth Client ID
+    GOOGLE_CLIENT_ID: '222819809615-cb4p93ej04cr6ur9cf5o1jjk9n6dmvuj.apps.googleusercontent.com'
 };
 
 // Глобальные переменные для использования во всех скриптах

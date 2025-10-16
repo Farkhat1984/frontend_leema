@@ -79,6 +79,21 @@ body {
     background: #ffffff;
 }
 
+.google-btn.admin {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: #667eea;
+}
+
+.google-btn.admin:hover {
+    background: linear-gradient(135deg, #7c8ef0 0%, #8a5db0 100%);
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.5);
+}
+
+.google-btn.admin svg path {
+    fill: white !important;
+}
+
 .google-btn svg {
     width: 24px;
     height: 24px;

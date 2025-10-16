@@ -22,17 +22,17 @@ window.onload = async function () {
             await loadShopDashboard();
         } else if (accountType === 'admin') {
             console.log('Redirecting to admin page...');
-            window.location.href = `${window.location.origin}/admin.html`;
+            window.location.href = `${window.location.origin}/admin/index.html`;
         } else if (accountType === 'user') {
             console.log('User account type, redirecting to user page...');
-            window.location.href = `${window.location.origin}/user.html`;
+            window.location.href = `${window.location.origin}/user/dashboard.html`;
         } else {
             console.log('Unknown account type:', accountType);
-            document.getElementById('loginPage').style.display = 'flex';
+            window.location.href = `${window.location.origin}/public/index.html`;
         }
     } else {
-        console.log('User not authenticated, showing login page');
-        document.getElementById('loginPage').style.display = 'flex';
+        console.log('User not authenticated, redirecting to login');
+        window.location.href = `${window.location.origin}/public/index.html`;
     }
 };
 
@@ -63,7 +63,7 @@ function logout() {
     localStorage.removeItem('refresh_token');
     token = null;
     accountType = null;
-    window.location.href = `${window.location.origin}/index.html`;
+    window.location.href = `${window.location.origin}/public/index.html`;
 }
 
 // API запрос
@@ -135,12 +135,16 @@ function showAlert(message, type = 'success', container = 'alertContainer') {
 
 async function loadShopDashboard() {
     // Redirect to index.html if not already there
-    if (window.location.pathname.includes('admin.html')) {
-        window.location.href = `${window.location.origin}/index.html`;
+    if (window.location.pathname.includes('/admin/')) {
+        window.location.href = `${window.location.origin}/public/index.html`;
         return;
     }
-    document.getElementById('loginPage').style.display = 'none';
-    document.getElementById('shopDashboard').style.display = 'block';
+    
+    // Show dashboard if it exists (optional, may already be visible)
+    const dashboardEl = document.getElementById('shopDashboard');
+    if (dashboardEl) {
+        dashboardEl.style.display = 'block';
+    }
 
     try {
         // Инициализация WebSocket для магазина ПЕРВЫМ ДЕЛОМ

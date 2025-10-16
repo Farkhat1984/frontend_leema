@@ -71,30 +71,15 @@
             }
 
             try {
-                // Parse state to get account_type
-                let accountType = 'user';
-                if (state) {
-                    try {
-                        const stateData = JSON.parse(state);
-                        accountType = stateData.account_type || 'user';
-                    } catch (e) {
-                        // If state is not JSON, use default
-                        console.log('Could not parse state, using default:', e);
-                        const storedType = localStorage.getItem('requestedAccountType');
-                        if (storedType) {
-                            accountType = storedType;
-                        }
-                    }
-                } else {
-                    const storedType = localStorage.getItem('requestedAccountType');
-                    if (storedType) {
-                        accountType = storedType;
-                    }
-                }
+                // Получаем запрошенный тип аккаунта
+                const requestedType = localStorage.getItem('requestedAccountType') || 'user';
+                
+                // Для API: admin -> user, shop -> shop
+                const accountType = requestedType === 'admin' ? 'user' : requestedType;
+                
+                console.log('Authenticating with Google code, requested:', requestedType, 'api type:', accountType);
 
-                console.log('Authenticating with Google code, account_type:', accountType);
-
-                // Call backend LOGIN endpoint (not callback) to exchange code for tokens
+                // Авторизуемся в бэкенде
                 const response = await fetch(`${API_URL}/api/v1/auth/google/login`, {
                     method: 'POST',
                     headers: {
@@ -113,41 +98,47 @@
                 }
 
                 const data = await response.json();
-
                 console.log('Response data:', data);
 
                 // Save token and refresh token
                 localStorage.setItem('token', data.access_token);
                 localStorage.setItem('refresh_token', data.refresh_token);
-                localStorage.removeItem('requestedAccountType');
 
-                // Determine account type from response
-                let finalAccountType = 'shop'; // default
+                // Сохраняем данные пользователя/магазина
                 if (data.user) {
-                    // User account - check if admin
-                    if (data.user.role === 'admin') {
-                        finalAccountType = 'admin';
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    localStorage.setItem('userRole', data.user.role);
+                    
+                    // Определяем accountType на основе запроса и роли
+                    if (requestedType === 'admin' && data.user.role === 'admin') {
+                        localStorage.setItem('accountType', 'admin');
                     } else {
-                        finalAccountType = 'user';
+                        localStorage.setItem('accountType', 'user');
                     }
                 } else if (data.shop) {
-                    // Shop account
-                    finalAccountType = 'shop';
+                    localStorage.setItem('shop', JSON.stringify(data.shop));
+                    localStorage.setItem('accountType', 'shop');
                 }
 
-                localStorage.setItem('accountType', finalAccountType);
-                console.log('Saved accountType:', finalAccountType);
-                console.log('Saved token:', data.access_token);
+                // Очистка
+                localStorage.removeItem('requestedAccountType');
 
-                // Redirect based on account type using absolute URLs
+                // Redirect based on requested type and actual role
                 const baseUrl = window.location.origin;
-                if (finalAccountType === 'admin') {
-                    window.location.href = `${baseUrl}/admin/index.html`;
-                } else if (finalAccountType === 'user') {
-                    window.location.href = `${baseUrl}/user/dashboard.html`;
-                } else {
-                    // shop
+                
+                if (requestedType === 'admin') {
+                    // Проверяем что у пользователя действительно есть роль admin
+                    if (data.user && data.user.role === 'admin') {
+                        window.location.href = `${baseUrl}/admin/index.html`;
+                    } else {
+                        showError('У вас нет прав администратора. Попробуйте войти как пользователь.');
+                        return;
+                    }
+                } else if (requestedType === 'shop') {
                     window.location.href = `${baseUrl}/shop/index.html`;
+                } else {
+                    // user
+                    window.location.href = `${baseUrl}/user/dashboard.html`;
                 }
             } catch (error) {
                 console.error('Authentication error:', error);

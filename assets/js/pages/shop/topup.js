@@ -126,7 +126,7 @@ async function processPayment() {
 function goBack() {
     const baseUrl = window.location.origin;
     if (accountType === 'admin') {
-        window.location.href = `${baseUrl}/admin.html`;
+        window.location.href = `${baseUrl}/admin/index.html`;
     } else {
         window.location.href = `${baseUrl}/index.html`;
     }

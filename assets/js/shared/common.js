@@ -12,7 +12,7 @@ window.onload = async function () {
 
     if (!token || accountType !== 'admin') {
         console.log('Not authorized as admin, redirecting to login...');
-        window.location.href = 'admin.html';
+        window.location.href = 'admin/index.html';
         return;
     }
 

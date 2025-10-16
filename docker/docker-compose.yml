@@ -3,8 +3,8 @@ version: '3.8'
 services:
   frontend_leema:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
     container_name: frontend-leema
     ports:
       - "8080:80"

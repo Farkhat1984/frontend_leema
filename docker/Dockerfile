@@ -3,10 +3,14 @@
 FROM nginx:alpine
 
 # Copy all static files to nginx html directory
-COPY . /usr/share/nginx/html
+COPY public /usr/share/nginx/html/public
+COPY shop /usr/share/nginx/html/shop
+COPY user /usr/share/nginx/html/user
+COPY admin /usr/share/nginx/html/admin
+COPY assets /usr/share/nginx/html/assets
 
 # Copy custom nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expose port
 EXPOSE 80

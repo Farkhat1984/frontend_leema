@@ -14,10 +14,10 @@ window.onload = async function () {
         await loadAdminDashboard();
     } else if (token && accountType === 'shop') {
         console.log('Shop account detected, redirecting...');
-        window.location.href = `${window.location.origin}/index.html`;
+        window.location.href = `${window.location.origin}/shop/index.html`;
     } else if (token && accountType === 'user') {
         console.log('User account detected, redirecting...');
-        window.location.href = `${window.location.origin}/user.html`;
+        window.location.href = `${window.location.origin}/user/dashboard.html`;
     } else {
         console.log('Not authorized as admin, showing login page...');
         document.getElementById('loginPage').style.display = 'flex';
@@ -51,7 +51,7 @@ function logout() {
     localStorage.removeItem('refresh_token');
     token = null;
     accountType = null;
-    window.location.href = `${window.location.origin}/index.html`;
+    window.location.href = `${window.location.origin}/public/index.html`;
 }
 
 // API запрос
