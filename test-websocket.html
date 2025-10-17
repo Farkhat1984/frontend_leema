@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test</title>
+</head>
+<body>
+    <h1>WebSocket Connection Test</h1>
+    <button onclick="testConnection()">Test WebSocket</button>
+    <button onclick="disconnect()">Disconnect</button>
+    <pre id="log"></pre>
+
+    <script>
+        let ws = null;
+        const log = document.getElementById('log');
+        
+        function logMessage(msg) {
+            console.log(msg);
+            log.textContent += msg + '\n';
+        }
+        
+        function testConnection() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                logMessage('❌ No token found in localStorage');
+                return;
+            }
+            
+            if (ws && (ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.OPEN)) {
+                logMessage('⚠️ WebSocket already connecting or connected');
+                return;
+            }
+            
+            const wsUrl = 'wss://api.leema.kz/ws/shop';
+            logMessage(`🔄 Connecting to: ${wsUrl}`);
+            
+            try {
+                ws = new WebSocket(`${wsUrl}?token=${token}`);
+                
+                ws.onopen = (event) => {
+                    logMessage(`✅ Connected! ReadyState: ${ws.readyState}`);
+                };
+                
+                ws.onmessage = (event) => {
+                    logMessage(`📨 Message: ${event.data}`);
+                };
+                
+                ws.onerror = (event) => {
+                    logMessage(`❌ Error: ${JSON.stringify(event)}`);
+                };
+                
+                ws.onclose = (event) => {
+                    logMessage(`🔌 Closed - Code: ${event.code}, Reason: ${event.reason || 'No reason'}, Clean: ${event.wasClean}`);
+                };
+                
+            } catch (error) {
+                logMessage(`❌ Exception: ${error.message}`);
+            }
+        }
+        
+        function disconnect() {
+            if (ws) {
+                logMessage('🛑 Disconnecting...');
+                ws.close();
+                ws = null;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -27,7 +27,12 @@ class WebSocketManager {
      * @param {string} clientType - Тип клиента: user, shop, admin
      */
     connect(token, clientType) {
-        if (this.isConnecting || (this.ws && this.ws.readyState === WebSocket.OPEN)) {
+        if (this.isConnecting) {
+            console.log('[WebSocket] Already connecting, skipping...');
+            return;
+        }
+        
+        if (this.ws && (this.ws.readyState === WebSocket.CONNECTING || this.ws.readyState === WebSocket.OPEN)) {
             console.log('[WebSocket] Already connecting or connected');
             return;
         }
@@ -112,6 +117,7 @@ class WebSocketManager {
         this.isConnecting = false;
 
         console.log(`[WebSocket] Connection closed. Code: ${event.code}, Reason: ${event.reason || 'No reason'}`);
+        console.log(`[WebSocket] Was clean: ${event.wasClean}, Client type: ${this.clientType}`);
 
         this.stopHeartbeat();
 
@@ -121,9 +127,12 @@ class WebSocketManager {
         // 1. Закрытие вручную
         // 2. Код ошибки указывает на проблему авторизации или конфигурации (1008, 1002, 1003)
         if (!this.isManualClose && ![1008, 1002, 1003].includes(event.code)) {
+            console.log('[WebSocket] Scheduling reconnect...');
             this.scheduleReconnect();
         } else if ([1008, 1002, 1003].includes(event.code)) {
             console.log('[WebSocket] Not reconnecting due to auth/config error. Check nginx WebSocket proxy configuration.');
+        } else if (this.isManualClose) {
+            console.log('[WebSocket] Connection closed manually, not reconnecting.');
         }
     }
 

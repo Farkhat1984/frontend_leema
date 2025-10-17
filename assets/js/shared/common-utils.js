@@ -116,36 +116,75 @@ const CommonUtils = {
         const token = localStorage.getItem('token');
         if (!window.wsManager || !token) return;
 
-        if (window.wsManager.ws && window.wsManager.ws.readyState !== WebSocket.CLOSED) {
+        console.log(`[CommonUtils] initWebSocket called: accountType=${accountType}, current state=${window.wsManager.getConnectionState()}`);
+
+        const setupHandlers = () => {
+            // Don't clear existing handlers, just add new ones
+            if (!window.wsManager.eventHandlers) {
+                window.wsManager.eventHandlers = {};
+            }
+
+            Object.keys(eventHandlers).forEach(eventName => {
+                window.wsManager.on(eventName, (data) => {
+                    if (window.notificationManager) {
+                        window.notificationManager.handleWebSocketEvent(data);
+                    }
+                    if (eventHandlers[eventName]) {
+                        eventHandlers[eventName](data);
+                    }
+                });
+            });
+
+            window.wsManager.onConnectionStateChange((state) => {
+                this.updateConnectionStatus(state);
+            });
+
+            this.addConnectionStatusIndicator();
+        };
+
+        // Check if already connected with same token and type
+        if (window.wsManager.ws && 
+            window.wsManager.ws.readyState === WebSocket.OPEN &&
+            window.wsManager.token === token &&
+            window.wsManager.clientType === accountType) {
+            console.log('[CommonUtils] Already connected with same credentials, skipping reconnect');
+            setupHandlers();
+            return;
+        }
+
+        // If connecting, just wait and setup handlers
+        if (window.wsManager.ws && window.wsManager.ws.readyState === WebSocket.CONNECTING) {
+            console.log('[CommonUtils] WebSocket is connecting, will setup handlers once connected');
+            // Wait for connection to complete
+            const checkConnection = setInterval(() => {
+                if (window.wsManager.ws.readyState === WebSocket.OPEN) {
+                    clearInterval(checkConnection);
+                    setupHandlers();
+                } else if (window.wsManager.ws.readyState === WebSocket.CLOSED) {
+                    clearInterval(checkConnection);
+                    // Retry connection
+                    window.wsManager.connect(token, accountType);
+                    setupHandlers();
+                }
+            }, 100);
+            return;
+        }
+
+        // If open with different credentials, disconnect first
+        if (window.wsManager.ws && window.wsManager.ws.readyState === WebSocket.OPEN) {
+            console.log('[CommonUtils] Disconnecting existing connection before reconnecting');
             window.wsManager.disconnect();
+            // Wait for clean disconnect
+            setTimeout(() => {
+                window.wsManager.connect(token, accountType);
+                setupHandlers();
+            }, 300);
+            return;
         }
 
+        // Otherwise, just connect
         window.wsManager.connect(token, accountType);
-
-        if (window.wsManager.eventHandlers) {
-            Object.keys(window.wsManager.eventHandlers).forEach(key => {
-                window.wsManager.eventHandlers[key] = [];
-            });
-        } else {
-            window.wsManager.eventHandlers = {};
-        }
-
-        Object.keys(eventHandlers).forEach(eventName => {
-            window.wsManager.on(eventName, (data) => {
-                if (window.notificationManager) {
-                    window.notificationManager.handleWebSocketEvent(data);
-                }
-                if (eventHandlers[eventName]) {
-                    eventHandlers[eventName](data);
-                }
-            });
-        });
-
-        window.wsManager.onConnectionStateChange((state) => {
-            this.updateConnectionStatus(state);
-        });
-
-        this.addConnectionStatusIndicator();
+        setupHandlers();
     },
 
     addConnectionStatusIndicator() {
