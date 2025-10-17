@@ -10,7 +10,18 @@ async function loadPageData() {
         // Initialize WebSocket for admin
         if (typeof CommonUtils !== 'undefined' && CommonUtils.initWebSocket) {
             CommonUtils.initWebSocket('admin', {
-                'balance.updated': () => { loadShopsStats(); loadShopsList(); }
+                'balance.updated': (data) => {
+                    console.log('[Admin Shops] Received balance.updated event:', data);
+                    // Reload shop stats and list when balance is updated
+                    loadShopsStats();
+                    loadShopsList();
+                },
+                'transaction.completed': (data) => {
+                    console.log('[Admin Shops] Received transaction.completed event:', data);
+                    // Reload when transaction is completed
+                    loadShopsStats();
+                    loadShopsList();
+                }
             });
         }
         
@@ -73,17 +84,6 @@ async function loadShopsList() {
         `;
     } catch (error) {
     }
-}
-
-// WebSocket handlers
-function onBalanceUpdate(data) {
-    loadShopsStats();
-    loadShopsList();
-}
-
-function onTransactionUpdate(data) {
-    loadShopsStats();
-    loadShopsList();
 }
 
 // Автоматическая загрузка данных при инициализации страницы
