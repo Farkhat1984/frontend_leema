@@ -28,10 +28,12 @@ class WebSocketManager {
      */
     connect(token, clientType) {
         if (this.isConnecting || (this.ws && this.ws.readyState === WebSocket.OPEN)) {
+            console.log('[WebSocket] Already connecting or connected');
             return;
         }
 
         if (!token || !clientType) {
+            console.log('[WebSocket] Missing token or clientType');
             return;
         }
 
@@ -41,6 +43,7 @@ class WebSocketManager {
         this.isConnecting = true;
 
         const wsUrl = this.getWebSocketUrl();
+        console.log(`[WebSocket] Connecting to: ${wsUrl}/${clientType}`);
 
         try {
             this.ws = new WebSocket(`${wsUrl}/${clientType}?token=${token}`);
@@ -50,6 +53,7 @@ class WebSocketManager {
             this.ws.onclose = this.handleClose;
             this.ws.onerror = this.handleError;
         } catch (error) {
+            console.error('[WebSocket] Connection failed:', error);
             this.isConnecting = false;
             this.scheduleReconnect();
         }
@@ -75,6 +79,7 @@ class WebSocketManager {
         this.isConnecting = false;
         this.reconnectDelay = 1000;
 
+        console.log('[WebSocket] Connection opened successfully');
         this.notifyConnectionState('connected');
 
         this.startHeartbeat();
@@ -106,16 +111,24 @@ class WebSocketManager {
     handleClose(event) {
         this.isConnecting = false;
 
+        console.log(`[WebSocket] Connection closed. Code: ${event.code}, Reason: ${event.reason || 'No reason'}`);
+
         this.stopHeartbeat();
 
         this.notifyConnectionState('disconnected');
 
-        if (!this.isManualClose) {
+        // Не пытаемся переподключиться если:
+        // 1. Закрытие вручную
+        // 2. Код ошибки указывает на проблему авторизации или конфигурации (1008, 1002, 1003)
+        if (!this.isManualClose && ![1008, 1002, 1003].includes(event.code)) {
             this.scheduleReconnect();
+        } else if ([1008, 1002, 1003].includes(event.code)) {
+            console.log('[WebSocket] Not reconnecting due to auth/config error. Check nginx WebSocket proxy configuration.');
         }
     }
 
     handleError(error) {
+        console.error('[WebSocket] Connection error:', error);
         this.notifyConnectionState('error');
     }
 

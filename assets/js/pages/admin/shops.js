@@ -1,7 +1,19 @@
 // Страница управления магазинами
 
+// Инициализировать platform перед любыми запросами
+if (!localStorage.getItem('platform')) {
+    localStorage.setItem('platform', 'web');
+}
+
 async function loadPageData() {
     try {
+        // Initialize WebSocket for admin
+        if (typeof CommonUtils !== 'undefined' && CommonUtils.initWebSocket) {
+            CommonUtils.initWebSocket('admin', {
+                'balance.updated': () => { loadShopsStats(); loadShopsList(); }
+            });
+        }
+        
         await loadShopsStats();
         await loadShopsList();
     } catch (error) {
@@ -73,3 +85,6 @@ function onTransactionUpdate(data) {
     loadShopsStats();
     loadShopsList();
 }
+
+// Автоматическая загрузка данных при инициализации страницы
+loadPageData();

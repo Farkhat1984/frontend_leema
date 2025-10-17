@@ -1,7 +1,19 @@
 // Страница настроек платформы
 
+// Инициализировать platform перед любыми запросами
+if (!localStorage.getItem('platform')) {
+    localStorage.setItem('platform', 'web');
+}
+
 async function loadPageData() {
     try {
+        // Initialize WebSocket for admin
+        if (typeof CommonUtils !== 'undefined' && CommonUtils.initWebSocket) {
+            CommonUtils.initWebSocket('admin', {
+                'settings.updated': () => { loadSettings(); }
+            });
+        }
+        
         await loadSettings();
     } catch (error) {
         showAlert('Ошибка загрузки данных: ' + error.message, 'error');
@@ -47,3 +59,6 @@ function onSettingsUpdate(data) {
 
 // Make functions globally accessible
 window.updateSetting = updateSetting;
+
+// Автоматическая загрузка данных при инициализации страницы
+loadPageData();

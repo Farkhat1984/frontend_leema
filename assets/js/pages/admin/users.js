@@ -1,7 +1,19 @@
 // Страница управления пользователями
 
+// Инициализировать platform перед любыми запросами
+if (!localStorage.getItem('platform')) {
+    localStorage.setItem('platform', 'web');
+}
+
 async function loadPageData() {
     try {
+        // Initialize WebSocket for admin
+        if (typeof CommonUtils !== 'undefined' && CommonUtils.initWebSocket) {
+            CommonUtils.initWebSocket('admin', {
+                'balance.updated': () => { loadUsersStats(); loadUsersList(); }
+            });
+        }
+        
         await loadUsersStats();
         await loadUsersList();
     } catch (error) {
@@ -77,3 +89,6 @@ function onTransactionUpdate(data) {
     loadUsersStats();
     loadUsersList();
 }
+
+// Автоматическая загрузка данных при инициализации страницы
+loadPageData();

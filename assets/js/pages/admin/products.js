@@ -1,3 +1,7 @@
+// Инициализировать platform перед любыми запросами
+if (!localStorage.getItem('platform')) {
+    localStorage.setItem('platform', 'web');
+}
 
 let currentPage = 1;
 const itemsPerPage = 12;
@@ -8,6 +12,17 @@ let sortBy = 'newest';
 
 async function loadPageData() {
     try {
+        // Initialize WebSocket for admin
+        if (typeof CommonUtils !== 'undefined' && CommonUtils.initWebSocket) {
+            CommonUtils.initWebSocket('admin', {
+                'moderation.queue_updated': () => { loadModerationQueue(); },
+                'product.created': () => { loadModerationQueue(); loadProductsStats(); },
+                'product.updated': () => { loadModerationQueue(); loadProductsStats(); },
+                'product.approved': () => { loadModerationQueue(); loadProductsStats(); },
+                'product.rejected': () => { loadModerationQueue(); loadProductsStats(); }
+            });
+        }
+        
         await loadProductsStats();
         await loadModerationQueue();
     } catch (error) {
@@ -279,3 +294,6 @@ window.changePage = changePage;
 window.filterByStatus = filterByStatus;
 window.handleSearch = handleSearch;
 window.handleSort = handleSort;
+
+// Автоматическая загрузка данных при инициализации страницы
+loadPageData();

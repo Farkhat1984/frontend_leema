@@ -148,28 +148,51 @@
         </div>
     </div>
 
-    <script defer src="../../assets/js/core/config.js?v=8"></script>
-    <script defer src="../../assets/js/core/websocket.js?v=8"></script>
-    <script defer src="../../assets/js/core/notifications.js?v=8"></script>
-    <script defer src="../../assets/js/shared/lazy-loader.js?v=8"></script>
-    <script defer src="../../assets/js/core/cache.js?v=8"></script>
-    <script defer src="../../assets/js/shared/common-utils.js?v=8"></script>
-    <script defer src="../../assets/js/pages/shop/dashboard.js?v=8"></script>
+    <script defer src="../../assets/js/core/config.js?v=15"></script>
+    <script defer src="../../assets/js/core/auth.js?v=15"></script>
+    <script defer src="../../assets/js/core/websocket.js?v=15"></script>
+    <script defer src="../../assets/js/core/notifications.js?v=15"></script>
+    <script defer src="../../assets/js/shared/lazy-loader.js?v=15"></script>
+    <script defer src="../../assets/js/core/cache.js?v=15"></script>
+    <script defer src="../../assets/js/shared/common-utils.js?v=15"></script>
+    <script defer src="../../assets/js/pages/shop/dashboard.js?v=15"></script>
     <script>
         // Initialize products page on load
-        window.onload = async function () {
-const token = localStorage.getItem('token');
+        // Используем DOMContentLoaded + небольшую задержку для defer скриптов
+        async function initProductsPage() {
+            const token = localStorage.getItem('token');
             const accountType = localStorage.getItem('accountType');
 
-if (!token || accountType !== 'shop') {
-window.location.href = '../index.html';
+            // Инициализировать platform если отсутствует
+            if (!localStorage.getItem('platform')) {
+                localStorage.setItem('platform', 'web');
+            }
+
+            if (!token || accountType !== 'shop') {
+                window.location.href = '../index.html';
                 return;
             }
-document.getElementById('shopProductsPage').style.display = 'block';
+
+            document.getElementById('shopProductsPage').style.display = 'block';
 
             try {
+                // Ждем пока все defer скрипты загрузятся
+                if (typeof apiRequest === 'undefined' || typeof loadShopProducts === 'undefined') {
+                    console.log('[SHOP] Waiting for scripts to load...');
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    return initProductsPage(); // Retry
+                }
+
                 // Initialize WebSocket for shop
-                initShopWebSocket();
+                if (typeof CommonUtils !== 'undefined' && CommonUtils.initWebSocket) {
+                    CommonUtils.initWebSocket('shop', {
+                        'product.created': () => { if (typeof loadShopProducts !== 'undefined') loadShopProducts(); },
+                        'product.updated': () => { if (typeof loadShopProducts !== 'undefined') loadShopProducts(); },
+                        'product.deleted': () => { if (typeof loadShopProducts !== 'undefined') loadShopProducts(); },
+                        'product.approved': () => { if (typeof loadShopProducts !== 'undefined') loadShopProducts(); },
+                        'product.rejected': () => { if (typeof loadShopProducts !== 'undefined') loadShopProducts(); }
+                    });
+                }
 
                 // Load shop info
                 const shopInfo = await apiRequest('/api/v1/shops/me');
@@ -179,11 +202,21 @@ document.getElementById('shopProductsPage').style.display = 'block';
                 // Load products
                 await loadShopProducts();
             } catch (error) {
-if (typeof showAlert !== 'undefined') {
+                console.error('[SHOP] Error loading page:', error);
+                if (typeof showAlert !== 'undefined') {
                     showAlert('Ошибка загрузки данных: ' + error.message, 'error');
+                } else {
+                    alert('Ошибка загрузки данных: ' + error.message);
                 }
             }
-        };
+        }
+
+        // Запускаем после полной загрузки DOM и скриптов
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => setTimeout(initProductsPage, 50));
+        } else {
+            setTimeout(initProductsPage, 50);
+        }
     </script>
 </body>
 

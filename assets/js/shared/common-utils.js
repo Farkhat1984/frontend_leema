@@ -1,15 +1,29 @@
 const CommonUtils = {
+    // Инициализация platform (вызывать перед любыми API запросами)
+    ensurePlatform() {
+        if (!localStorage.getItem('platform')) {
+            const platform = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? 'mobile' : 'web';
+            localStorage.setItem('platform', platform);
+        }
+    },
+
     logout() {
         if (window.wsManager) {
             window.wsManager.disconnect();
         }
-        localStorage.removeItem('token');
-        localStorage.removeItem('accountType');
-        localStorage.removeItem('refresh_token');
-        window.location.href = `${window.location.origin}/public/index.html`;
+        // Используем AuthService если доступен
+        if (window.AuthService) {
+            window.AuthService.logout();
+        } else {
+            localStorage.clear();
+            window.location.href = `${window.location.origin}/public/index.html`;
+        }
     },
 
-    async apiRequest(endpoint, method = 'GET', body = null, useCache = false) {
+    async apiRequest(endpoint, method = 'GET', body = null, useCache = false, retryOnAuth = true) {
+        // Убедиться что platform установлен
+        this.ensurePlatform();
+        
         if (useCache && method === 'GET' && typeof window.apiCache !== 'undefined') {
             const cacheKey = `${endpoint}`;
             const cached = window.apiCache.get(cacheKey);
@@ -17,11 +31,14 @@ const CommonUtils = {
         }
 
         const currentToken = localStorage.getItem('token');
+        const platform = localStorage.getItem('platform') || 'web';
+        
         const options = {
             method,
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${currentToken}`
+                'Authorization': `Bearer ${currentToken}`,
+                'X-Client-Platform': platform
             }
         };
 
@@ -29,10 +46,27 @@ const CommonUtils = {
             options.body = JSON.stringify(body);
         }
 
-        const response = await fetch(`${API_URL}${endpoint}`, options);
+        let response = await fetch(`${API_URL}${endpoint}`, options);
+
+        // Если 401 и разрешен retry - пробуем обновить токен
+        if (response.status === 401 && retryOnAuth && window.AuthService) {
+            try {
+                console.log('[API] Token expired, refreshing...');
+                await window.AuthService.refreshAccessToken();
+                
+                // Обновляем токен в headers и повторяем запрос
+                const newToken = localStorage.getItem('token');
+                options.headers['Authorization'] = `Bearer ${newToken}`;
+                response = await fetch(`${API_URL}${endpoint}`, options);
+            } catch (error) {
+                console.error('[API] Token refresh failed:', error);
+                // Logout будет вызван в AuthService.refreshAccessToken()
+                throw new Error('Сессия истекла. Пожалуйста, войдите заново.');
+            }
+        }
 
         if (!response.ok) {
-            const error = await response.json();
+            const error = await response.json().catch(() => ({ detail: 'Ошибка запроса' }));
             throw new Error(error.detail || 'Ошибка запроса');
         }
 
