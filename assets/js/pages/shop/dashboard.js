@@ -1,4 +1,7 @@
-
+// Инициализировать platform перед любыми запросами
+if (!localStorage.getItem('platform')) {
+    localStorage.setItem('platform', 'web');
+}
 
 let token = localStorage.getItem('token');
 let accountType = localStorage.getItem('accountType');
@@ -393,7 +396,8 @@ async function createProduct() {
             const uploadResponse = await fetch(`${API_URL}/api/v1/products/upload-images`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`,
+                    'X-Client-Platform': localStorage.getItem('platform') || 'web'
                 },
                 body: formData
             });
@@ -424,7 +428,8 @@ async function createProduct() {
         const response = await fetch(`${API_URL}/api/v1/products/`, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`,
+                'X-Client-Platform': localStorage.getItem('platform') || 'web'
             },
             body: formData
         });
@@ -484,7 +489,8 @@ async function updateProduct() {
             const uploadResponse = await fetch(`${API_URL}/api/v1/products/upload-images`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`,
+                    'X-Client-Platform': localStorage.getItem('platform') || 'web'
                 },
                 body: formData
             });
@@ -747,29 +753,35 @@ async function topUpShopBalance() {
 let wsInitialized = false;
 
 function initShopWebSocket() {
-
-
     if (wsInitialized) {
+        console.log('[SHOP] WebSocket already initialized');
         return;
     }
 
-
     if (window.wsManager && token) {
-
-        if (window.wsManager.ws && window.wsManager.ws.readyState !== WebSocket.CLOSED) {
-            window.wsManager.disconnect();
+        // Проверяем состояние WebSocket - отключаем только если уже открыт
+        if (window.wsManager.ws) {
+            const state = window.wsManager.ws.readyState;
+            // CONNECTING = 0, OPEN = 1, CLOSING = 2, CLOSED = 3
+            if (state === WebSocket.OPEN || state === WebSocket.CONNECTING) {
+                console.log('[SHOP] WebSocket already active, skipping init');
+                return;
+            }
         }
 
+        console.log('[SHOP] Initializing WebSocket connection');
         window.wsManager.connect(token, 'shop');
-
 
         setupShopWebSocketHandlers();
 
-
-        addConnectionStatusIndicator();
+        // Добавить индикатор статуса WebSocket (если доступен CommonUtils)
+        if (typeof CommonUtils !== 'undefined' && CommonUtils.addConnectionStatusIndicator) {
+            CommonUtils.addConnectionStatusIndicator();
+        }
 
         wsInitialized = true;
     } else {
+        console.log('[SHOP] WebSocket manager or token not available');
     }
 }
 

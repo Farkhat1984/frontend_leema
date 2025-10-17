@@ -1,3 +1,7 @@
+// Инициализировать platform перед любыми запросами
+if (!localStorage.getItem('platform')) {
+    localStorage.setItem('platform', 'web');
+}
 
 let token = localStorage.getItem('token');
 let accountType = localStorage.getItem('accountType');
@@ -399,22 +403,30 @@ async function updateSetting(key) {
 let wsInitialized = false;
 
 function initAdminWebSocket() {
-
     if (wsInitialized) {
+        console.log('[ADMIN] WebSocket already initialized');
         return;
     }
 
     if (window.wsManager && token) {
-        if (window.wsManager.ws && window.wsManager.ws.readyState !== WebSocket.CLOSED) {
-            window.wsManager.disconnect();
+        // Проверяем состояние WebSocket - не закрываем если уже подключается или открыт
+        if (window.wsManager.ws) {
+            const state = window.wsManager.ws.readyState;
+            // CONNECTING = 0, OPEN = 1, CLOSING = 2, CLOSED = 3
+            if (state === WebSocket.OPEN || state === WebSocket.CONNECTING) {
+                console.log('[ADMIN] WebSocket already active, skipping init');
+                return;
+            }
         }
 
+        console.log('[ADMIN] Initializing WebSocket connection');
         window.wsManager.connect(token, 'admin');
         setupAdminWebSocketHandlers();
         addAdminConnectionStatusIndicator();
 
         wsInitialized = true;
     } else {
+        console.log('[ADMIN] WebSocket manager or token not available');
     }
 }
 

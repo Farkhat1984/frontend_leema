@@ -10,9 +10,24 @@ const AuthService = {
         return localStorage.getItem('token');
     },
 
+    // Получить refresh token
+    getRefreshToken() {
+        return localStorage.getItem('refresh_token');
+    },
+
     // Получить роль пользователя
     getUserRole() {
         return localStorage.getItem('userRole');
+    },
+
+    // Получить платформу
+    getPlatform() {
+        return localStorage.getItem('platform') || 'web';
+    },
+
+    // Получить тип аккаунта
+    getAccountType() {
+        return localStorage.getItem('accountType') || 'user';
     },
 
     // Получить данные пользователя
@@ -21,18 +36,67 @@ const AuthService = {
         return userData ? JSON.parse(userData) : null;
     },
 
-    // Сохранить данные авторизации
-    setAuthData(token, userData, userRole) {
+    // Сохранить данные авторизации (расширенная версия)
+    setAuthData(token, refreshToken, userData, userRole, platform = 'web', accountType = 'user') {
         localStorage.setItem('token', token);
+        localStorage.setItem('refresh_token', refreshToken);
         localStorage.setItem('userData', JSON.stringify(userData));
         localStorage.setItem('userRole', userRole);
+        localStorage.setItem('platform', platform);
+        // Устанавливаем оба варианта для совместимости
+        localStorage.setItem('accountType', accountType);
+        localStorage.setItem('account_type', accountType);
+    },
+
+    // Обновить только токены
+    updateTokens(token, refreshToken) {
+        localStorage.setItem('token', token);
+        localStorage.setItem('refresh_token', refreshToken);
+    },
+
+    // Refresh access token
+    async refreshAccessToken() {
+        const refreshToken = this.getRefreshToken();
+        if (!refreshToken) {
+            throw new Error('No refresh token available');
+        }
+
+        try {
+            const response = await fetch(`${API_URL}/api/v1/auth/refresh`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    refresh_token: refreshToken
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Token refresh failed');
+            }
+
+            const data = await response.json();
+            this.updateTokens(data.access_token, data.refresh_token);
+            return data.access_token;
+        } catch (error) {
+            console.error('Failed to refresh token:', error);
+            this.logout();
+            throw error;
+        }
     },
 
     // Выйти
     logout() {
         localStorage.removeItem('token');
+        localStorage.removeItem('refresh_token');
         localStorage.removeItem('userData');
         localStorage.removeItem('userRole');
+        localStorage.removeItem('platform');
+        localStorage.removeItem('accountType');
+        localStorage.removeItem('account_type');
+        localStorage.removeItem('user');
+        localStorage.removeItem('shop');
         window.location.href = '/public/index.html';
     }
 };

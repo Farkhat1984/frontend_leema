@@ -101,24 +101,34 @@
                 }
 
                 const data = await response.json();
-// Save token and refresh token
+                
+                // Сохраняем токены
                 localStorage.setItem('token', data.access_token);
                 localStorage.setItem('refresh_token', data.refresh_token);
+                
+                // Сохраняем platform из ответа
+                const platformValue = data.platform || 'web';
+                localStorage.setItem('platform', platformValue);
 
                 // Сохраняем данные пользователя/магазина
                 if (data.user) {
                     localStorage.setItem('user', JSON.stringify(data.user));
+                    localStorage.setItem('userData', JSON.stringify(data.user));
                     localStorage.setItem('userRole', data.user.role);
                     
                     // Определяем accountType на основе запроса и роли
                     if (requestedType === 'admin' && data.user.role === 'admin') {
                         localStorage.setItem('accountType', 'admin');
+                        localStorage.setItem('account_type', 'admin');
                     } else {
                         localStorage.setItem('accountType', 'user');
+                        localStorage.setItem('account_type', 'user');
                     }
                 } else if (data.shop) {
                     localStorage.setItem('shop', JSON.stringify(data.shop));
+                    localStorage.setItem('userData', JSON.stringify(data.shop));
                     localStorage.setItem('accountType', 'shop');
+                    localStorage.setItem('account_type', 'shop');
                 }
 
                 // Очистка
