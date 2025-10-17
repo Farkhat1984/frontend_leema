@@ -10,12 +10,12 @@ const CONFIG = {
     
     apiUrls: {
         local: 'http://localhost:8000',
-        production: 'https://www.api.leema.kz'
+        production: 'https://api.leema.kz'
     },
     
     wsUrls: {
         local: 'ws://localhost:8000/ws',
-        production: 'wss://www.api.leema.kz/ws'
+        production: 'wss://api.leema.kz/ws'
     },
     
     getApiUrl() {
@@ -26,7 +26,7 @@ const CONFIG = {
         return this.wsUrls[this.environment];
     },
     
-    GOOGLE_CLIENT_ID: '222819809615-cb4p93ej04cr6ur9cf5o1jjk9n6dmvuj.apps.googleusercontent.com'
+    GOOGLE_CLIENT_ID: '236011762515-q48adtqtgd72na7lp861339offh3b9k3.apps.googleusercontent.com'
 };
 
 const API_URL = CONFIG.getApiUrl();

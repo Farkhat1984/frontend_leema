@@ -57,7 +57,7 @@
         <p>Завершаем авторизацию...</p>
     </div>
 
-    <script defer src="../../assets/js/core/config.js"></script>
+    <script src="../../assets/js/core/config.js"></script>
     <script>
 
         async function handleCallback() {
@@ -71,6 +71,12 @@
             }
 
             try {
+                // Проверяем что API_URL загружен
+                if (typeof API_URL === 'undefined') {
+                    showError('Ошибка загрузки конфигурации. Пожалуйста, обновите страницу.');
+                    return;
+                }
+
                 // Получаем запрошенный тип аккаунта
                 const requestedType = localStorage.getItem('requestedAccountType') || 'user';
                 

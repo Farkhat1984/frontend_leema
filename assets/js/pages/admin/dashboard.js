@@ -35,17 +35,17 @@ async function loginWithGoogle() {
     }
 }
 
-
-}
-
-
-
+function formatImageUrl(imageUrl) {
+    if (!imageUrl) return null;
+    
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+        return imageUrl;
+    }
 
     if (imageUrl.startsWith('/')) {
         const fullUrl = `${API_URL}${imageUrl}`;
         return fullUrl;
     }
-
 
     const fullUrl = `${API_URL}/${imageUrl}`;
     return fullUrl;
