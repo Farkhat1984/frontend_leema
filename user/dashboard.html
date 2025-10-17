@@ -207,8 +207,8 @@
         </div>
     </div>
 
-    <script src="../assets/js/core/config.js"></script>
-    <script src="../assets/js/core/auth.js"></script>
+    <script defer src="../assets/js/core/config.js"></script>
+    <script defer src="../assets/js/core/auth.js"></script>
     <script>
         let currentPage = 1;
         const itemsPerPage = 12;
@@ -243,8 +243,7 @@
                 
                 renderProducts();
             } catch (error) {
-                console.error('Error loading products:', error);
-                document.getElementById('productsContent').innerHTML = `
+document.getElementById('productsContent').innerHTML = `
                     <div class="empty-state">
                         <h3>Ошибка загрузки</h3>
                         <p>${error.message}</p>
@@ -287,7 +286,7 @@
                             <div class="product-card">
                                 <div class="product-image">
                                     ${imageUrl
-                                        ? `<img src="${imageUrl}" alt="${product.name}" onerror="this.parentElement.innerHTML='<div style=\\'color: #999; padding: 40px; text-align: center;\\'>Нет изображения</div>'">`
+                                        ? `<img data-src="${imageUrl}" alt="${product.name}" loading="lazy" onerror="this.parentElement.innerHTML='<div style=\\'color: #999; padding: 40px; text-align: center;\\'>Нет изображения</div>'">`
                                         : '<div style="color: #999; padding: 40px; text-align: center;">Нет изображения</div>'}
                                 </div>
                                 <div class="product-info">
@@ -301,6 +300,10 @@
                     }).join('')}
                 </div>
             `;
+
+            if (typeof window.lazyLoader !== 'undefined') {
+                setTimeout(() => window.lazyLoader.observeAll('img[data-src]'), 0);
+            }
 
             // Пагинация
             if (totalPages > 1) {

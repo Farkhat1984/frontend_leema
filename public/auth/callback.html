@@ -57,7 +57,7 @@
         <p>Завершаем авторизацию...</p>
     </div>
 
-    <script src="../../assets/js/core/config.js"></script>
+    <script defer src="../../assets/js/core/config.js"></script>
     <script>
 
         async function handleCallback() {
@@ -76,10 +76,7 @@
                 
                 // Для API: admin -> user, shop -> shop
                 const accountType = requestedType === 'admin' ? 'user' : requestedType;
-                
-                console.log('Authenticating with Google code, requested:', requestedType, 'api type:', accountType);
-
-                // Авторизуемся в бэкенде
+// Авторизуемся в бэкенде
                 const response = await fetch(`${API_URL}/api/v1/auth/google/login`, {
                     method: 'POST',
                     headers: {
@@ -98,9 +95,7 @@
                 }
 
                 const data = await response.json();
-                console.log('Response data:', data);
-
-                // Save token and refresh token
+// Save token and refresh token
                 localStorage.setItem('token', data.access_token);
                 localStorage.setItem('refresh_token', data.refresh_token);
 
@@ -141,8 +136,7 @@
                     window.location.href = `${baseUrl}/user/dashboard.html`;
                 }
             } catch (error) {
-                console.error('Authentication error:', error);
-                showError(error.message);
+showError(error.message);
             }
         }
 

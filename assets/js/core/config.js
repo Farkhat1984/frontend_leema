@@ -1,6 +1,4 @@
-// Конфигурация для разных окружений
 const CONFIG = {
-    // Автоматическое определение окружения
     get environment() {
         const hostname = window.location.hostname;
         const isLocal = hostname === 'localhost' || 
@@ -10,36 +8,26 @@ const CONFIG = {
         return isLocal ? 'local' : 'production';
     },
     
-    // API URLs для разных окружений
     apiUrls: {
-        local: 'http://localhost:8000',  // Локальный сервер API для разработки
-        production: 'https://www.api.leema.kz'  // Продакшн API
+        local: 'http://localhost:8000',
+        production: 'https://www.api.leema.kz'
     },
     
-    // WebSocket URLs
     wsUrls: {
         local: 'ws://localhost:8000/ws',
         production: 'wss://www.api.leema.kz/ws'
     },
     
-    // Получить текущий API URL
     getApiUrl() {
         return this.apiUrls[this.environment];
     },
     
-    // Получить текущий WebSocket URL
     getWsUrl() {
         return this.wsUrls[this.environment];
     },
     
-    // Google OAuth Client ID
     GOOGLE_CLIENT_ID: '222819809615-cb4p93ej04cr6ur9cf5o1jjk9n6dmvuj.apps.googleusercontent.com'
 };
 
-// Глобальные переменные для использования во всех скриптах
 const API_URL = CONFIG.getApiUrl();
 const WS_URL = CONFIG.getWsUrl();
-
-console.log(`🌐 Environment: ${CONFIG.environment}`);
-console.log(`🔗 API URL: ${API_URL}`);
-console.log(`🔌 WebSocket URL: ${WS_URL}`);

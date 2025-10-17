@@ -1,5 +1,4 @@
 // Страница настроек платформы
-console.log('admin-settings.js loaded');
 
 async function loadPageData() {
     try {

@@ -1,5 +1,4 @@
 // Страница управления магазинами
-console.log('admin-shops.js loaded');
 
 async function loadPageData() {
     try {
@@ -20,7 +19,6 @@ async function loadShopsStats() {
         document.getElementById('activeShops').textContent = dashboard.total_shops;
         document.getElementById('shopsWithProducts').textContent = dashboard.total_shops;
     } catch (error) {
-        console.error('Error loading shops stats:', error);
     }
 }
 
@@ -62,7 +60,6 @@ async function loadShopsList() {
             </table>
         `;
     } catch (error) {
-        console.error('Ошибка загрузки магазинов:', error);
     }
 }
 

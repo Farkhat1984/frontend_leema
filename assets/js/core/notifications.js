@@ -1,14 +1,8 @@
-/**
- * Notification System для Fashion AI Platform
- *
- * Управляет отображением уведомлений (toast notifications)
- * для WebSocket событий
- */
 
 class NotificationManager {
     constructor() {
         this.notifications = [];
-        this.maxNotifications = 50; // Максимум уведомлений в истории
+        this.maxNotifications = 50;
         this.container = null;
         this.badge = null;
         this.unreadCount = 0;
@@ -16,20 +10,12 @@ class NotificationManager {
         this.init();
     }
 
-    /**
-     * Инициализация
-     */
     init() {
-        // Создаем контейнер для toast уведомлений
         this.createToastContainer();
 
-        // Создаем badge для количества непрочитанных
         this.createNotificationBadge();
     }
 
-    /**
-     * Создать контейнер для toast уведомлений
-     */
     createToastContainer() {
         this.container = document.createElement('div');
         this.container.id = 'toastContainer';
@@ -37,34 +23,22 @@ class NotificationManager {
         document.body.appendChild(this.container);
     }
 
-    /**
-     * Создать badge для количества уведомлений
-     */
     createNotificationBadge() {
-        // Badge будет добавлен в header через CSS
         this.badge = document.createElement('div');
         this.badge.id = 'notificationBadge';
         this.badge.className = 'notification-badge';
         this.badge.style.display = 'none';
 
-        // Добавляем в header, если есть
         const header = document.querySelector('.header .user-info');
         if (header) {
             header.insertBefore(this.badge, header.firstChild);
         }
     }
 
-    /**
-     * Показать toast уведомление
-     * @param {string} message - Текст уведомления
-     * @param {string} type - Тип: success, error, warning, info
-     * @param {number} duration - Длительность отображения в мс (0 = бесконечно)
-     */
     showToast(message, type = 'info', duration = 5000) {
         const toast = document.createElement('div');
         toast.className = `toast toast-${type}`;
 
-        // Иконка в зависимости от типа
         const icon = this.getIcon(type);
 
         toast.innerHTML = `
@@ -75,12 +49,10 @@ class NotificationManager {
 
         this.container.appendChild(toast);
 
-        // Анимация появления
         setTimeout(() => {
             toast.classList.add('show');
         }, 10);
 
-        // Автоматическое удаление
         if (duration > 0) {
             setTimeout(() => {
                 this.removeToast(toast);
@@ -90,9 +62,6 @@ class NotificationManager {
         return toast;
     }
 
-    /**
-     * Удалить toast уведомление
-     */
     removeToast(toast) {
         toast.classList.remove('show');
         setTimeout(() => {
@@ -102,9 +71,6 @@ class NotificationManager {
         }, 300);
     }
 
-    /**
-     * Получить иконку для типа уведомления
-     */
     getIcon(type) {
         const icons = {
             success: '✓',
@@ -115,20 +81,12 @@ class NotificationManager {
         return icons[type] || icons.info;
     }
 
-    /**
-     * Обработать WebSocket событие и показать уведомление
-     * @param {object} eventData - Данные события
-     */
     handleWebSocketEvent(eventData) {
         const eventType = eventData.event;
         const data = eventData.data;
 
-        console.log('🔔 Handling WebSocket notification:', eventType, data);
-
-        // Добавляем в историю
         this.addToHistory(eventData);
 
-        // Формируем сообщение в зависимости от типа события
         let message = '';
         let type = 'info';
 
@@ -211,16 +169,11 @@ class NotificationManager {
                 type = 'info';
         }
 
-        // Показываем toast
         this.showToast(message, type);
 
-        // Увеличиваем счетчик непрочитанных
         this.incrementUnreadCount();
     }
 
-    /**
-     * Получить название типа транзакции
-     */
     getTransactionTypeName(type) {
         const names = {
             'top_up': 'Пополнение',
@@ -232,9 +185,6 @@ class NotificationManager {
         return names[type] || type;
     }
 
-    /**
-     * Добавить событие в историю
-     */
     addToHistory(eventData) {
         this.notifications.unshift({
             ...eventData,
@@ -248,17 +198,11 @@ class NotificationManager {
         }
     }
 
-    /**
-     * Увеличить счетчик непрочитанных
-     */
     incrementUnreadCount() {
         this.unreadCount++;
         this.updateBadge();
     }
 
-    /**
-     * Обнулить счетчик непрочитанных
-     */
     resetUnreadCount() {
         this.unreadCount = 0;
         this.updateBadge();
@@ -267,9 +211,6 @@ class NotificationManager {
         this.notifications.forEach(n => n.read = true);
     }
 
-    /**
-     * Обновить badge с количеством
-     */
     updateBadge() {
         if (!this.badge) return;
 
@@ -281,24 +222,15 @@ class NotificationManager {
         }
     }
 
-    /**
-     * Получить историю уведомлений
-     */
     getHistory() {
         return this.notifications;
     }
 
-    /**
-     * Очистить историю
-     */
     clearHistory() {
         this.notifications = [];
         this.resetUnreadCount();
     }
 
-    /**
-     * Показать всплывающее окно с историей уведомлений
-     */
     showHistoryModal() {
         // Простая модалка для истории
         const modal = document.createElement('div');
@@ -334,12 +266,8 @@ class NotificationManager {
         modal.innerHTML = content;
         document.body.appendChild(modal);
 
-        // Отмечаем как прочитанные при открытии
         setTimeout(() => this.resetUnreadCount(), 500);
     }
 }
 
-// Создаем глобальный экземпляр
 window.notificationManager = new NotificationManager();
-
-console.log('✅ Notification manager loaded');

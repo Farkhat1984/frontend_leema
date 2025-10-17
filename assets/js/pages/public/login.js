@@ -45,7 +45,4 @@ function loginWithGoogle(accountType) {
     window.location.href = googleAuthUrl;
 }
 
-// Функция выхода
-function logout() {
-    AuthService.logout();
-}
+

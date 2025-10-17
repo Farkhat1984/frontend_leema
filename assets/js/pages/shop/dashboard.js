@@ -1,10 +1,9 @@
-console.log('shop.js LOADED');
 
-// API_URL теперь определяется в config.js
+
 let token = localStorage.getItem('token');
 let accountType = localStorage.getItem('accountType');
 
-// Переменные для пагинации магазина
+
 let shopCurrentPage = 1;
 const shopItemsPerPage = 12;
 let shopAllProducts = [];
@@ -12,37 +11,28 @@ let shopSearchQuery = '';
 let shopSortBy = 'newest';
 let shopStatusFilter = 'all';
 
-// Проверка авторизации при загрузке
+
 window.onload = async function () {
-    console.log('Loading page...');
-    console.log('Token:', token);
-    console.log('AccountType:', accountType);
 
     if (token && accountType) {
-        console.log('User is authenticated, loading dashboard...');
         if (accountType === 'shop') {
-            console.log('Loading shop dashboard');
             await loadShopDashboard();
         } else if (accountType === 'admin') {
-            console.log('Redirecting to admin page...');
             window.location.href = `${window.location.origin}/admin/index.html`;
         } else if (accountType === 'user') {
-            console.log('User account type, redirecting to user page...');
             window.location.href = `${window.location.origin}/user/dashboard.html`;
         } else {
-            console.log('Unknown account type:', accountType);
             window.location.href = `${window.location.origin}/public/index.html`;
         }
     } else {
-        console.log('User not authenticated, redirecting to login');
         window.location.href = `${window.location.origin}/public/index.html`;
     }
 };
 
-// Вход через Google
+
 async function loginWithGoogle(accountType = 'user') {
     try {
-        // Определяем тип аккаунта для OAuth-запроса
+
         const params = new URLSearchParams({
             account_type: accountType,
             platform: 'web'
@@ -51,7 +41,7 @@ async function loginWithGoogle(accountType = 'user') {
         const response = await fetch(`${API_URL}/api/v1/auth/google/url?${params.toString()}`);
         const data = await response.json();
 
-        // Перенаправляем на Google OAuth
+
         localStorage.setItem('requestedAccountType', accountType);
         window.location.href = data.authorization_url;
     } catch (error) {
@@ -59,107 +49,63 @@ async function loginWithGoogle(accountType = 'user') {
     }
 }
 
-// Выход
-function logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('accountType');
-    localStorage.removeItem('refresh_token');
-    token = null;
-    accountType = null;
-    window.location.href = `${window.location.origin}/public/index.html`;
+
 }
 
-// API запрос
-async function apiRequest(endpoint, method = 'GET', body = null) {
-    const currentToken = localStorage.getItem('token');
-    const options = {
-        method,
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${currentToken}`
-        }
-    };
 
-    if (body) {
-        options.body = JSON.stringify(body);
-    }
 
-    const response = await fetch(`${API_URL}${endpoint}`, options);
 
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.detail || 'Ошибка запроса');
-    }
-
-    return await response.json();
-}
-
-// Helper function to format image URL
-function formatImageUrl(imageUrl) {
-    console.log('🔍 formatImageUrl called with:', imageUrl);
-
-    if (!imageUrl) return null;
-
-    // If it's already a full URL (starts with http:// or https://), return as is
-    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-        console.log('✅ Image URL is already full URL:', imageUrl);
-        return imageUrl;
-    }
-
-    // If it starts with /, it's a path from root
     if (imageUrl.startsWith('/')) {
         const fullUrl = `${API_URL}${imageUrl}`;
-        console.log('✅ Added API_URL to path:', fullUrl);
         return fullUrl;
     }
 
-    // Otherwise, add both API_URL and /
+
     const fullUrl = `${API_URL}/${imageUrl}`;
-    console.log('✅ Added API_URL and / to filename:', fullUrl);
     return fullUrl;
 }
 
-// Показать уведомление
-function showAlert(message, type = 'success', container = 'alertContainer') {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type}`;
-    alertDiv.textContent = message;
 
-    const alertContainer = document.getElementById(container);
-    alertContainer.innerHTML = '';
-    alertContainer.appendChild(alertDiv);
 
-    setTimeout(() => {
-        alertDiv.remove();
-    }, 5000);
-}
-
-// === ПАНЕЛЬ МАГАЗИНА ===
 
 async function loadShopDashboard() {
-    // Redirect to index.html if not already there
+
     if (window.location.pathname.includes('/admin/')) {
         window.location.href = `${window.location.origin}/public/index.html`;
         return;
     }
     
-    // Show dashboard if it exists (optional, may already be visible)
+
     const dashboardEl = document.getElementById('shopDashboard');
     if (dashboardEl) {
         dashboardEl.style.display = 'block';
     }
 
     try {
-        // Инициализация WebSocket для магазина ПЕРВЫМ ДЕЛОМ
-        // Это должно быть до загрузки данных, чтобы сразу начать получать события
-        initShopWebSocket();
+
+        CommonUtils.initWebSocket('shop', {
+            'product.created': loadShopProducts,
+            'product.updated': loadShopProducts,
+            'product.deleted': loadShopProducts,
+            'product.approved': () => { loadShopProducts(); loadShopDashboard(); },
+            'product.rejected': loadShopProducts,
+            'balance.updated': (data) => {
+                const balanceElement = document.getElementById('shopBalance');
+                if (balanceElement && data.data && data.data.new_balance !== undefined) {
+                    balanceElement.textContent = `$${data.data.new_balance.toFixed(2)}`;
+                }
+                loadShopTransactions();
+            },
+            'transaction.completed': loadShopTransactions,
+            'order.completed': loadShopDashboard
+        });
         
-        // Загрузка информации о магазине
+
         const shopInfo = await apiRequest('/api/v1/shops/me');
         document.getElementById('shopName').textContent = shopInfo.shop_name;
         document.getElementById('shopAvatar').textContent = shopInfo.shop_name[0].toUpperCase();
 
-        // Profile fields - only populate if they exist on the page
+
         const profileShopNameEl = document.getElementById('profileShopName');
         const profileEmailEl = document.getElementById('profileEmail');
         const profileDescriptionEl = document.getElementById('profileDescription');
@@ -167,26 +113,26 @@ async function loadShopDashboard() {
         if (profileEmailEl) profileEmailEl.value = shopInfo.email;
         if (profileDescriptionEl) profileDescriptionEl.value = shopInfo.description || '';
 
-        // Загрузка аналитики
+
         const analytics = await apiRequest('/api/v1/shops/me/analytics');
         document.getElementById('totalProducts').textContent = analytics.total_products;
         document.getElementById('activeProducts').textContent = analytics.active_products;
         document.getElementById('totalViews').textContent = analytics.total_views;
         document.getElementById('totalTryOns').textContent = analytics.total_try_ons;
 
-        // Загрузка баланса и биллинга - only if elements exist
+
         const shopBalanceEl = document.getElementById('shopBalance');
         const shopTotalEarningsEl = document.getElementById('shopTotalEarnings');
         if (shopBalanceEl) shopBalanceEl.textContent = `$${shopInfo.balance.toFixed(2)}`;
         if (shopTotalEarningsEl) shopTotalEarningsEl.textContent = `$${analytics.total_revenue || 0}`;
 
-        // Загрузка транзакций
+
         await loadShopTransactions();
 
-        // Загрузка активных подписок
+
         await loadActiveRents();
 
-        // Загрузка товаров
+
         await loadShopProducts();
     } catch (error) {
         showAlert('Ошибка загрузки данных: ' + error.message, 'error');
@@ -194,33 +140,24 @@ async function loadShopDashboard() {
 }
 
 async function loadShopProducts() {
-    console.log('🔄 loadShopProducts() called');
 
-    // Check if we're on a page with products list
+
     const container = document.getElementById('productsList');
     if (!container) {
-        console.log('⚠️ productsList element not found, skipping products load');
         return;
     }
 
     try {
         const products = await apiRequest('/api/v1/shops/me/products');
-        console.log('📦 Products received:', products ? products.length : 0, 'First product:', products && products[0]);
         
         if (!Array.isArray(products)) {
-            console.error('❌ Products is not an array:', typeof products, products);
             shopAllProducts = [];
         } else {
             shopAllProducts = products;
         }
         
-        console.log('📍 Container element:', container);
-        console.log('🔍 shopStatusFilter:', shopStatusFilter);
-        console.log('🔍 shopSearchQuery:', shopSearchQuery);
-        console.log('🔍 shopSortBy:', shopSortBy);
 
         if (shopAllProducts.length === 0) {
-            console.log('⚠️ No products, showing empty state');
             container.innerHTML = '<div class="empty-state"><p>У вас пока нет товаров</p></div>';
             const paginationContainer = document.getElementById('shopPaginationContainer');
             if (paginationContainer) {
@@ -231,7 +168,6 @@ async function loadShopProducts() {
 
         renderShopProductsPage();
     } catch (error) {
-        console.error('❌ Error in loadShopProducts:', error);
         showAlert('Ошибка загрузки товаров: ' + error.message, 'error');
     }
 }
@@ -239,30 +175,24 @@ async function loadShopProducts() {
 function renderShopProductsPage() {
     const container = document.getElementById('productsList');
 
-    // Check if container exists
+
     if (!container) {
-        console.log('⚠️ productsList element not found in renderShopProductsPage');
         return;
     }
 
-    console.log('🎨 renderShopProductsPage - Total products:', shopAllProducts.length);
-    console.log('🔍 Current filter:', shopStatusFilter, 'Search:', shopSearchQuery, 'Sort:', shopSortBy);
 
-    // Фильтруем товары
+
     let filteredProducts = [...shopAllProducts];
     
-    // Фильтр по статусу
+
     if (shopStatusFilter !== 'all') {
-        console.log('📋 Filtering by status:', shopStatusFilter);
         filteredProducts = filteredProducts.filter(p => {
             const status = p.moderation_status || p.status || 'pending';
-            console.log('Product:', p.name, 'Status:', status);
             return status === shopStatusFilter;
         });
-        console.log('📋 After status filter:', filteredProducts.length);
     }
     
-    // Поиск
+
     if (shopSearchQuery.trim()) {
         const query = shopSearchQuery.toLowerCase();
         filteredProducts = filteredProducts.filter(p => 
@@ -271,7 +201,7 @@ function renderShopProductsPage() {
         );
     }
     
-    // Сортировка
+
     filteredProducts = [...filteredProducts].sort((a, b) => {
         switch(shopSortBy) {
             case 'newest':
@@ -306,13 +236,11 @@ function renderShopProductsPage() {
         return;
     }
 
-    console.log('🎨 Rendering', productsToShow.length, 'products to DOM');
     container.innerHTML = productsToShow.map(product => {
-        // Format image URL using helper function
+
         let imageUrl = null;
         if (product.images && product.images.length > 0) {
             imageUrl = formatImageUrl(product.images[0]);
-            console.log('Product:', product.name, 'Image URL:', imageUrl, 'Raw:', product.images[0]);
         }
         
         const createdDate = new Date(product.created_at).toLocaleDateString('ru-RU', {
@@ -326,7 +254,7 @@ function renderShopProductsPage() {
                 <!-- Секция 1: Изображение -->
                 <div class="product-image">
                     ${imageUrl
-                ? `<img src="${imageUrl}" alt="${product.name}" onerror="this.parentElement.innerHTML='<div style=&quot;color: #999; padding: 40px; text-align: center;&quot;>Ошибка загрузки</div>'">`
+                ? `<img data-src="${imageUrl}" alt="${product.name}" loading="lazy" onerror="this.parentElement.innerHTML='<div style=&quot;color: #999; padding: 40px; text-align: center;&quot;>Ошибка загрузки</div>'">`
                 : '<div style="color: #999; padding: 40px; text-align: center;">Нет изображения</div>'}
                 </div>
                 
@@ -376,7 +304,10 @@ function renderShopProductsPage() {
         `;
     }).join('');
 
-    // Обновляем пагинацию
+    if (typeof window.lazyLoader !== 'undefined') {
+        setTimeout(() => window.lazyLoader.observeAll('img[data-src]'), 0);
+    }
+
     const paginationContainer = document.getElementById('shopPaginationContainer');
     if (paginationContainer) {
         if (totalPages > 1) {
@@ -393,8 +324,6 @@ function renderShopProductsPage() {
         }
     }
 
-    console.log('✅ DOM updated, container.innerHTML length:', container.innerHTML.length);
-    console.log('✅ Products rendered successfully');
 }
 
 function changeShopPage(direction) {
@@ -409,7 +338,6 @@ async function updateShopProfile() {
         const profileDescriptionEl = document.getElementById('profileDescription');
 
         if (!profileShopNameEl || !profileDescriptionEl) {
-            console.log('⚠️ Profile form elements not found, skipping update');
             return;
         }
 
@@ -421,7 +349,7 @@ async function updateShopProfile() {
         await apiRequest('/api/v1/shops/me', 'PUT', data);
         showAlert('Профиль успешно обновлен', 'success');
 
-        // Reload shop info in header
+
         const shopInfo = await apiRequest('/api/v1/shops/me');
         document.getElementById('shopName').textContent = shopInfo.shop_name;
         document.getElementById('shopAvatar').textContent = shopInfo.shop_name[0].toUpperCase();
@@ -452,19 +380,16 @@ async function createProduct() {
             return;
         }
 
-        // Upload images first if any
+
         let imageUrls = null;
         const fileInput = document.getElementById('productImages');
-        console.log('Files selected:', fileInput.files.length);
 
         if (fileInput.files.length > 0) {
             const formData = new FormData();
             for (let file of fileInput.files) {
-                console.log('Adding file to FormData:', file.name, file.type, file.size);
                 formData.append('files', file);
             }
 
-            console.log('Uploading images to:', `${API_URL}/api/v1/products/upload-images`);
             const uploadResponse = await fetch(`${API_URL}/api/v1/products/upload-images`, {
                 method: 'POST',
                 headers: {
@@ -473,21 +398,17 @@ async function createProduct() {
                 body: formData
             });
 
-            console.log('Upload response status:', uploadResponse.status);
 
             if (!uploadResponse.ok) {
                 const errorText = await uploadResponse.text();
-                console.error('Upload failed:', errorText);
                 throw new Error('Ошибка загрузки изображений: ' + errorText);
             }
 
             const uploadData = await uploadResponse.json();
-            console.log('Upload response data:', uploadData);
             imageUrls = uploadData.urls.join(',');
-            console.log('Image URLs joined:', imageUrls);
         }
 
-        // Create product with form data
+
         const formData = new FormData();
         formData.append('name', name);
         formData.append('price', price);
@@ -497,11 +418,8 @@ async function createProduct() {
         }
         if (imageUrls) {
             formData.append('image_urls', imageUrls);
-            console.log('Adding image_urls to product:', imageUrls);
         }
 
-        console.log('Creating product at:', `${API_URL}/api/v1/products/`);
-        console.log('Product data:', { name, price, description, imageUrls });
 
         const response = await fetch(`${API_URL}/api/v1/products/`, {
             method: 'POST',
@@ -511,16 +429,13 @@ async function createProduct() {
             body: formData
         });
 
-        console.log('Create product response status:', response.status);
 
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('Create product failed:', errorText);
             throw new Error('Ошибка создания товара: ' + errorText);
         }
 
         const createdProduct = await response.json();
-        console.log('Product created successfully:', createdProduct);
 
         showAlert('Товар успешно создан и отправлен на модерацию', 'success');
         closeAddProductModal();
@@ -539,7 +454,7 @@ async function openEditProduct(productId) {
         document.getElementById('editProductDescription').value = product.description || '';
         document.getElementById('editProductPrice').value = product.price;
 
-        // Show current images with delete buttons
+
         window.currentProductImages = product.images || [];
         updateCurrentImagesDisplay();
 
@@ -557,7 +472,7 @@ async function updateProduct() {
     try {
         const productId = document.getElementById('editProductId').value;
 
-        // Upload new images if any
+
         let newImageUrls = [];
         const fileInput = document.getElementById('editProductImages');
         if (fileInput.files.length > 0) {
@@ -582,22 +497,18 @@ async function updateProduct() {
             newImageUrls = uploadData.urls;
         }
 
-        // Combine old images (not deleted) with new ones
+
         const allImages = [...(window.currentProductImages || []), ...newImageUrls];
 
-        console.log('Текущие изображения:', window.currentProductImages);
-        console.log('Новые изображения:', newImageUrls);
-        console.log('Все изображения для отправки:', allImages);
 
-        // Update product
+
         const data = {
             name: document.getElementById('editProductName').value,
             description: document.getElementById('editProductDescription').value || null,
             price: parseFloat(document.getElementById('editProductPrice').value),
-            images: allImages  // Always send array, even if empty
+            images: allImages
         };
 
-        console.log('Данные для обновления продукта:', data);
 
         await apiRequest(`/api/v1/products/${productId}`, 'PUT', data);
         showAlert('Товар успешно обновлен', 'success');
@@ -610,19 +521,15 @@ async function updateProduct() {
 
 function removeProductImage(index) {
     if (!window.currentProductImages) {
-        console.error('currentProductImages не определен');
         return;
     }
 
-    console.log('Удаление изображения по индексу:', index);
-    console.log('Массив до удаления:', [...window.currentProductImages]);
 
-    // Удаляем изображение из массива
+
     window.currentProductImages.splice(index, 1);
 
-    console.log('Массив после удаления:', [...window.currentProductImages]);
 
-    // Принудительно обновляем DOM
+
     updateCurrentImagesDisplay();
 
     showAlert('Изображение удалено. Не забудьте нажать "Сохранить"!', 'success');
@@ -637,13 +544,12 @@ function updateCurrentImagesDisplay() {
         return;
     }
 
-    // Полностью перерисовываем
+
     const imagesHTML = window.currentProductImages.map((img, idx) => {
         const imageUrl = formatImageUrl(img);
 
         return `
             <div style="display: inline-block; position: relative; margin: 5px;">
-                <img src="${imageUrl}" style="max-width: 100px; display: block; border: 1px solid #ddd; border-radius: 4px;" onerror="console.error('Failed to load image:', this.src); this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><rect fill=%22%23ddd%22 width=%22100%22 height=%22100%22/><text x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22>Ошибка</text></svg>'">
                 <button type="button" onclick="removeProductImage(${idx})" style="position: absolute; top: -5px; right: -5px; background: red; color: white; border: none; cursor: pointer; padding: 4px 8px; font-size: 14px; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.3);" title="Удалить это изображение">×</button>
             </div>
         `;
@@ -655,52 +561,38 @@ function updateCurrentImagesDisplay() {
 let confirmCallback = null;
 
 window.showConfirmDialog = function(message) {
-    console.log('showConfirmDialog called with message:', message);
     return new Promise((resolve) => {
         const messageEl = document.getElementById('confirmMessage');
         const dialogEl = document.getElementById('confirmDialog');
-        console.log('confirmMessage element:', messageEl);
-        console.log('confirmDialog element:', dialogEl);
 
         messageEl.textContent = message;
         dialogEl.classList.add('active');
         confirmCallback = resolve;
-        console.log('Dialog shown, waiting for user action');
     });
 };
 
 window.closeConfirmDialog = function(result) {
-    console.log('closeConfirmDialog called with result:', result);
     const dialogEl = document.getElementById('confirmDialog');
     dialogEl.classList.remove('active');
     if (confirmCallback) {
-        console.log('Resolving promise with:', result);
         confirmCallback(result);
         confirmCallback = null;
     } else {
-        console.warn('No confirmCallback found!');
     }
 };
 
 window.deleteProduct = async function(productId) {
-    console.log('deleteProduct called with ID:', productId);
     const confirmed = await window.showConfirmDialog('Вы уверены, что хотите удалить этот товар?');
-    console.log('User confirmed:', confirmed);
 
     if (!confirmed) {
-        console.log('User cancelled deletion');
         return;
     }
 
-    console.log('Sending DELETE request for product:', productId);
     try {
         await apiRequest(`/api/v1/products/${productId}`, 'DELETE');
-        console.log('Product deleted successfully');
         showAlert('Товар успешно удален', 'success');
         await loadShopProducts();
-        console.log('Product list reloaded');
     } catch (error) {
-        console.error('Error deleting product:', error);
         showAlert('Ошибка удаления товара: ' + error.message, 'error');
     }
 };
@@ -709,7 +601,6 @@ async function loadShopTransactions() {
     try {
         const container = document.getElementById('shopTransactions');
         if (!container) {
-            console.log('⚠️ shopTransactions element not found, skipping');
             return;
         }
 
@@ -764,7 +655,6 @@ async function loadShopTransactions() {
             </table>
         `;
     } catch (error) {
-        console.error('Ошибка загрузки транзакций:', error);
     }
 }
 
@@ -772,7 +662,6 @@ async function loadActiveRents() {
     try {
         const container = document.getElementById('activeRents');
         if (!container) {
-            console.log('⚠️ activeRents element not found, skipping');
             return;
         }
 
@@ -804,13 +693,12 @@ async function loadActiveRents() {
             `;
         }).join('');
     } catch (error) {
-        console.error('Ошибка загрузки подписок:', error);
     }
 }
 
 async function payRent(productId) {
     try {
-        // Get settings to show rent price
+
         const settings = await apiRequest('/api/v1/admin/settings');
         const rentPrice = settings.find(s => s.key === 'product_rent_price_monthly')?.value || 10;
 
@@ -828,7 +716,7 @@ async function payRent(productId) {
 
         if (payment.approval_url) {
             window.location.href = payment.approval_url;
-            // Redirect to PayPal in same window
+
         }
     } catch (error) {
         showAlert('Ошибка создания платежа: ' + error.message, 'error');
@@ -847,55 +735,49 @@ async function topUpShopBalance() {
 
         if (payment.approval_url) {
             window.location.href = payment.approval_url;
-            // Redirect to PayPal in same window
+
         }
     } catch (error) {
         showAlert('Ошибка создания платежа: ' + error.message, 'error');
     }
 }
 
-// === WEBSOCKET INTEGRATION ===
 
-let wsInitialized = false; // Flag to prevent multiple initializations
+
+let wsInitialized = false;
 
 function initShopWebSocket() {
-    console.log('🔌 Initializing WebSocket for shop...');
 
-    // Prevent multiple initializations
+
     if (wsInitialized) {
-        console.log('⚠️ WebSocket already initialized, skipping...');
         return;
     }
 
-    // Подключаемся к WebSocket
+
     if (window.wsManager && token) {
-        // Disconnect existing connection if any
+
         if (window.wsManager.ws && window.wsManager.ws.readyState !== WebSocket.CLOSED) {
-            console.log('🔄 Disconnecting existing WebSocket connection...');
             window.wsManager.disconnect();
         }
 
         window.wsManager.connect(token, 'shop');
 
-        // Регистрируем обработчики событий
+
         setupShopWebSocketHandlers();
 
-        // Добавляем индикатор статуса подключения
+
         addConnectionStatusIndicator();
 
         wsInitialized = true;
-        console.log('✅ WebSocket initialized successfully');
     } else {
-        console.error('❌ WebSocket manager or token not found');
     }
 }
 
 function setupShopWebSocketHandlers() {
-    console.log('📡 Setting up WebSocket event handlers for shop...');
     
-    // Clear existing handlers to prevent duplicates, but preserve internal handlers
+
     if (window.wsManager.eventHandlers) {
-        // Only clear event handlers, not the entire object
+
         Object.keys(window.wsManager.eventHandlers).forEach(key => {
             window.wsManager.eventHandlers[key] = [];
         });
@@ -903,60 +785,54 @@ function setupShopWebSocketHandlers() {
         window.wsManager.eventHandlers = {};
     }
     
-    // === Product Events ===
+
     window.wsManager.on('product.created', (data) => {
-        console.log('📦 Product created:', data);
         if (window.notificationManager) {
             window.notificationManager.handleWebSocketEvent(data);
         }
-        // Обновляем список товаров
+
         loadShopProducts();
     });
 
     window.wsManager.on('product.updated', (data) => {
-        console.log('📦 Product updated:', data);
         if (window.notificationManager) {
             window.notificationManager.handleWebSocketEvent(data);
         }
-        // Обновляем список товаров
+
         loadShopProducts();
     });
 
     window.wsManager.on('product.deleted', (data) => {
-        console.log('🗑️ Product deleted:', data);
         if (window.notificationManager) {
             window.notificationManager.handleWebSocketEvent(data);
         }
-        // Обновляем список товаров
+
         loadShopProducts();
     });
 
     window.wsManager.on('product.approved', (data) => {
-        console.log('✅ Product approved:', data);
         if (window.notificationManager) {
             window.notificationManager.handleWebSocketEvent(data);
         }
-        // Обновляем список товаров и баланс
+
         loadShopProducts();
         loadShopDashboard();
     });
 
     window.wsManager.on('product.rejected', (data) => {
-        console.log('❌ Product rejected:', data);
         if (window.notificationManager) {
             window.notificationManager.handleWebSocketEvent(data);
         }
-        // Обновляем список товаров
+
         loadShopProducts();
     });
 
-    // === Balance Events ===
+
     window.wsManager.on('balance.updated', (data) => {
-        console.log('💰 Balance updated:', data);
         if (window.notificationManager) {
             window.notificationManager.handleWebSocketEvent(data);
         }
-        // Обновляем баланс
+
         const balanceElement = document.getElementById('shopBalance');
         if (balanceElement && data.data && data.data.new_balance !== undefined) {
             balanceElement.textContent = `$${data.data.new_balance.toFixed(2)}`;
@@ -964,89 +840,67 @@ function setupShopWebSocketHandlers() {
         loadShopTransactions();
     });
 
-    // === Transaction Events ===
+
     window.wsManager.on('transaction.completed', (data) => {
-        console.log('💳 Transaction completed:', data);
         if (window.notificationManager) {
             window.notificationManager.handleWebSocketEvent(data);
         }
-        // Обновляем транзакции
+
         loadShopTransactions();
     });
 
     window.wsManager.on('transaction.failed', (data) => {
-        console.log('❌ Transaction failed:', data);
         if (window.notificationManager) {
             window.notificationManager.handleWebSocketEvent(data);
         }
     });
 
-    // === Order Events ===
+
     window.wsManager.on('order.created', (data) => {
-        console.log('🛍️ Order created:', data);
         if (window.notificationManager) {
             window.notificationManager.handleWebSocketEvent(data);
         }
     });
 
     window.wsManager.on('order.completed', (data) => {
-        console.log('✅ Order completed:', data);
         if (window.notificationManager) {
             window.notificationManager.handleWebSocketEvent(data);
         }
-        // Обновляем аналитику
+
         loadShopDashboard();
     });
 
-    // === Review Events ===
+
     window.wsManager.on('review.created', (data) => {
-        console.log('⭐ Review created:', data);
         if (window.notificationManager) {
             window.notificationManager.handleWebSocketEvent(data);
         }
     });
 
-    // === Settings Events ===
+
     window.wsManager.on('settings.updated', (data) => {
-        console.log('⚙️ Settings updated:', data);
         if (window.notificationManager) {
             window.notificationManager.handleWebSocketEvent(data);
         }
     });
 
-    // Обработчик изменения состояния подключения
+
     window.wsManager.onConnectionStateChange((state) => {
         updateConnectionStatus(state);
     });
     
-    console.log('✅ WebSocket event handlers registered');
 }
 
-function addConnectionStatusIndicator() {
-    const header = document.querySelector('.header .user-info');
-    if (!header) return;
 
-    // Создаем индикатор статуса подключения
-    const indicator = document.createElement('div');
-    indicator.id = 'wsConnectionStatus';
-    indicator.className = 'ws-status';
-    indicator.title = 'WebSocket статус';
-
-    // Добавляем в header
-    header.insertBefore(indicator, header.firstChild);
-
-    // Устанавливаем начальный статус
-    updateConnectionStatus(window.wsManager.getConnectionState());
-}
 
 function updateConnectionStatus(state) {
     const indicator = document.getElementById('wsConnectionStatus');
     if (!indicator) return;
 
-    // Удаляем все классы статуса
+
     indicator.className = 'ws-status';
 
-    // Добавляем класс в зависимости от статуса
+
     switch (state) {
         case 'connected':
             indicator.classList.add('ws-status-connected');
@@ -1065,22 +919,21 @@ function updateConnectionStatus(state) {
     }
 }
 
-// Отключаем WebSocket при выходе
+
 const originalLogout = logout;
 logout = function() {
-    console.log('🔌 Disconnecting WebSocket on logout...');
     if (window.wsManager) {
         window.wsManager.disconnect();
     }
     originalLogout();
 };
 
-// Shop search and filter handlers
+
 function handleShopSearch() {
     const input = document.getElementById('shopSearchInput');
     if (input) {
         shopSearchQuery = input.value;
-        shopCurrentPage = 1; // Reset to first page
+        shopCurrentPage = 1;
         renderShopProductsPage();
     }
 }
@@ -1089,7 +942,7 @@ function handleShopSort() {
     const select = document.getElementById('shopSortSelect');
     if (select) {
         shopSortBy = select.value;
-        shopCurrentPage = 1; // Reset to first page
+        shopCurrentPage = 1;
         renderShopProductsPage();
     }
 }
@@ -1098,12 +951,12 @@ function handleShopStatusFilter() {
     const select = document.getElementById('shopStatusFilter');
     if (select) {
         shopStatusFilter = select.value;
-        shopCurrentPage = 1; // Reset to first page
+        shopCurrentPage = 1;
         renderShopProductsPage();
     }
 }
 
-// Make functions globally accessible for inline onclick handlers
+
 window.loginWithGoogle = loginWithGoogle;
 window.logout = logout;
 window.openAddProductModal = openAddProductModal;

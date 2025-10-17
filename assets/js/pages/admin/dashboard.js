@@ -1,34 +1,25 @@
-console.log('admin.js LOADED');
 
 let token = localStorage.getItem('token');
 let accountType = localStorage.getItem('accountType');
 
-// Проверка авторизации при загрузке
+
 window.onload = async function () {
-    console.log('Loading admin page...');
-    console.log('Token:', token);
-    console.log('AccountType:', accountType);
 
     if (token && accountType === 'admin') {
-        console.log('Admin is authenticated, loading dashboard...');
         await loadAdminDashboard();
     } else if (token && accountType === 'shop') {
-        console.log('Shop account detected, redirecting...');
         window.location.href = `${window.location.origin}/shop/index.html`;
     } else if (token && accountType === 'user') {
-        console.log('User account detected, redirecting...');
         window.location.href = `${window.location.origin}/user/dashboard.html`;
     } else {
-        console.log('Not authorized as admin, showing login page...');
         document.getElementById('loginPage').style.display = 'flex';
     }
 };
 
-// Вход через Google для админа
+
 async function loginWithGoogle() {
     try {
-        // Admin авторизация идет через user account_type
-        // Роль admin назначается на бэкенде по email
+
         const params = new URLSearchParams({
             account_type: 'user',
             platform: 'web'
@@ -36,7 +27,7 @@ async function loginWithGoogle() {
         const response = await fetch(`${API_URL}/api/v1/auth/google/url?${params.toString()}`);
         const data = await response.json();
 
-        // Перенаправляем на Google OAuth
+
         localStorage.setItem('requestedAccountType', 'user');
         window.location.href = data.authorization_url;
     } catch (error) {
@@ -44,87 +35,24 @@ async function loginWithGoogle() {
     }
 }
 
-// Выход
-function logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('accountType');
-    localStorage.removeItem('refresh_token');
-    token = null;
-    accountType = null;
-    window.location.href = `${window.location.origin}/public/index.html`;
+
 }
 
-// API запрос
-async function apiRequest(endpoint, method = 'GET', body = null) {
-    const currentToken = localStorage.getItem('token');
-    const options = {
-        method,
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${currentToken}`
-        }
-    };
 
-    if (body) {
-        options.body = JSON.stringify(body);
-    }
 
-    const response = await fetch(`${API_URL}${endpoint}`, options);
 
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.detail || 'Ошибка запроса');
-    }
-
-    return await response.json();
-}
-
-// Helper function to format image URL
-function formatImageUrl(imageUrl) {
-    console.log('🔍 formatImageUrl called with:', imageUrl);
-
-    if (!imageUrl) return null;
-
-    // If it's already a full URL (starts with http:// or https://), return as is
-    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-        console.log('✅ Image URL is already full URL:', imageUrl);
-        return imageUrl;
-    }
-
-    // If it starts with /, it's a path from root
     if (imageUrl.startsWith('/')) {
         const fullUrl = `${API_URL}${imageUrl}`;
-        console.log('✅ Added API_URL to path:', fullUrl);
         return fullUrl;
     }
 
-    // Otherwise, add both API_URL and /
+
     const fullUrl = `${API_URL}/${imageUrl}`;
-    console.log('✅ Added API_URL and / to filename:', fullUrl);
     return fullUrl;
 }
 
-// Показать уведомление
-function showAlert(message, type = 'success', container = 'adminAlertContainer') {
-    const alertContainer = document.getElementById(container);
-    if (!alertContainer) {
-        console.warn(`Alert container '${container}' not found. Message: ${message}`);
-        return;
-    }
-    
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type}`;
-    alertDiv.textContent = message;
 
-    alertContainer.innerHTML = '';
-    alertContainer.appendChild(alertDiv);
 
-    setTimeout(() => {
-        alertDiv.remove();
-    }, 5000);
-}
-
-// === ПАНЕЛЬ АДМИНИСТРАТОРА ===
 
 async function loadAdminDashboard() {
     const loginPage = document.getElementById('loginPage');
@@ -137,12 +65,18 @@ async function loadAdminDashboard() {
     }
 
     try {
-        // Инициализация WebSocket для админа
-        initAdminWebSocket();
+
+        CommonUtils.initWebSocket('admin', {
+            'moderation.queue_updated': (data) => { if (typeof onModerationUpdate === 'function') onModerationUpdate(data); },
+            'product.created': (data) => { if (typeof onProductUpdate === 'function') onProductUpdate(data); },
+            'settings.updated': (data) => { if (typeof onSettingsUpdate === 'function') onSettingsUpdate(data); },
+            'balance.updated': (data) => { if (typeof onBalanceUpdate === 'function') onBalanceUpdate(data); },
+            'transaction.completed': (data) => { if (typeof onTransactionUpdate === 'function') onTransactionUpdate(data); }
+        });
         
         const dashboard = await apiRequest('/api/v1/admin/dashboard');
         
-        // Безопасное обновление элементов (проверка на существование)
+
         const totalUsers = document.getElementById('adminTotalUsers');
         if (totalUsers) totalUsers.textContent = dashboard.total_users;
         
@@ -155,7 +89,7 @@ async function loadAdminDashboard() {
         const pendingModeration = document.getElementById('adminPendingModeration');
         if (pendingModeration) pendingModeration.textContent = dashboard.pending_moderation;
         
-        // Финансы платформы
+
         const userBalances = document.getElementById('adminUserBalances');
         if (userBalances) userBalances.textContent = `$${(dashboard.total_user_balances || 0).toFixed(2)}`;
         
@@ -183,7 +117,7 @@ function switchAdminTab(tab) {
 async function loadUsersList() {
     try {
         const container = document.getElementById('usersList');
-        if (!container) return; // Элемент не существует на этой странице
+        if (!container) return;
         
         const users = await apiRequest('/api/v1/admin/users');
 
@@ -224,14 +158,13 @@ async function loadUsersList() {
             </table>
         `;
     } catch (error) {
-        console.error('Ошибка загрузки пользователей:', error);
     }
 }
 
 async function loadShopsList() {
     try {
         const container = document.getElementById('shopsList');
-        if (!container) return; // Элемент не существует на этой странице
+        if (!container) return;
         
         const shops = await apiRequest('/api/v1/admin/shops');
 
@@ -268,14 +201,13 @@ async function loadShopsList() {
             </table>
         `;
     } catch (error) {
-        console.error('Ошибка загрузки магазинов:', error);
     }
 }
 
 async function loadModerationQueue() {
     try {
         const container = document.getElementById('moderationQueue');
-        if (!container) return; // Элемент не существует на этой странице
+        if (!container) return;
         
         const products = await apiRequest('/api/v1/admin/moderation/queue');
 
@@ -297,7 +229,7 @@ async function loadModerationQueue() {
                     <!-- Секция 1: Изображение -->
                     <div class="product-image">
                         ${imageUrl
-                    ? `<img src="${imageUrl}" alt="${product.name}" onerror="this.parentElement.innerHTML='<div style=&quot;color: #999; padding: 40px; text-align: center;&quot;>Ошибка загрузки</div>'">`
+                    ? `<img data-src="${imageUrl}" alt="${product.name}" loading="lazy" onerror="this.parentElement.innerHTML='<div style=&quot;color: #999; padding: 40px; text-align: center;&quot;>Ошибка загрузки</div>'">`
                     : '<div style="color: #999; padding: 40px; text-align: center;">Нет изображения</div>'}
                     </div>
                     
@@ -355,8 +287,11 @@ async function loadModerationQueue() {
                 </div>
             `;
         }).join('');
+        
+        if (typeof window.lazyLoader !== 'undefined') {
+            setTimeout(() => window.lazyLoader.observeAll('img[data-src]'), 0);
+        }
     } catch (error) {
-        console.error('Ошибка загрузки очереди:', error);
     }
 }
 
@@ -379,7 +314,7 @@ async function moderateProduct(productId, action) {
         await apiRequest(endpoint, 'POST', { action, notes });
         showAlert(`Товар успешно ${action === 'approve' ? 'одобрен' : 'отклонен'}`, 'success', 'adminAlertContainer');
         
-        // Перезагружаем список товаров
+
         await loadModerationQueue();
         await loadAdminDashboard();
     } catch (error) {
@@ -390,7 +325,7 @@ async function moderateProduct(productId, action) {
 async function loadRefunds() {
     try {
         const statusFilter = document.getElementById('refundStatusFilter');
-        if (!statusFilter) return; // Элемент не существует на этой странице
+        if (!statusFilter) return;
         
         const status = statusFilter.value;
         const refunds = await apiRequest(`/api/v1/admin/refunds${status ? '?status=' + status : ''}`);
@@ -417,7 +352,6 @@ async function loadRefunds() {
             </div>
         `).join('');
     } catch (error) {
-        console.error('Ошибка загрузки возвратов:', error);
     }
 }
 
@@ -434,7 +368,7 @@ async function processRefund(refundId, action) {
 async function loadSettings() {
     try {
         const container = document.getElementById('settingsList');
-        if (!container) return; // Элемент не существует на этой странице
+        if (!container) return;
         
         const settings = await apiRequest('/api/v1/admin/settings');
 
@@ -446,7 +380,6 @@ async function loadSettings() {
             </div>
         `).join('');
     } catch (error) {
-        console.error('Ошибка загрузки настроек:', error);
     }
 }
 
@@ -461,21 +394,18 @@ async function updateSetting(key) {
 }
 
 
-// === WEBSOCKET INTEGRATION ===
+
 
 let wsInitialized = false;
 
 function initAdminWebSocket() {
-    console.log('Initializing WebSocket for admin...');
 
     if (wsInitialized) {
-        console.log('WebSocket already initialized, skipping...');
         return;
     }
 
     if (window.wsManager && token) {
         if (window.wsManager.ws && window.wsManager.ws.readyState !== WebSocket.CLOSED) {
-            console.log('Disconnecting existing WebSocket connection...');
             window.wsManager.disconnect();
         }
 
@@ -484,14 +414,11 @@ function initAdminWebSocket() {
         addAdminConnectionStatusIndicator();
 
         wsInitialized = true;
-        console.log('WebSocket initialized successfully');
     } else {
-        console.error('WebSocket manager or token not found');
     }
 }
 
 function setupAdminWebSocketHandlers() {
-    console.log('Setting up WebSocket event handlers for admin...');
     
     if (window.wsManager.eventHandlers) {
         Object.keys(window.wsManager.eventHandlers).forEach(key => {
@@ -502,7 +429,6 @@ function setupAdminWebSocketHandlers() {
     }
     
     window.wsManager.on('moderation.queue_updated', (data) => {
-        console.log('Moderation queue updated:', data);
         if (window.notificationManager) {
             window.notificationManager.handleWebSocketEvent(data);
         }
@@ -514,7 +440,6 @@ function setupAdminWebSocketHandlers() {
     });
 
     window.wsManager.on('product.created', (data) => {
-        console.log('Product created (admin view):', data);
         if (window.notificationManager) {
             window.notificationManager.handleWebSocketEvent(data);
         }
@@ -522,14 +447,12 @@ function setupAdminWebSocketHandlers() {
     });
 
     window.wsManager.on('settings.updated', (data) => {
-        console.log('Settings updated:', data);
         if (window.notificationManager) {
             window.notificationManager.handleWebSocketEvent(data);
         }
     });
 
     window.wsManager.on('balance.updated', (data) => {
-        console.log('Balance updated:', data);
         if (window.notificationManager) {
             window.notificationManager.handleWebSocketEvent(data);
         }
@@ -537,7 +460,6 @@ function setupAdminWebSocketHandlers() {
     });
 
     window.wsManager.on('transaction.completed', (data) => {
-        console.log('Transaction completed:', data);
         if (window.notificationManager) {
             window.notificationManager.handleWebSocketEvent(data);
         }
@@ -548,7 +470,6 @@ function setupAdminWebSocketHandlers() {
         updateAdminConnectionStatus(state);
     });
     
-    console.log('WebSocket event handlers registered');
 }
 
 function addAdminConnectionStatusIndicator() {
@@ -590,14 +511,13 @@ function updateAdminConnectionStatus(state) {
 
 const originalAdminLogout = logout;
 logout = function() {
-    console.log('Disconnecting WebSocket on logout...');
     if (window.wsManager) {
         window.wsManager.disconnect();
     }
     originalAdminLogout();
 };
 
-// Make functions globally accessible for inline onclick handlers
+
 window.loginWithGoogle = loginWithGoogle;
 window.logout = logout;
 window.moderateProduct = moderateProduct;

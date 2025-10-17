@@ -1,5 +1,4 @@
 // Страница управления пользователями
-console.log('admin-users.js loaded');
 
 async function loadPageData() {
     try {
@@ -20,7 +19,6 @@ async function loadUsersStats() {
         document.getElementById('activeUsers').textContent = dashboard.total_users;
         document.getElementById('newUsers').textContent = '0';
     } catch (error) {
-        console.error('Error loading users stats:', error);
     }
 }
 
@@ -66,7 +64,6 @@ async function loadUsersList() {
             </table>
         `;
     } catch (error) {
-        console.error('Ошибка загрузки пользователей:', error);
     }
 }
 

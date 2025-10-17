@@ -59,28 +59,24 @@
         </div>
     </div>
 
-    <script src="../../assets/js/core/config.js?v=5"></script>
-    <script src="../../assets/js/core/websocket.js?v=5"></script>
-    <script src="../../assets/js/core/notifications.js?v=5"></script>
-    <script src="../../assets/js/pages/shop/dashboard.js?v=5"></script>
+    <script defer src="../../assets/js/core/config.js?v=8"></script>
+    <script defer src="../../assets/js/core/websocket.js?v=8"></script>
+    <script defer src="../../assets/js/core/notifications.js?v=8"></script>
+    <script defer src="../../assets/js/shared/lazy-loader.js?v=8"></script>
+    <script defer src="../../assets/js/core/cache.js?v=8"></script>
+    <script defer src="../../assets/js/shared/common-utils.js?v=8"></script>
+    <script defer src="../../assets/js/pages/shop/dashboard.js?v=8"></script>
     <script>
         // Initialize billing page on load
         window.onload = async function () {
-            console.log('Loading billing page...');
-            const token = localStorage.getItem('token');
+const token = localStorage.getItem('token');
             const accountType = localStorage.getItem('accountType');
 
-            console.log('Token:', token);
-            console.log('AccountType:', accountType);
-
-            if (!token || accountType !== 'shop') {
-                console.log('Not authenticated as shop, redirecting to index');
-                window.location.href = '../index.html';
+if (!token || accountType !== 'shop') {
+window.location.href = '../index.html';
                 return;
             }
-
-            console.log('Authenticated as shop, loading billing page');
-            document.getElementById('shopBillingPage').style.display = 'block';
+document.getElementById('shopBillingPage').style.display = 'block';
 
             try {
                 // Initialize WebSocket for shop

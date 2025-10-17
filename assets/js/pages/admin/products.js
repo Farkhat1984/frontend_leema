@@ -1,11 +1,8 @@
-// Страница управления товарами
-console.log('admin-products.js loaded');
 
-// Переменные для пагинации
 let currentPage = 1;
 const itemsPerPage = 12;
 let allProducts = [];
-let currentFilter = 'pending'; // По умолчанию показываем только товары на модерации
+let currentFilter = 'pending';
 let searchQuery = '';
 let sortBy = 'newest';
 
@@ -24,19 +21,18 @@ async function loadProductsStats() {
         document.getElementById('totalProducts').textContent = dashboard.total_products;
         document.getElementById('pendingModeration').textContent = dashboard.pending_moderation;
         
-        // Approximations for approved/rejected (можно добавить эти данные в API)
+
         document.getElementById('approvedProducts').textContent = Math.max(0, dashboard.total_products - dashboard.pending_moderation);
         document.getElementById('rejectedProducts').textContent = '0';
     } catch (error) {
-        console.error('Error loading products stats:', error);
     }
 }
 
 async function loadModerationQueue() {
     try {
-        // Загружаем все товары, не только pending
+
         const response = await apiRequest('/api/v1/admin/products/all');
-        // API возвращает объект с products, total, page и т.д.
+
         allProducts = response.products || response || [];
         const container = document.getElementById('moderationQueue');
 
@@ -55,12 +51,12 @@ async function loadModerationQueue() {
 function renderProductsPage() {
     const container = document.getElementById('moderationQueue');
     
-    // Фильтруем товары по статусу
+
     let filteredProducts = currentFilter === 'all' 
         ? allProducts 
         : allProducts.filter(p => p.moderation_status === currentFilter);
     
-    // Применяем поиск
+
     if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase();
         filteredProducts = filteredProducts.filter(p => 
@@ -70,7 +66,7 @@ function renderProductsPage() {
         );
     }
     
-    // Применяем сортировку
+
     filteredProducts = [...filteredProducts].sort((a, b) => {
         switch(sortBy) {
             case 'newest':
@@ -95,7 +91,6 @@ function renderProductsPage() {
     const productsToShow = filteredProducts.slice(startIndex, endIndex);
     const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
 
-    // Обновляем активную кнопку фильтра
     ['filterAll', 'filterPending', 'filterApproved', 'filterRejected'].forEach(id => {
         const btn = document.getElementById(id);
         if (btn) btn.classList.remove('active');
@@ -131,7 +126,7 @@ function renderProductsPage() {
                 <!-- Секция 1: Изображение -->
                 <div class="product-image">
                     ${imageUrl
-                ? `<img src="${imageUrl}" alt="${product.name}" onerror="this.parentElement.innerHTML='<div style=&quot;color: #999; padding: 40px; text-align: center;&quot;>Ошибка загрузки</div>'">`
+                ? `<img data-src="${imageUrl}" alt="${product.name}" loading="lazy" onerror="this.parentElement.innerHTML='<div style=&quot;color: #999; padding: 40px; text-align: center;&quot;>Ошибка загрузки</div>'">`
                 : '<div style="color: #999; padding: 40px; text-align: center;">Нет изображения</div>'}
                 </div>
                 
@@ -196,7 +191,10 @@ function renderProductsPage() {
         `;
     }).join('');
 
-    // Обновляем пагинацию
+    if (typeof window.lazyLoader !== 'undefined') {
+        setTimeout(() => window.lazyLoader.observeAll('img[data-src]'), 0);
+    }
+
     if (totalPages > 1) {
         document.getElementById('paginationContainer').style.display = 'flex';
         document.getElementById('pageInfo').textContent = `Страница ${currentPage} из ${totalPages} (${filteredProducts.length} товаров)`;
@@ -215,19 +213,19 @@ function changePage(direction) {
 
 function filterByStatus(status) {
     currentFilter = status;
-    currentPage = 1; // Сбрасываем на первую страницу при смене фильтра
+    currentPage = 1;
     renderProductsPage();
 }
 
 function handleSearch() {
     searchQuery = document.getElementById('searchInput').value;
-    currentPage = 1; // Сбрасываем на первую страницу при поиске
+    currentPage = 1;
     renderProductsPage();
 }
 
 function handleSort() {
     sortBy = document.getElementById('sortSelect').value;
-    currentPage = 1; // Сбрасываем на первую страницу при смене сортировки
+    currentPage = 1;
     renderProductsPage();
 }
 
@@ -250,21 +248,20 @@ async function moderateProduct(productId, action) {
         await apiRequest(endpoint, 'POST', { action, notes });
         showAlert(`Товар успешно ${action === 'approve' ? 'одобрен' : 'отклонен'}`, 'success');
         
-        // Обновляем статус товара на странице без перезагрузки всего списка
+
         const productIndex = allProducts.findIndex(p => p.id === productId);
         if (productIndex !== -1) {
             allProducts[productIndex].moderation_status = action === 'approve' ? 'approved' : 'rejected';
             renderProductsPage();
         }
         
-        // Обновляем статистику
+
         await loadProductsStats();
     } catch (error) {
         showAlert('Ошибка модерации: ' + error.message, 'error');
     }
 }
 
-// WebSocket handlers
 function onModerationUpdate(data) {
     if (data.data && data.data.pending_count !== undefined) {
         document.getElementById('pendingModeration').textContent = data.data.pending_count;
@@ -277,7 +274,6 @@ function onProductUpdate(data) {
     loadModerationQueue();
 }
 
-// Make functions globally accessible
 window.moderateProduct = moderateProduct;
 window.changePage = changePage;
 window.filterByStatus = filterByStatus;

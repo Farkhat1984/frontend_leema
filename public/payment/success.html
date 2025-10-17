@@ -138,17 +138,11 @@
             ? 'http://localhost:8000'
             : 'https://api.leema.kz';
 
-        console.log('Environment:', hostname);
-        console.log('API_URL:', API_URL);
-
-        async function processPayment() {
+async function processPayment() {
             const urlParams = new URLSearchParams(window.location.search);
             const token = urlParams.get('token');
             const payerID = urlParams.get('PayerID');
-
-            console.log('Payment success callback:', { token, payerID });
-
-            if (!token) {
+if (!token) {
                 showError('Отсутствует токен платежа');
                 return;
             }
@@ -169,22 +163,14 @@
                     const tokenParts = authToken.split('.');
                     if (tokenParts.length === 3) {
                         const payload = JSON.parse(atob(tokenParts[1]));
-                        console.log('Token payload:', payload);
-                        console.log('Token has user_id:', 'user_id' in payload);
-                        console.log('Token has sub:', 'sub' in payload);
-                    }
+
+}
                 } catch (e) {
-                    console.error('Could not decode token:', e);
-                }
+}
 
                 // Capture payment
-                console.log('=== STARTING PAYMENT CAPTURE ===');
-                console.log('Order ID (token):', token);
-                console.log('PayerID:', payerID);
-                console.log('Auth token:', authToken ? 'Present' : 'Missing');
-                console.log('Capture URL:', `${API_URL}/api/v1/payments/capture/${token}`);
 
-                const response = await fetch(`${API_URL}/api/v1/payments/capture/${token}`, {
+const response = await fetch(`${API_URL}/api/v1/payments/capture/${token}`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${authToken}`,
@@ -192,13 +178,9 @@
                     }
                 });
 
-                console.log('Capture response status:', response.status);
-                console.log('Capture response ok:', response.ok);
-
-                if (!response.ok) {
+if (!response.ok) {
                     const errorText = await response.text();
-                    console.error('Capture failed - raw response:', errorText);
-                    let errorData;
+let errorData;
                     try {
                         errorData = JSON.parse(errorText);
                     } catch (e) {
@@ -219,14 +201,11 @@
                 }
 
                 const result = await response.json();
-                console.log('=== PAYMENT CAPTURED SUCCESSFULLY ===');
-                console.log('Result:', JSON.stringify(result, null, 2));
 
-                // Show success
+// Show success
                 showSuccess(result);
             } catch (error) {
-                console.error('Payment processing error:', error);
-                showError(error.message);
+showError(error.message);
             }
         }
 
