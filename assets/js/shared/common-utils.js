@@ -97,6 +97,18 @@ const CommonUtils = {
     showAlert(message, type = 'success', container = 'alertContainer') {
         const alertContainer = document.getElementById(container);
         if (!alertContainer) {
+            console.log('[Alert] Container not found:', container, message);
+            return;
+        }
+
+        // Фильтруем технические ошибки, которые не должны показываться пользователю
+        if (type === 'error' && message && (
+            message.includes('Cannot set properties of null') ||
+            message.includes('Cannot read properties of null') ||
+            message.includes('Cannot read properties of undefined') ||
+            message.includes('is null') && message.includes('textContent')
+        )) {
+            console.error('[Alert] Technical error suppressed:', message);
             return;
         }
 

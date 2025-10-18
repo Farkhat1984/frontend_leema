@@ -24,12 +24,16 @@ async function loadPageData() {
 async function loadUsersStats() {
     try {
         const dashboard = await apiRequest('/api/v1/admin/dashboard');
-        document.getElementById('totalUsers').textContent = dashboard.total_users;
-        document.getElementById('totalUserBalance').textContent = `$${dashboard.total_user_balances.toFixed(2)}`;
+        const totalUsersEl = document.getElementById('totalUsers');
+        const totalUserBalanceEl = document.getElementById('totalUserBalance');
+        const activeUsersEl = document.getElementById('activeUsers');
+        const newUsersEl = document.getElementById('newUsers');
+        if (totalUsersEl) totalUsersEl.textContent = dashboard.total_users;
+        if (totalUserBalanceEl) totalUserBalanceEl.textContent = `$${dashboard.total_user_balances.toFixed(2)}`;
         
         // Approximations (можно добавить эти данные в API)
-        document.getElementById('activeUsers').textContent = dashboard.total_users;
-        document.getElementById('newUsers').textContent = '0';
+        if (activeUsersEl) activeUsersEl.textContent = dashboard.total_users;
+        if (newUsersEl) newUsersEl.textContent = '0';
     } catch (error) {
     }
 }

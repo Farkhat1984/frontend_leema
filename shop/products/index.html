@@ -196,8 +196,10 @@
 
                 // Load shop info
                 const shopInfo = await apiRequest('/api/v1/shops/me');
-                document.getElementById('shopName').textContent = shopInfo.shop_name;
-                document.getElementById('shopAvatar').textContent = shopInfo.shop_name[0].toUpperCase();
+                const shopNameEl = document.getElementById('shopName');
+                const shopAvatarEl = document.getElementById('shopAvatar');
+                if (shopNameEl) shopNameEl.textContent = shopInfo.shop_name;
+                if (shopAvatarEl) shopAvatarEl.textContent = shopInfo.shop_name[0].toUpperCase();
 
                 // Load products
                 await loadShopProducts();

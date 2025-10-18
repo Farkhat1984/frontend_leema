@@ -105,8 +105,10 @@ async function loadShopDashboard() {
         
 
         const shopInfo = await apiRequest('/api/v1/shops/me');
-        document.getElementById('shopName').textContent = shopInfo.shop_name;
-        document.getElementById('shopAvatar').textContent = shopInfo.shop_name[0].toUpperCase();
+        const shopNameEl = document.getElementById('shopName');
+        const shopAvatarEl = document.getElementById('shopAvatar');
+        if (shopNameEl) shopNameEl.textContent = shopInfo.shop_name;
+        if (shopAvatarEl) shopAvatarEl.textContent = shopInfo.shop_name[0].toUpperCase();
 
 
         const profileShopNameEl = document.getElementById('profileShopName');
@@ -118,10 +120,14 @@ async function loadShopDashboard() {
 
 
         const analytics = await apiRequest('/api/v1/shops/me/analytics');
-        document.getElementById('totalProducts').textContent = analytics.total_products;
-        document.getElementById('activeProducts').textContent = analytics.active_products;
-        document.getElementById('totalViews').textContent = analytics.total_views;
-        document.getElementById('totalTryOns').textContent = analytics.total_try_ons;
+        const totalProductsEl = document.getElementById('totalProducts');
+        const activeProductsEl = document.getElementById('activeProducts');
+        const totalViewsEl = document.getElementById('totalViews');
+        const totalTryOnsEl = document.getElementById('totalTryOns');
+        if (totalProductsEl) totalProductsEl.textContent = analytics.total_products;
+        if (activeProductsEl) activeProductsEl.textContent = analytics.active_products;
+        if (totalViewsEl) totalViewsEl.textContent = analytics.total_views;
+        if (totalTryOnsEl) totalTryOnsEl.textContent = analytics.total_try_ons;
 
 
         const shopBalanceEl = document.getElementById('shopBalance');
@@ -354,8 +360,10 @@ async function updateShopProfile() {
 
 
         const shopInfo = await apiRequest('/api/v1/shops/me');
-        document.getElementById('shopName').textContent = shopInfo.shop_name;
-        document.getElementById('shopAvatar').textContent = shopInfo.shop_name[0].toUpperCase();
+        const shopNameEl = document.getElementById('shopName');
+        const shopAvatarEl = document.getElementById('shopAvatar');
+        if (shopNameEl) shopNameEl.textContent = shopInfo.shop_name;
+        if (shopAvatarEl) shopAvatarEl.textContent = shopInfo.shop_name[0].toUpperCase();
     } catch (error) {
         showAlert('Ошибка обновления профиля: ' + error.message, 'error');
     }
@@ -571,8 +579,8 @@ window.showConfirmDialog = function(message) {
         const messageEl = document.getElementById('confirmMessage');
         const dialogEl = document.getElementById('confirmDialog');
 
-        messageEl.textContent = message;
-        dialogEl.classList.add('active');
+        if (messageEl) messageEl.textContent = message;
+        if (dialogEl) dialogEl.classList.add('active');
         confirmCallback = resolve;
     });
 };
@@ -772,138 +780,23 @@ function initShopWebSocket() {
         console.log('[SHOP] Initializing WebSocket connection');
         window.wsManager.connect(token, 'shop');
 
-        setupShopWebSocketHandlers();
+        // WebSocket handlers are set up in CommonUtils.initWebSocket above
 
         // Добавить индикатор статуса WebSocket (если доступен CommonUtils)
         if (typeof CommonUtils !== 'undefined' && CommonUtils.addConnectionStatusIndicator) {
             CommonUtils.addConnectionStatusIndicator();
         }
 
+        // Connection state change handler
+        window.wsManager.onConnectionStateChange((state) => {
+            updateConnectionStatus(state);
+        });
+
         wsInitialized = true;
     } else {
         console.log('[SHOP] WebSocket manager or token not available');
     }
 }
-
-function setupShopWebSocketHandlers() {
-    
-
-    if (window.wsManager.eventHandlers) {
-
-        Object.keys(window.wsManager.eventHandlers).forEach(key => {
-            window.wsManager.eventHandlers[key] = [];
-        });
-    } else {
-        window.wsManager.eventHandlers = {};
-    }
-    
-
-    window.wsManager.on('product.created', (data) => {
-        if (window.notificationManager) {
-            window.notificationManager.handleWebSocketEvent(data);
-        }
-
-        loadShopProducts();
-    });
-
-    window.wsManager.on('product.updated', (data) => {
-        if (window.notificationManager) {
-            window.notificationManager.handleWebSocketEvent(data);
-        }
-
-        loadShopProducts();
-    });
-
-    window.wsManager.on('product.deleted', (data) => {
-        if (window.notificationManager) {
-            window.notificationManager.handleWebSocketEvent(data);
-        }
-
-        loadShopProducts();
-    });
-
-    window.wsManager.on('product.approved', (data) => {
-        if (window.notificationManager) {
-            window.notificationManager.handleWebSocketEvent(data);
-        }
-
-        loadShopProducts();
-        loadShopDashboard();
-    });
-
-    window.wsManager.on('product.rejected', (data) => {
-        if (window.notificationManager) {
-            window.notificationManager.handleWebSocketEvent(data);
-        }
-
-        loadShopProducts();
-    });
-
-
-    window.wsManager.on('balance.updated', (data) => {
-        if (window.notificationManager) {
-            window.notificationManager.handleWebSocketEvent(data);
-        }
-
-        const balanceElement = document.getElementById('shopBalance');
-        if (balanceElement && data.data && data.data.new_balance !== undefined) {
-            balanceElement.textContent = `$${data.data.new_balance.toFixed(2)}`;
-        }
-        loadShopTransactions();
-    });
-
-
-    window.wsManager.on('transaction.completed', (data) => {
-        if (window.notificationManager) {
-            window.notificationManager.handleWebSocketEvent(data);
-        }
-
-        loadShopTransactions();
-    });
-
-    window.wsManager.on('transaction.failed', (data) => {
-        if (window.notificationManager) {
-            window.notificationManager.handleWebSocketEvent(data);
-        }
-    });
-
-
-    window.wsManager.on('order.created', (data) => {
-        if (window.notificationManager) {
-            window.notificationManager.handleWebSocketEvent(data);
-        }
-    });
-
-    window.wsManager.on('order.completed', (data) => {
-        if (window.notificationManager) {
-            window.notificationManager.handleWebSocketEvent(data);
-        }
-
-        loadShopDashboard();
-    });
-
-
-    window.wsManager.on('review.created', (data) => {
-        if (window.notificationManager) {
-            window.notificationManager.handleWebSocketEvent(data);
-        }
-    });
-
-
-    window.wsManager.on('settings.updated', (data) => {
-        if (window.notificationManager) {
-            window.notificationManager.handleWebSocketEvent(data);
-        }
-    });
-
-
-    window.wsManager.onConnectionStateChange((state) => {
-        updateConnectionStatus(state);
-    });
-    
-}
-
-
 
 function updateConnectionStatus(state) {
     const indicator = document.getElementById('wsConnectionStatus');

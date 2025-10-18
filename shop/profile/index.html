@@ -94,11 +94,16 @@
                 
                 // Load shop info
                 const shopInfo = await apiRequest('/api/v1/shops/me');
-                document.getElementById('shopName').textContent = shopInfo.shop_name;
-                document.getElementById('shopAvatar').textContent = shopInfo.shop_name[0].toUpperCase();
-                document.getElementById('profileShopName').value = shopInfo.shop_name;
-                document.getElementById('profileEmail').value = shopInfo.email;
-                document.getElementById('profileDescription').value = shopInfo.description || '';
+                const shopNameEl = document.getElementById('shopName');
+                const shopAvatarEl = document.getElementById('shopAvatar');
+                const profileShopNameEl = document.getElementById('profileShopName');
+                const profileEmailEl = document.getElementById('profileEmail');
+                const profileDescriptionEl = document.getElementById('profileDescription');
+                if (shopNameEl) shopNameEl.textContent = shopInfo.shop_name;
+                if (shopAvatarEl) shopAvatarEl.textContent = shopInfo.shop_name[0].toUpperCase();
+                if (profileShopNameEl) profileShopNameEl.value = shopInfo.shop_name;
+                if (profileEmailEl) profileEmailEl.value = shopInfo.email;
+                if (profileDescriptionEl) profileDescriptionEl.value = shopInfo.description || '';
             } catch (error) {
                 console.error('[SHOP] Error:', error);
                 if (typeof showAlert !== 'undefined') {

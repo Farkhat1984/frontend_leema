@@ -35,12 +35,16 @@ async function loadPageData() {
 async function loadShopsStats() {
     try {
         const dashboard = await apiRequest('/api/v1/admin/dashboard');
-        document.getElementById('totalShops').textContent = dashboard.total_shops;
-        document.getElementById('totalShopBalance').textContent = `$${dashboard.total_shop_balances.toFixed(2)}`;
+        const totalShopsEl = document.getElementById('totalShops');
+        const totalShopBalanceEl = document.getElementById('totalShopBalance');
+        const activeShopsEl = document.getElementById('activeShops');
+        const shopsWithProductsEl = document.getElementById('shopsWithProducts');
+        if (totalShopsEl) totalShopsEl.textContent = dashboard.total_shops;
+        if (totalShopBalanceEl) totalShopBalanceEl.textContent = `$${dashboard.total_shop_balances.toFixed(2)}`;
         
         // Approximations (можно добавить эти данные в API)
-        document.getElementById('activeShops').textContent = dashboard.total_shops;
-        document.getElementById('shopsWithProducts').textContent = dashboard.total_shops;
+        if (activeShopsEl) activeShopsEl.textContent = dashboard.total_shops;
+        if (shopsWithProductsEl) shopsWithProductsEl.textContent = dashboard.total_shops;
     } catch (error) {
     }
 }

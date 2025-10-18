@@ -308,7 +308,8 @@ document.getElementById('productsContent').innerHTML = `
             // Пагинация
             if (totalPages > 1) {
                 document.getElementById('paginationContainer').style.display = 'flex';
-                document.getElementById('pageInfo').textContent = `Страница ${currentPage} из ${totalPages}`;
+                const pageInfoEl = document.getElementById('pageInfo');
+                if (pageInfoEl) pageInfoEl.textContent = `Страница ${currentPage} из ${totalPages}`;
                 document.getElementById('prevBtn').disabled = currentPage === 1;
                 document.getElementById('nextBtn').disabled = currentPage === totalPages;
             } else {

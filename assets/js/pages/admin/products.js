@@ -33,12 +33,16 @@ async function loadPageData() {
 async function loadProductsStats() {
     try {
         const dashboard = await apiRequest('/api/v1/admin/dashboard');
-        document.getElementById('totalProducts').textContent = dashboard.total_products;
-        document.getElementById('pendingModeration').textContent = dashboard.pending_moderation;
+        const totalProductsEl = document.getElementById('totalProducts');
+        const pendingModerationEl = document.getElementById('pendingModeration');
+        const approvedProductsEl = document.getElementById('approvedProducts');
+        const rejectedProductsEl = document.getElementById('rejectedProducts');
+        if (totalProductsEl) totalProductsEl.textContent = dashboard.total_products;
+        if (pendingModerationEl) pendingModerationEl.textContent = dashboard.pending_moderation;
         
 
-        document.getElementById('approvedProducts').textContent = Math.max(0, dashboard.total_products - dashboard.pending_moderation);
-        document.getElementById('rejectedProducts').textContent = '0';
+        if (approvedProductsEl) approvedProductsEl.textContent = Math.max(0, dashboard.total_products - dashboard.pending_moderation);
+        if (rejectedProductsEl) rejectedProductsEl.textContent = '0';
     } catch (error) {
     }
 }
@@ -212,7 +216,8 @@ function renderProductsPage() {
 
     if (totalPages > 1) {
         document.getElementById('paginationContainer').style.display = 'flex';
-        document.getElementById('pageInfo').textContent = `Страница ${currentPage} из ${totalPages} (${filteredProducts.length} товаров)`;
+        const pageInfoEl = document.getElementById('pageInfo');
+        if (pageInfoEl) pageInfoEl.textContent = `Страница ${currentPage} из ${totalPages} (${filteredProducts.length} товаров)`;
         document.getElementById('prevPageBtn').disabled = currentPage === 1;
         document.getElementById('nextPageBtn').disabled = currentPage === totalPages;
     } else {
@@ -246,21 +251,11 @@ function handleSort() {
 
 async function moderateProduct(productId, action) {
     try {
-        let notes = null;
-
-        if (action === 'reject') {
-            notes = prompt('Укажите причину отклонения товара:');
-            if (!notes || notes.trim().length === 0) {
-                showAlert('Необходимо указать причину отклонения', 'error');
-                return;
-            }
-        }
-
         const endpoint = action === 'approve'
             ? `/api/v1/admin/moderation/${productId}/approve`
             : `/api/v1/admin/moderation/${productId}/reject`;
 
-        await apiRequest(endpoint, 'POST', { action, notes });
+        await apiRequest(endpoint, 'POST', { action });
         showAlert(`Товар успешно ${action === 'approve' ? 'одобрен' : 'отклонен'}`, 'success');
         
 
@@ -279,7 +274,8 @@ async function moderateProduct(productId, action) {
 
 function onModerationUpdate(data) {
     if (data.data && data.data.pending_count !== undefined) {
-        document.getElementById('pendingModeration').textContent = data.data.pending_count;
+        const pendingModerationEl = document.getElementById('pendingModeration');
+        if (pendingModerationEl) pendingModerationEl.textContent = data.data.pending_count;
     }
     loadModerationQueue();
 }

@@ -18,19 +18,22 @@ window.onload = async function () {
         if (accountType === 'shop') {
             const shopInfo = await apiRequest('/api/v1/shops/me');
             currentBalanceValue = shopInfo.balance || 0;
-            document.getElementById('accountInfo').textContent = `Магазин: ${shopInfo.shop_name}`;
+            const accountInfoEl = document.getElementById('accountInfo');
+            if (accountInfoEl) accountInfoEl.textContent = `Магазин: ${shopInfo.shop_name}`;
         } else if (accountType === 'user' || accountType === 'admin') {
 
             const userInfo = await apiRequest('/api/v1/users/me');
             const balanceInfo = await apiRequest('/api/v1/users/me/balance');
             currentBalanceValue = balanceInfo.balance || 0;
-            document.getElementById('accountInfo').textContent = `Пользователь: ${userInfo.email}`;
+            const accountInfoEl = document.getElementById('accountInfo');
+            if (accountInfoEl) accountInfoEl.textContent = `Пользователь: ${userInfo.email}`;
         } else {
             window.location.href = `${window.location.origin}/index.html`;
             return;
         }
 
-        document.getElementById('currentBalance').textContent = `$${currentBalanceValue.toFixed(2)}`;
+        const currentBalanceEl = document.getElementById('currentBalance');
+        if (currentBalanceEl) currentBalanceEl.textContent = `$${currentBalanceValue.toFixed(2)}`;
     } catch (error) {
         showAlert('Ошибка загрузки данных: ' + error.message, 'error');
     }
@@ -72,8 +75,10 @@ function selectPaymentMethod(method) {
 }
 
 function updateSummary() {
-    document.getElementById('summaryAmount').textContent = `$${selectedAmount.toFixed(2)}`;
-    document.getElementById('summaryTotal').textContent = `$${selectedAmount.toFixed(2)}`;
+    const summaryAmountEl = document.getElementById('summaryAmount');
+    const summaryTotalEl = document.getElementById('summaryTotal');
+    if (summaryAmountEl) summaryAmountEl.textContent = `$${selectedAmount.toFixed(2)}`;
+    if (summaryTotalEl) summaryTotalEl.textContent = `$${selectedAmount.toFixed(2)}`;
 }
 
 async function processPayment() {
