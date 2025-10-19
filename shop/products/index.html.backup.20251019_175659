@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Redesigned with Tailwind CSS -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои товары - Fashion AI Platform</title>
+    <link rel="stylesheet" href="../../assets/css/layouts/style.css">
+    <link rel="stylesheet" href="../../assets/css/pages/shop.css">
+</head>
+
+<body>
+    <!-- Панель магазина - секция товаров -->
+    <div id="shopProductsPage" class="dashboard">
+        <div class="header">
+            <h1>Мои товары</h1>
+            <div class="user-info">
+                <div class="user-avatar" id="shopAvatar">М</div>
+                <span id="shopName">Мой магазин</span>
+                <button class="logout-btn" onclick="logout()">Выйти</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <div id="alertContainer"></div>
+
+            <!-- Навигация назад -->
+            <div style="margin-bottom: 20px;">
+                <button class="btn btn-secondary" onclick="window.location.href='/shop/index.html'">
+                    ← Вернуться на главную
+                </button>
+            </div>
+
+            <!-- Товары -->
+            <div class="section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>Мои товары</h2>
+                    <button class="btn btn-primary" onclick="openAddProductModal()">+ Добавить товар</button>
+                </div>
+                
+                <!-- Поиск и фильтры -->
+                <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; align-items: center;">
+                    <input type="text" id="shopSearchInput" placeholder="🔍 Поиск по названию или описанию..." 
+                           style="flex: 1; min-width: 250px; padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;"
+                           oninput="handleShopSearch()">
+                    
+                    <select id="shopSortSelect" onchange="handleShopSort()" 
+                            style="padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; cursor: pointer;">
+                        <option value="newest">Сначала новые</option>
+                        <option value="oldest">Сначала старые</option>
+                        <option value="price_low">Цена: по возрастанию</option>
+                        <option value="price_high">Цена: по убыванию</option>
+                        <option value="name_az">Название: А-Я</option>
+                        <option value="name_za">Название: Я-А</option>
+                    </select>
+                    
+                    <select id="shopStatusFilter" onchange="handleShopStatusFilter()" 
+                            style="padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; cursor: pointer;">
+                        <option value="all">Все статусы</option>
+                        <option value="pending">На модерации</option>
+                        <option value="approved">Одобренные</option>
+                        <option value="rejected">Отклоненные</option>
+                    </select>
+                </div>
+                
+                <div id="productsList" class="products-grid"></div>
+
+                <!-- Пагинация -->
+                <div id="shopPaginationContainer" class="pagination" style="display: none;">
+                    <button class="btn btn-secondary" id="shopPrevPageBtn" onclick="changeShopPage(-1)">Предыдущая</button>
+                    <span id="shopPageInfo" style="margin: 0 20px; font-weight: 600;">Страница 1</span>
+                    <button class="btn btn-secondary" id="shopNextPageBtn" onclick="changeShopPage(1)">Следующая</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно добавления товара -->
+    <div id="addProductModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close-modal" onclick="closeAddProductModal()">&times;</span>
+                <h2>Добавить товар</h2>
+            </div>
+            <div class="form-group">
+                <label>Название товара *</label>
+                <input type="text" id="productName" placeholder="Например: Красное платье">
+            </div>
+            <div class="form-group">
+                <label>Описание</label>
+                <textarea id="productDescription" placeholder="Опишите ваш товар"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Цена (USD) *</label>
+                <input type="number" id="productPrice" placeholder="49.99" step="0.01" min="0">
+            </div>
+            <div class="form-group">
+                <label>Изображения товара</label>
+                <input type="file" id="productImages" accept="image/jpeg,image/jpg,image/png,image/webp" multiple>
+                <small style="color: #666; display: block; margin-top: 5px;">Можно выбрать несколько изображений (JPEG,
+                    PNG, WEBP)</small>
+            </div>
+            <button class="btn btn-primary" onclick="createProduct()">Создать товар</button>
+            <button class="btn btn-secondary" onclick="closeAddProductModal()">Отмена</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно редактирования товара -->
+    <div id="editProductModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close-modal" onclick="closeEditProductModal()">&times;</span>
+                <h2>Редактировать товар</h2>
+            </div>
+            <input type="hidden" id="editProductId">
+            <div class="form-group">
+                <label>Название товара *</label>
+                <input type="text" id="editProductName">
+            </div>
+            <div class="form-group">
+                <label>Описание</label>
+                <textarea id="editProductDescription"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Цена (USD) *</label>
+                <input type="number" id="editProductPrice" step="0.01" min="0">
+            </div>
+            <div class="form-group">
+                <label>Изображения товара</label>
+                <input type="file" id="editProductImages" accept="image/jpeg,image/jpg,image/png,image/webp" multiple>
+                <small style="color: #666; display: block; margin-top: 5px;">Можно выбрать несколько изображений (JPEG,
+                    PNG, WEBP). Чтобы удалить изображение, нажмите на крестик ✕</small>
+                <div id="currentImages" style="margin-top: 10px;"></div>
+            </div>
+            <button class="btn btn-primary" onclick="updateProduct()">Сохранить</button>
+            <button class="btn btn-secondary" onclick="closeEditProductModal()">Отмена</button>
+        </div>
+    </div>
+
+    <!-- Custom confirmation dialog -->
+    <div id="confirmDialog" class="confirm-dialog">
+        <div class="confirm-dialog-content">
+            <h3 id="confirmMessage">Вы уверены?</h3>
+            <div class="confirm-dialog-buttons">
+                <button class="btn btn-secondary" onclick="closeConfirmDialog(false)">Отмена</button>
+                <button class="btn btn-danger" onclick="closeConfirmDialog(true)">Удалить</button>
+            </div>
+        </div>
+    </div>
+
+    <script defer src="../../assets/js/core/config.js?v=17"></script>
+    <script defer src="../../assets/js/core/auth.js?v=17"></script>
+    <script defer src="../../assets/js/core/websocket.js?v=17"></script>
+    <script defer src="../../assets/js/core/notifications.js?v=17"></script>
+    <script defer src="../../assets/js/shared/lazy-loader.js?v=17"></script>
+    <script defer src="../../assets/js/core/cache.js?v=17"></script>
+    <script defer src="../../assets/js/shared/common-utils.js?v=17"></script>
+    <script defer src="../../assets/js/pages/shop/dashboard.js?v=17"></script>
+    <script>
+        // Initialize products page on load
+        // Используем DOMContentLoaded + небольшую задержку для defer скриптов
+        async function initProductsPage() {
+            const token = localStorage.getItem('token');
+            const accountType = localStorage.getItem('accountType');
+
+            // Инициализировать platform если отсутствует
+            if (!localStorage.getItem('platform')) {
+                localStorage.setItem('platform', 'web');
+            }
+
+            if (!token || accountType !== 'shop') {
+                window.location.href = '../index.html';
+                return;
+            }
+
+            document.getElementById('shopProductsPage').style.display = 'block';
+
+            try {
+                // Ждем пока все defer скрипты загрузятся
+                if (typeof apiRequest === 'undefined' || typeof loadShopProducts === 'undefined') {
+                    console.log('[SHOP] Waiting for scripts to load...');
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    return initProductsPage(); // Retry
+                }
+
+                // Initialize WebSocket for shop
+                if (typeof CommonUtils !== 'undefined' && CommonUtils.initWebSocket) {
+                    CommonUtils.initWebSocket('shop', {
+                        'product.created': () => { if (typeof loadShopProducts !== 'undefined') loadShopProducts(); },
+                        'product.updated': () => { if (typeof loadShopProducts !== 'undefined') loadShopProducts(); },
+                        'product.deleted': () => { if (typeof loadShopProducts !== 'undefined') loadShopProducts(); },
+                        'product.approved': () => { if (typeof loadShopProducts !== 'undefined') loadShopProducts(); },
+                        'product.rejected': () => { if (typeof loadShopProducts !== 'undefined') loadShopProducts(); }
+                    });
+                }
+
+                // Load shop info
+                const shopInfo = await apiRequest('/api/v1/shops/me');
+                const shopNameEl = document.getElementById('shopName');
+                const shopAvatarEl = document.getElementById('shopAvatar');
+                if (shopNameEl) shopNameEl.textContent = shopInfo.shop_name;
+                if (shopAvatarEl) shopAvatarEl.textContent = shopInfo.shop_name[0].toUpperCase();
+
+                // Load products
+                await loadShopProducts();
+            } catch (error) {
+                console.error('[SHOP] Error loading page:', error);
+                if (typeof showAlert !== 'undefined') {
+                    showAlert('Ошибка загрузки данных: ' + error.message, 'error');
+                } else {
+                    alert('Ошибка загрузки данных: ' + error.message);
+                }
+            }
+        }
+
+        // Запускаем после полной загрузки DOM и скриптов
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => setTimeout(initProductsPage, 50));
+        } else {
+            setTimeout(initProductsPage, 50);
+        }
+    </script>
+</body>
+
+</html>

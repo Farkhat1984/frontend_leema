@@ -2,11 +2,13 @@
 <html lang="ru">
 
 <head>
+    <!-- Redesigned with Tailwind CSS -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Продвинутая аналитика - Fashion AI Platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../assets/css/pages/shop.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 
@@ -15,17 +17,17 @@
         <div class="loading-spinner"></div>
     </div>
 
-    <div class="min-h-screen bg-gray-50">
-        <div class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+    <div class="dashboard">
+        <div class="header">
             <h1>📊 Продвинутая аналитика</h1>
-            <div class="flex items-center space-x-4">
-                <div class="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center font-semibold" id="shopAvatar">М</div>
+            <div class="user-info">
+                <div class="user-avatar" id="shopAvatar">М</div>
                 <span id="shopName">Мой магазин</span>
-                <button class="text-gray-600 hover:text-gray-900 ml-4" onclick="logout()">Выйти</button>
+                <button class="logout-btn" onclick="logout()">Выйти</button>
             </div>
         </div>
 
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="container">
             <div id="alertContainer"></div>
 
             <!-- Back Button -->
@@ -54,28 +56,28 @@
             <div class="analytics-stats">
                 <div class="stat-card highlight">
                     <h3>💰 Общая выручка</h3>
-                    <div class="text-3xl font-bold mb-2" id="totalRevenue">$0</div>
+                    <div class="value" id="totalRevenue">$0</div>
                     <span class="trend up" id="revenueTrend">
                         <span>↑</span> 0%
                     </span>
                 </div>
-                <div class="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl p-6 text-white shadow-lg">
+                <div class="stat-card">
                     <h3>🛍️ Заказов</h3>
-                    <div class="text-3xl font-bold mb-2" id="totalOrders">0</div>
+                    <div class="value" id="totalOrders">0</div>
                     <span class="trend neutral" id="ordersTrend">
                         <span>→</span> 0%
                     </span>
                 </div>
-                <div class="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl p-6 text-white shadow-lg">
+                <div class="stat-card">
                     <h3>📊 Средний чек</h3>
-                    <div class="text-3xl font-bold mb-2" id="averageOrder">$0</div>
+                    <div class="value" id="averageOrder">$0</div>
                     <span class="trend neutral" id="avgTrend">
                         <span>→</span> 0%
                     </span>
                 </div>
-                <div class="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl p-6 text-white shadow-lg">
+                <div class="stat-card">
                     <h3>👥 Клиентов</h3>
-                    <div class="text-3xl font-bold mb-2" id="totalCustomers">0</div>
+                    <div class="value" id="totalCustomers">0</div>
                     <span class="trend neutral" id="customersTrend">
                         <span>→</span> 0%
                     </span>
@@ -260,10 +262,10 @@
         </div>
     </div>
 
-    <script defer src="../../assets/js/core/config.js?v=999"></script>
-    <script defer src="../../assets/js/core/auth.js?v=999"></script>
-    <script defer src="../../assets/js/shared/common-utils.js?v=999"></script>
-    <script defer src="../../assets/js/pages/shop/analytics.js?v=999"></script>
+    <script defer src="../../assets/js/core/config.js?v=15"></script>
+    <script defer src="../../assets/js/core/auth.js?v=15"></script>
+    <script defer src="../../assets/js/shared/common-utils.js?v=15"></script>
+    <script defer src="../../assets/js/pages/shop/analytics.js?v=15"></script>
 </body>
 
 </html>

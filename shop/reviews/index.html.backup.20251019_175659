@@ -5,8 +5,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Отзывы на товары - Fashion AI Platform</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
+    <link rel="stylesheet" href="../../assets/css/layouts/style.css">
+    <link rel="stylesheet" href="../../assets/css/pages/shop.css">
+    <style>
+        .reviews-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            border-radius: 12px;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .reviews-header h1 {
+            margin: 0 0 10px 0;
+            font-size: 28px;
+        }
+
+        .reviews-header p {
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        /* Statistics Cards */
+        .reviews-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-card.excellent {
+            border-left-color: #10b981;
+        }
+
+        .stat-card.good {
+            border-left-color: #3b82f6;
+        }
 
         .stat-card.needs-reply {
             border-left-color: #f59e0b;
@@ -571,36 +613,36 @@
 
         <!-- Statistics -->
         <div class="reviews-stats">
-            <div class="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl p-6 text-white shadow-lg">
+            <div class="stat-card">
                 <h3>Всего отзывов</h3>
-                <div class="text-3xl font-bold mb-2" id="totalReviews">-</div>
-                <div class="text-sm opacity-90">За всё время</div>
+                <div class="value" id="totalReviews">-</div>
+                <div class="subvalue">За всё время</div>
             </div>
             <div class="stat-card excellent">
                 <h3>Средний рейтинг</h3>
-                <div class="text-3xl font-bold mb-2" id="averageRating">-</div>
-                <div class="text-sm opacity-90" id="ratingStars"></div>
+                <div class="value" id="averageRating">-</div>
+                <div class="subvalue" id="ratingStars"></div>
             </div>
             <div class="stat-card good">
                 <h3>Отличные отзывы</h3>
-                <div class="text-3xl font-bold mb-2" id="excellentReviews">-</div>
-                <div class="text-sm opacity-90">5 звёзд</div>
+                <div class="value" id="excellentReviews">-</div>
+                <div class="subvalue">5 звёзд</div>
             </div>
             <div class="stat-card needs-reply">
                 <h3>Требуют ответа</h3>
-                <div class="text-3xl font-bold mb-2" id="needsReply">-</div>
-                <div class="text-sm opacity-90">Без ответа магазина</div>
+                <div class="value" id="needsReply">-</div>
+                <div class="subvalue">Без ответа магазина</div>
             </div>
         </div>
 
         <!-- Filters -->
-        <div class="flex flex-wrap gap-4 mb-6">
+        <div class="filters-container">
             <input type="text" 
-                   class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" 
+                   class="search-box" 
                    id="searchInput" 
                    placeholder="🔍 Поиск по отзывам, товарам, покупателям...">
             
-            <select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white" id="ratingFilter">
+            <select class="filter-select" id="ratingFilter">
                 <option value="">Все рейтинги</option>
                 <option value="5">⭐⭐⭐⭐⭐ 5 звёзд</option>
                 <option value="4">⭐⭐⭐⭐ 4 звезды</option>
@@ -609,13 +651,13 @@
                 <option value="1">⭐ 1 звезда</option>
             </select>
 
-            <select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white" id="replyFilter">
+            <select class="filter-select" id="replyFilter">
                 <option value="">Все отзывы</option>
                 <option value="replied">С ответом</option>
                 <option value="pending">Без ответа</option>
             </select>
 
-            <select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white" id="productFilter">
+            <select class="filter-select" id="productFilter">
                 <option value="">Все товары</option>
                 <!-- Dynamically populated -->
             </select>
@@ -630,7 +672,7 @@
         </div>
 
         <!-- Pagination -->
-        <div class="flex justify-center items-center space-x-2 mt-6" id="pagination" style="display: none;">
+        <div class="pagination" id="pagination" style="display: none;">
             <button id="prevPage" onclick="changePage(-1)">← Prev</button>
             <span class="page-info">
                 Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
@@ -661,7 +703,7 @@
 
         // Authentication check
         if (!shopToken) {
-            window.location.href = '/public/index.html';
+            window.location.href = '../../shop/login.html';
         }
 
         // Initialize
@@ -687,7 +729,7 @@
                     document.getElementById('shopName').textContent = shop.name;
                 } else if (response.status === 401) {
                     localStorage.removeItem('shop_token');
-                    window.location.href = '/public/index.html';
+                    window.location.href = '../../shop/login.html';
                 }
             } catch (error) {
                 console.error('Error loading shop info:', error);
@@ -752,7 +794,7 @@
             
             if (filteredReviews.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center py-16 px-8">
+                    <div class="empty-state">
                         <div style="font-size: 64px;">⭐</div>
                         <h3>Нет отзывов</h3>
                         <p>У вас пока нет отзывов на товары</p>
@@ -792,7 +834,7 @@
                 <div class="review-card" data-review-id="${review.id}">
                     <div class="review-header">
                         <div class="review-user-info">
-                            <div class="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center font-semibold">${userInitial}</div>
+                            <div class="user-avatar">${userInitial}</div>
                             <div class="user-details">
                                 <h4>${escapeHtml(review.user_name || 'Anonymous')}</h4>
                                 <div class="meta">
@@ -1074,7 +1116,7 @@
         function showError(message) {
             const container = document.getElementById('reviewsContainer');
             container.innerHTML = `
-                <div class="text-center py-16 px-8">
+                <div class="empty-state">
                     <div style="font-size: 64px;">❌</div>
                     <h3>Error</h3>
                     <p>${message}</p>
@@ -1084,7 +1126,7 @@
 
         function logout() {
             localStorage.removeItem('shop_token');
-            window.location.href = '/public/index.html';
+            window.location.href = '../../shop/login.html';
         }
     </script>
 </body>

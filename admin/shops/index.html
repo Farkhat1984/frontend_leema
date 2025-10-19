@@ -5,69 +5,112 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Магазины - Панель администратора</title>
-    <link rel="stylesheet" href="../../assets/css/layouts/style.css">
-    <link rel="stylesheet" href="../../assets/css/pages/shop.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
-<body>
-    <div class="dashboard" style="display: block;">
-        <div class="header">
-            <h1>Управление магазинами</h1>
-            <div class="user-info">
-                <div class="user-avatar" id="adminAvatar">А</div>
-                <span id="adminName">Администратор</span>
-                <button class="logout-btn" onclick="logout()">Выйти</button>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-user-shield text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-900">Admin Panel</h1>
+                        <p class="text-sm text-gray-500">Управление магазинами</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-3">
+                        <div id="adminAvatar" class="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
+                            А
+                        </div>
+                        <span id="adminName" class="text-sm font-medium text-gray-700">Администратор</span>
+                    </div>
+                    <button onclick="logout()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Выйти
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Alert Container -->
+        <div id="adminAlertContainer" class="mb-6"></div>
+
+        <!-- Back Button -->
+        <div class="mb-6">
+            <a href="/admin/index.html" class="inline-flex items-center space-x-2 text-purple-600 hover:text-purple-700 font-medium transition-colors">
+                <i class="fas fa-arrow-left"></i>
+                <span>Назад к панели</span>
+            </a>
+        </div>
+
+        <!-- Page Header -->
+        <div class="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl shadow-lg p-8 mb-8">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-store text-white text-3xl"></i>
+                <h1 class="text-3xl font-bold text-white">Управление магазинами</h1>
             </div>
         </div>
 
-        <div class="container">
-            <div id="adminAlertContainer"></div>
-
-            <div class="admin-page-header">
-                <a href="/admin/index.html" class="back-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M19 12H5M12 19l-7-7 7-7"/>
-                    </svg>
-                    Назад к панели
-                </a>
+        <!-- Statistics -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-sm font-medium text-gray-600">Всего магазинов</h3>
+                    <i class="fas fa-store text-purple-600 text-xl"></i>
+                </div>
+                <div class="text-3xl font-bold text-purple-600" id="totalShops">0</div>
             </div>
-
-            <!-- Статистика магазинов -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <h3>Всего магазинов</h3>
-                    <div class="value" id="totalShops">0</div>
+            
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-sm font-medium text-gray-600">Общий баланс</h3>
+                    <i class="fas fa-wallet text-green-600 text-xl"></i>
                 </div>
-                <div class="stat-card">
-                    <h3>Общий баланс</h3>
-                    <div class="value" style="color: #10b981;" id="totalShopBalance">$0.00</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Активных</h3>
-                    <div class="value" id="activeShops">0</div>
-                </div>
-                <div class="stat-card">
-                    <h3>С товарами</h3>
-                    <div class="value" id="shopsWithProducts">0</div>
-                </div>
+                <div class="text-3xl font-bold text-green-600" id="totalShopBalance">$0.00</div>
             </div>
-
-            <!-- Список магазинов -->
-            <div class="section">
-                <h2>Список магазинов</h2>
-                <div id="shopsList"></div>
+            
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-sm font-medium text-gray-600">Активных</h3>
+                    <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                </div>
+                <div class="text-3xl font-bold text-green-600" id="activeShops">0</div>
             </div>
+            
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-sm font-medium text-gray-600">С товарами</h3>
+                    <i class="fas fa-box text-blue-600 text-xl"></i>
+                </div>
+                <div class="text-3xl font-bold text-blue-600" id="shopsWithProducts">0</div>
+            </div>
+        </div>
+
+        <!-- Shops List -->
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                <i class="fas fa-list mr-3 text-purple-600"></i>
+                Список магазинов
+            </h2>
+            <div id="shopsList"></div>
         </div>
     </div>
 
-    <script defer src="../../assets/js/core/auth.js?v=17"></script>
-    <script defer src="../../assets/js/core/config.js?v=17"></script>
-    <script defer src="../../assets/js/core/websocket.js?v=17"></script>
-    <script defer src="../../assets/js/core/notifications.js?v=17"></script>
-    <script defer src="../../assets/js/shared/lazy-loader.js?v=17"></script>
-    <script defer src="../../assets/js/core/cache.js?v=17"></script>
-    <script defer src="../../assets/js/shared/common-utils.js?v=17"></script>
-    <script defer src="../../assets/js/pages/admin/shops.js?v=17"></script>
+    <script defer src="../../assets/js/core/auth.js?v=999"></script>
+    <script defer src="../../assets/js/core/config.js?v=999"></script>
+    <script defer src="../../assets/js/core/websocket.js?v=999"></script>
+    <script defer src="../../assets/js/core/notifications.js?v=999"></script>
+    <script defer src="../../assets/js/shared/lazy-loader.js?v=999"></script>
+    <script defer src="../../assets/js/core/cache.js?v=999"></script>
+    <script defer src="../../assets/js/shared/common-utils.js?v=999"></script>
+    <script defer src="../../assets/js/pages/admin/shops.js?v=999"></script>
 </body>
 
 </html>

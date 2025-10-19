@@ -8,6 +8,7 @@
     <title>Центр уведомлений - Fashion AI Platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../assets/css/pages/shop.css">
 </head>
 
 <body>
@@ -44,21 +45,21 @@
 
         <!-- Statistics -->
         <div class="notification-stats">
-            <div class="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl p-6 text-white shadow-lg">
+            <div class="stat-card">
                 <h3>Всего уведомлений</h3>
-                <div class="text-3xl font-bold mb-2" id="totalNotifications">0</div>
+                <div class="value" id="totalNotifications">0</div>
             </div>
-            <div class="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl p-6 text-white shadow-lg" style="border-left-color: #667eea;">
+            <div class="stat-card" style="border-left-color: #667eea;">
                 <h3>Непрочитанные</h3>
-                <div class="text-3xl font-bold mb-2" id="unreadCount">0</div>
+                <div class="value" id="unreadCount">0</div>
             </div>
-            <div class="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl p-6 text-white shadow-lg" style="border-left-color: #10b981;">
+            <div class="stat-card" style="border-left-color: #10b981;">
                 <h3>Сегодня</h3>
-                <div class="text-3xl font-bold mb-2" id="todayCount">0</div>
+                <div class="value" id="todayCount">0</div>
             </div>
-            <div class="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl p-6 text-white shadow-lg" style="border-left-color: #ef4444;">
+            <div class="stat-card" style="border-left-color: #ef4444;">
                 <h3>Высокий приоритет</h3>
-                <div class="text-3xl font-bold mb-2" id="priorityCount">0</div>
+                <div class="value" id="priorityCount">0</div>
             </div>
         </div>
 
@@ -118,7 +119,7 @@
         </div>
 
         <!-- Filters -->
-        <div class="flex flex-wrap gap-4 mb-6">
+        <div class="filters-container">
             <button class="filter-btn active" data-filter="all">Все</button>
             <button class="filter-btn" data-filter="unread">Непрочитанные</button>
             <button class="filter-btn" data-filter="order">📦 Заказы</button>
@@ -139,7 +140,7 @@
         </div>
 
         <!-- Pagination -->
-        <div class="flex justify-center items-center space-x-2 mt-6" id="pagination" style="display: none;">
+        <div class="pagination" id="pagination" style="display: none;">
             <button id="prevPage" onclick="changePage(-1)">← Назад</button>
             <span class="page-info">
                 Страница <span id="currentPage">1</span> из <span id="totalPages">1</span>
@@ -179,7 +180,7 @@
 
         // Authentication check
         if (!shopToken) {
-            window.location.href = '/public/index.html';
+            window.location.href = '../../shop/login.html';
         }
 
         // Initialize
@@ -215,7 +216,7 @@
             
             if (filteredNotifications.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center py-16 px-8">
+                    <div class="empty-state">
                         <div style="font-size: 64px;">🔔</div>
                         <h3>Нет уведомлений</h3>
                         <p>${currentFilter === 'unread' ? 'Все уведомления прочитаны' : 'У вас пока нет уведомлений'}</p>
@@ -575,7 +576,7 @@
 
         function logout() {
             localStorage.removeItem('shop_token');
-            window.location.href = '/public/index.html';
+            window.location.href = '../../shop/login.html';
         }
     </script>
 </body>

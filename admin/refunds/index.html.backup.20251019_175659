@@ -8,20 +8,21 @@
     <title>Возвраты - Admin Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../assets/css/pages/shop.css">
 </head>
 
 <body>
-    <div class="min-h-screen bg-gray-50">
-        <div class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+    <div class="dashboard">
+        <div class="header">
             <h1>👨‍💼 Admin Panel</h1>
-            <div class="flex items-center space-x-4">
-                <div class="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center font-semibold" id="adminAvatar">A</div>
+            <div class="user-info">
+                <div class="user-avatar" id="adminAvatar">A</div>
                 <span id="adminName">Admin</span>
-                <button class="text-gray-600 hover:text-gray-900 ml-4" onclick="logout()">Выйти</button>
+                <button class="logout-btn" onclick="logout()">Выйти</button>
             </div>
         </div>
 
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="container">
             <!-- Alert Container -->
             <div id="alertContainer"></div>
 
@@ -35,31 +36,31 @@
             <div class="stats-grid">
                 <div class="stat-card warning">
                     <h3>⏳ Ожидают обработки</h3>
-                    <div class="text-3xl font-bold mb-2" id="statRequested">0</div>
-                    <div class="text-sm opacity-90">Требуют внимания</div>
+                    <div class="value" id="statRequested">0</div>
+                    <div class="subvalue">Требуют внимания</div>
                 </div>
                 <div class="stat-card success">
                     <h3>✅ Одобрено</h3>
-                    <div class="text-3xl font-bold mb-2" id="statApproved">0</div>
-                    <div class="text-sm opacity-90">Успешных возвратов</div>
+                    <div class="value" id="statApproved">0</div>
+                    <div class="subvalue">Успешных возвратов</div>
                 </div>
                 <div class="stat-card danger">
                     <h3>❌ Отклонено</h3>
-                    <div class="text-3xl font-bold mb-2" id="statRejected">0</div>
-                    <div class="text-sm opacity-90">Отказов</div>
+                    <div class="value" id="statRejected">0</div>
+                    <div class="subvalue">Отказов</div>
                 </div>
-                <div class="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl p-6 text-white shadow-lg">
+                <div class="stat-card">
                     <h3>💵 Общая сумма</h3>
-                    <div class="text-3xl font-bold mb-2" id="statTotal">$0</div>
-                    <div class="text-sm opacity-90">Возвращено клиентам</div>
+                    <div class="value" id="statTotal">$0</div>
+                    <div class="subvalue">Возвращено клиентам</div>
                 </div>
             </div>
 
             <!-- Filters -->
             <div class="filters-section">
-                <div class="flex flex-wrap gap-4 mb-6">
+                <div class="filters-container">
                     <label style="font-weight: 500;">Фильтр по статусу:</label>
-                    <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white" onchange="loadRefunds()">
+                    <select id="statusFilter" class="filter-select" onchange="loadRefunds()">
                         <option value="">Все запросы</option>
                         <option value="requested" selected>⏳ Ожидают обработки</option>
                         <option value="approved">✅ Одобрено</option>
@@ -75,7 +76,7 @@
             </div>
 
             <!-- Empty State -->
-            <div id="emptyState" class="text-center py-16 px-8" style="display: none;">
+            <div id="emptyState" class="empty-state" style="display: none;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="12" r="10"></circle>
                     <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
@@ -93,40 +94,40 @@
     </div>
 
     <!-- Approve Modal -->
-    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="approveModal">
+    <div class="modal" id="approveModal">
         <div class="modal-content">
-            <div class="border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+            <div class="modal-header">
                 <h2>✅ Одобрить возврат</h2>
                 <button class="modal-close" onclick="closeModal('approveModal')">&times;</button>
             </div>
-            <div class="px-6 py-4">
+            <div class="modal-body">
                 <div class="form-group">
                     <label>Комментарий администратора (необязательно)</label>
                     <textarea id="approveNotes" placeholder="Дополнительная информация для пользователя..."></textarea>
                 </div>
             </div>
             <div class="modal-actions">
-                <button class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors" onclick="closeModal('approveModal')">Отмена</button>
+                <button class="btn btn-secondary" onclick="closeModal('approveModal')">Отмена</button>
                 <button class="btn btn-approve" onclick="confirmApprove()">Одобрить возврат</button>
             </div>
         </div>
     </div>
 
     <!-- Reject Modal -->
-    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="rejectModal">
+    <div class="modal" id="rejectModal">
         <div class="modal-content">
-            <div class="border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+            <div class="modal-header">
                 <h2>❌ Отклонить возврат</h2>
                 <button class="modal-close" onclick="closeModal('rejectModal')">&times;</button>
             </div>
-            <div class="px-6 py-4">
+            <div class="modal-body">
                 <div class="form-group">
                     <label>Причина отклонения *</label>
                     <textarea id="rejectNotes" placeholder="Укажите причину отклонения..." required></textarea>
                 </div>
             </div>
             <div class="modal-actions">
-                <button class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors" onclick="closeModal('rejectModal')">Отмена</button>
+                <button class="btn btn-secondary" onclick="closeModal('rejectModal')">Отмена</button>
                 <button class="btn btn-reject" onclick="confirmReject()">Отклонить запрос</button>
             </div>
         </div>
@@ -236,20 +237,20 @@
                 </div>
                 <div class="refund-body">
                     <div class="refund-info">
-                        <div class="mb-4">
+                        <div class="info-item">
                             <span class="info-label">Заказ</span>
                             <span class="info-value">#${refund.order_number || refund.order_id}</span>
                         </div>
-                        <div class="mb-4">
+                        <div class="info-item">
                             <span class="info-label">Сумма возврата</span>
                             <span class="info-value refund-amount">$${parseFloat(refund.amount).toFixed(2)}</span>
                         </div>
-                        <div class="mb-4">
+                        <div class="info-item">
                             <span class="info-label">Дата запроса</span>
                             <span class="info-value">${formatDate(refund.created_at)}</span>
                         </div>
                         ${refund.processed_at ? `
-                            <div class="mb-4">
+                            <div class="info-item">
                                 <span class="info-label">Дата обработки</span>
                                 <span class="info-value">${formatDate(refund.processed_at)}</span>
                             </div>

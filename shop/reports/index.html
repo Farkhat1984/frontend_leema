@@ -309,7 +309,7 @@
             const userType = localStorage.getItem('userType');
             
             if (!token || userType !== 'shop') {
-                window.location.href = '../../assets/auth/login.html';
+                window.location.href = '/public/index.html';
                 return false;
             }
             return token;
@@ -319,7 +319,7 @@
         function logout() {
             localStorage.removeItem('token');
             localStorage.removeItem('userType');
-            window.location.href = '../../assets/auth/login.html';
+            window.location.href = '/public/index.html';
         }
 
         // Load shop info

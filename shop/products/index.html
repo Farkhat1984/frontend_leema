@@ -5,160 +5,232 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мои товары - Fashion AI Platform</title>
-    <link rel="stylesheet" href="../../assets/css/layouts/style.css">
-    <link rel="stylesheet" href="../../assets/css/pages/shop.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
-<body>
-    <!-- Панель магазина - секция товаров -->
-    <div id="shopProductsPage" class="dashboard">
-        <div class="header">
-            <h1>Мои товары</h1>
-            <div class="user-info">
-                <div class="user-avatar" id="shopAvatar">М</div>
-                <span id="shopName">Мой магазин</span>
-                <button class="logout-btn" onclick="logout()">Выйти</button>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-8">
+                    <div class="flex items-center">
+                        <i class="fas fa-store text-purple-600 text-2xl mr-3"></i>
+                        <span class="text-xl font-bold text-gray-900">Shop Panel</span>
+                    </div>
+                    <div class="hidden md:flex space-x-4">
+                        <a href="../index.html" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-home mr-2"></i>Dashboard
+                        </a>
+                        <a href="./index.html" class="bg-purple-50 text-purple-600 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-box mr-2"></i>Products
+                        </a>
+                        <a href="../orders/index.html" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-shopping-cart mr-2"></i>Orders
+                        </a>
+                        <a href="../analytics/index.html" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-chart-line mr-2"></i>Analytics
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="text-right">
+                            <p class="text-sm font-medium text-gray-900" id="shopName">My Shop</p>
+                            <p class="text-xs text-gray-500">Shop Owner</p>
+                        </div>
+                        <button onclick="logout()" class="text-gray-600 hover:text-gray-900">
+                            <i class="fas fa-sign-out-alt text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Alert Container -->
+        <div id="alertContainer" class="mb-6"></div>
+
+        <!-- Header with Add Button -->
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-900">
+                <i class="fas fa-box text-purple-600 mr-3"></i>Мои товары
+            </h1>
+            <button onclick="openAddProductModal()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2.5 rounded-lg transition-colors">
+                <i class="fas fa-plus mr-2"></i>Добавить товар
+            </button>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+            <div class="flex flex-wrap gap-4 items-center">
+                <input type="text" id="shopSearchInput" placeholder="🔍 Поиск по названию или описанию..." 
+                       class="flex-1 min-w-[250px] px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                       oninput="handleShopSearch()">
+                
+                <select id="shopSortSelect" onchange="handleShopSort()" 
+                        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent cursor-pointer">
+                    <option value="newest">Сначала новые</option>
+                    <option value="oldest">Сначала старые</option>
+                    <option value="price_low">Цена: по возрастанию</option>
+                    <option value="price_high">Цена: по убыванию</option>
+                    <option value="name_az">Название: А-Я</option>
+                    <option value="name_za">Название: Я-А</option>
+                </select>
+                
+                <select id="shopStatusFilter" onchange="handleShopStatusFilter()" 
+                        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent cursor-pointer">
+                    <option value="all">Все статусы</option>
+                    <option value="pending">На модерации</option>
+                    <option value="approved">Одобренные</option>
+                    <option value="rejected">Отклоненные</option>
+                </select>
             </div>
         </div>
 
-        <div class="container">
-            <div id="alertContainer"></div>
+        <!-- Products Grid -->
+        <div id="productsList" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3 mb-6"></div>
 
-            <!-- Навигация назад -->
-            <div style="margin-bottom: 20px;">
-                <button class="btn btn-secondary" onclick="window.location.href='/shop/index.html'">
-                    ← Вернуться на главную
+        <!-- Pagination -->
+        <div id="shopPaginationContainer" class="hidden flex justify-center items-center gap-4 mt-8">
+            <button class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
+                    id="shopPrevPageBtn" onclick="changeShopPage(-1)">
+                <i class="fas fa-chevron-left mr-2"></i>Предыдущая
+            </button>
+            <span id="shopPageInfo" class="text-sm font-semibold text-gray-700">Страница 1</span>
+            <button class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
+                    id="shopNextPageBtn" onclick="changeShopPage(1)">
+                Следующая<i class="fas fa-chevron-right ml-2"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div id="addProductModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-gray-900">Добавить товар</h2>
+                <button onclick="closeAddProductModal()" class="text-gray-400 hover:text-gray-600 text-3xl leading-none">&times;</button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Название товара *</label>
+                    <input type="text" id="productName" placeholder="Например: Красное платье" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Описание</label>
+                    <textarea id="productDescription" placeholder="Опишите ваш товар" rows="4"
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Цена (USD) *</label>
+                    <input type="number" id="productPrice" placeholder="49.99" step="0.01" min="0" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Изображения товара</label>
+                    <input type="file" id="productImages" accept="image/jpeg,image/jpg,image/png,image/webp" multiple
+                           onchange="previewAddProductImages(event)"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                    <small class="text-gray-500 text-sm mt-2 block">Можно выбрать несколько изображений (JPEG, PNG, WEBP)</small>
+                    
+                    <!-- Image Preview -->
+                    <div id="addProductImagePreview" class="mt-3 grid grid-cols-4 gap-2"></div>
+                </div>
+                <div class="flex gap-3 pt-4">
+                    <button onclick="createProduct()" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition-colors font-medium">
+                        Создать товар
+                    </button>
+                    <button onclick="closeAddProductModal()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-lg transition-colors font-medium">
+                        Отмена
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div id="editProductModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-gray-900">Редактировать товар</h2>
+                <button onclick="closeEditProductModal()" class="text-gray-400 hover:text-gray-600 text-3xl leading-none">&times;</button>
+            </div>
+            <div class="p-6 space-y-4">
+                <input type="hidden" id="editProductId">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Название товара *</label>
+                    <input type="text" id="editProductName" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Описание</label>
+                    <textarea id="editProductDescription" rows="4"
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Цена (USD) *</label>
+                    <input type="number" id="editProductPrice" step="0.01" min="0" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Изображения товара</label>
+                    <input type="file" id="editProductImages" accept="image/jpeg,image/jpg,image/png,image/webp" multiple
+                           onchange="previewEditProductImages(event)"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                    <small class="text-gray-500 text-sm mt-2 block">Можно выбрать несколько изображений (JPEG, PNG, WEBP). Чтобы удалить изображение, нажмите на крестик ✕</small>
+                    
+                    <!-- Current Images -->
+                    <div id="currentImages" class="mt-3 grid grid-cols-4 gap-2"></div>
+                    
+                    <!-- New Images Preview -->
+                    <div id="editProductImagePreview" class="mt-3 grid grid-cols-4 gap-2"></div>
+                </div>
+                <div class="flex gap-3 pt-4">
+                    <button onclick="updateProduct()" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition-colors font-medium">
+                        Сохранить
+                    </button>
+                    <button onclick="closeEditProductModal()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-lg transition-colors font-medium">
+                        Отмена
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Dialog -->
+    <div id="confirmDialog" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 id="confirmMessage" class="text-xl font-bold text-gray-900 mb-6">Вы уверены?</h3>
+            <div class="flex gap-3">
+                <button onclick="closeConfirmDialog(false)" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-lg transition-colors font-medium">
+                    Отмена
+                </button>
+                <button onclick="closeConfirmDialog(true)" class="flex-1 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg transition-colors font-medium">
+                    Удалить
                 </button>
             </div>
-
-            <!-- Товары -->
-            <div class="section">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2>Мои товары</h2>
-                    <button class="btn btn-primary" onclick="openAddProductModal()">+ Добавить товар</button>
-                </div>
-                
-                <!-- Поиск и фильтры -->
-                <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; align-items: center;">
-                    <input type="text" id="shopSearchInput" placeholder="🔍 Поиск по названию или описанию..." 
-                           style="flex: 1; min-width: 250px; padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;"
-                           oninput="handleShopSearch()">
-                    
-                    <select id="shopSortSelect" onchange="handleShopSort()" 
-                            style="padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; cursor: pointer;">
-                        <option value="newest">Сначала новые</option>
-                        <option value="oldest">Сначала старые</option>
-                        <option value="price_low">Цена: по возрастанию</option>
-                        <option value="price_high">Цена: по убыванию</option>
-                        <option value="name_az">Название: А-Я</option>
-                        <option value="name_za">Название: Я-А</option>
-                    </select>
-                    
-                    <select id="shopStatusFilter" onchange="handleShopStatusFilter()" 
-                            style="padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; cursor: pointer;">
-                        <option value="all">Все статусы</option>
-                        <option value="pending">На модерации</option>
-                        <option value="approved">Одобренные</option>
-                        <option value="rejected">Отклоненные</option>
-                    </select>
-                </div>
-                
-                <div id="productsList" class="products-grid"></div>
-
-                <!-- Пагинация -->
-                <div id="shopPaginationContainer" class="pagination" style="display: none;">
-                    <button class="btn btn-secondary" id="shopPrevPageBtn" onclick="changeShopPage(-1)">Предыдущая</button>
-                    <span id="shopPageInfo" style="margin: 0 20px; font-weight: 600;">Страница 1</span>
-                    <button class="btn btn-secondary" id="shopNextPageBtn" onclick="changeShopPage(1)">Следующая</button>
-                </div>
-            </div>
         </div>
     </div>
 
-    <!-- Модальное окно добавления товара -->
-    <div id="addProductModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span class="close-modal" onclick="closeAddProductModal()">&times;</span>
-                <h2>Добавить товар</h2>
-            </div>
-            <div class="form-group">
-                <label>Название товара *</label>
-                <input type="text" id="productName" placeholder="Например: Красное платье">
-            </div>
-            <div class="form-group">
-                <label>Описание</label>
-                <textarea id="productDescription" placeholder="Опишите ваш товар"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Цена (USD) *</label>
-                <input type="number" id="productPrice" placeholder="49.99" step="0.01" min="0">
-            </div>
-            <div class="form-group">
-                <label>Изображения товара</label>
-                <input type="file" id="productImages" accept="image/jpeg,image/jpg,image/png,image/webp" multiple>
-                <small style="color: #666; display: block; margin-top: 5px;">Можно выбрать несколько изображений (JPEG,
-                    PNG, WEBP)</small>
-            </div>
-            <button class="btn btn-primary" onclick="createProduct()">Создать товар</button>
-            <button class="btn btn-secondary" onclick="closeAddProductModal()">Отмена</button>
-        </div>
-    </div>
-
-    <!-- Модальное окно редактирования товара -->
-    <div id="editProductModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span class="close-modal" onclick="closeEditProductModal()">&times;</span>
-                <h2>Редактировать товар</h2>
-            </div>
-            <input type="hidden" id="editProductId">
-            <div class="form-group">
-                <label>Название товара *</label>
-                <input type="text" id="editProductName">
-            </div>
-            <div class="form-group">
-                <label>Описание</label>
-                <textarea id="editProductDescription"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Цена (USD) *</label>
-                <input type="number" id="editProductPrice" step="0.01" min="0">
-            </div>
-            <div class="form-group">
-                <label>Изображения товара</label>
-                <input type="file" id="editProductImages" accept="image/jpeg,image/jpg,image/png,image/webp" multiple>
-                <small style="color: #666; display: block; margin-top: 5px;">Можно выбрать несколько изображений (JPEG,
-                    PNG, WEBP). Чтобы удалить изображение, нажмите на крестик ✕</small>
-                <div id="currentImages" style="margin-top: 10px;"></div>
-            </div>
-            <button class="btn btn-primary" onclick="updateProduct()">Сохранить</button>
-            <button class="btn btn-secondary" onclick="closeEditProductModal()">Отмена</button>
-        </div>
-    </div>
-
-    <!-- Custom confirmation dialog -->
-    <div id="confirmDialog" class="confirm-dialog">
-        <div class="confirm-dialog-content">
-            <h3 id="confirmMessage">Вы уверены?</h3>
-            <div class="confirm-dialog-buttons">
-                <button class="btn btn-secondary" onclick="closeConfirmDialog(false)">Отмена</button>
-                <button class="btn btn-danger" onclick="closeConfirmDialog(true)">Удалить</button>
-            </div>
-        </div>
-    </div>
-
-    <script defer src="../../assets/js/core/config.js?v=17"></script>
-    <script defer src="../../assets/js/core/auth.js?v=17"></script>
-    <script defer src="../../assets/js/core/websocket.js?v=17"></script>
-    <script defer src="../../assets/js/core/notifications.js?v=17"></script>
-    <script defer src="../../assets/js/shared/lazy-loader.js?v=17"></script>
-    <script defer src="../../assets/js/core/cache.js?v=17"></script>
-    <script defer src="../../assets/js/shared/common-utils.js?v=17"></script>
-    <script defer src="../../assets/js/pages/shop/dashboard.js?v=17"></script>
+    <script defer src="../../assets/js/core/config.js?v=1001"></script>
+    <script defer src="../../assets/js/core/auth.js?v=1001"></script>
+    <script defer src="../../assets/js/core/websocket.js?v=1001"></script>
+    <script defer src="../../assets/js/core/notifications.js?v=1001"></script>
+    <script defer src="../../assets/js/shared/lazy-loader.js?v=1001"></script>
+    <script defer src="../../assets/js/core/cache.js?v=1001"></script>
+    <script defer src="../../assets/js/shared/common-utils.js?v=1001"></script>
+    <script defer src="../../assets/js/pages/shop/dashboard.js?v=1001"></script>
     <script>
         // Initialize products page on load
         // Используем DOMContentLoaded + небольшую задержку для defer скриптов
+        let initRetryCount = 0;
+        const maxRetries = 50;
+        
         async function initProductsPage() {
             const token = localStorage.getItem('token');
             const accountType = localStorage.getItem('accountType');
@@ -173,12 +245,18 @@
                 return;
             }
 
-            document.getElementById('shopProductsPage').style.display = 'block';
+            // No need to show shopProductsPage as we removed that wrapper
 
             try {
                 // Ждем пока все defer скрипты загрузятся
                 if (typeof apiRequest === 'undefined' || typeof loadShopProducts === 'undefined') {
-                    console.log('[SHOP] Waiting for scripts to load...');
+                    if (initRetryCount >= maxRetries) {
+                        console.error('[SHOP] Failed to load required scripts after max retries');
+                        alert('Ошибка загрузки скриптов. Пожалуйста, обновите страницу.');
+                        return;
+                    }
+                    initRetryCount++;
+                    console.log(`[SHOP] Waiting for scripts to load... (attempt ${initRetryCount}/${maxRetries})`);
                     await new Promise(resolve => setTimeout(resolve, 100));
                     return initProductsPage(); // Retry
                 }
@@ -219,6 +297,59 @@
         } else {
             setTimeout(initProductsPage, 50);
         }
+
+        // Image preview functions
+        function previewAddProductImages(event) {
+            const preview = document.getElementById('addProductImagePreview');
+            const files = event.target.files;
+            preview.innerHTML = '';
+
+            if (files.length === 0) return;
+
+            Array.from(files).forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const div = document.createElement('div');
+                    div.className = 'relative group';
+                    div.innerHTML = `
+                        <img src="${e.target.result}" class="w-full h-20 object-contain bg-gray-50 rounded border border-gray-200" alt="Preview ${index + 1}">
+                        <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1 truncate">
+                            ${file.name}
+                        </div>
+                    `;
+                    preview.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function previewEditProductImages(event) {
+            const preview = document.getElementById('editProductImagePreview');
+            const files = event.target.files;
+            preview.innerHTML = '';
+
+            if (files.length === 0) return;
+
+            Array.from(files).forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const div = document.createElement('div');
+                    div.className = 'relative group';
+                    div.innerHTML = `
+                        <img src="${e.target.result}" class="w-full h-20 object-contain bg-gray-50 rounded border border-gray-200" alt="Preview ${index + 1}">
+                        <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1 truncate">
+                            ${file.name}
+                        </div>
+                    `;
+                    preview.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Expose functions globally
+        window.previewAddProductImages = previewAddProductImages;
+        window.previewEditProductImages = previewEditProductImages;
     </script>
 </body>
 

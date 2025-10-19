@@ -8,6 +8,7 @@
     <title>Мои клиенты - Fashion AI Platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../assets/css/pages/shop.css">
 </head>
 
 <body>
@@ -44,40 +45,40 @@
 
         <!-- Statistics -->
         <div class="customers-stats">
-            <div class="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl p-6 text-white shadow-lg">
+            <div class="stat-card">
                 <h3>Всего клиентов</h3>
-                <div class="text-3xl font-bold mb-2" id="totalCustomers">0</div>
-                <div class="text-sm opacity-90">Уникальных покупателей</div>
+                <div class="value" id="totalCustomers">0</div>
+                <div class="subvalue">Уникальных покупателей</div>
             </div>
             <div class="stat-card vip">
                 <h3>VIP клиенты</h3>
-                <div class="text-3xl font-bold mb-2" id="vipCustomers">0</div>
-                <div class="text-sm opacity-90">Потратили > $1000</div>
+                <div class="value" id="vipCustomers">0</div>
+                <div class="subvalue">Потратили > $1000</div>
             </div>
             <div class="stat-card regular">
                 <h3>Постоянные</h3>
-                <div class="text-3xl font-bold mb-2" id="regularCustomers">0</div>
-                <div class="text-sm opacity-90">2+ заказов</div>
+                <div class="value" id="regularCustomers">0</div>
+                <div class="subvalue">2+ заказов</div>
             </div>
             <div class="stat-card new">
                 <h3>Новые клиенты</h3>
-                <div class="text-3xl font-bold mb-2" id="newCustomers">0</div>
-                <div class="text-sm opacity-90">1 заказ</div>
+                <div class="value" id="newCustomers">0</div>
+                <div class="subvalue">1 заказ</div>
             </div>
         </div>
 
         <!-- Filters -->
-        <div class="flex flex-wrap gap-4 mb-6">
-            <input type="text" id="searchInput" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="🔍 Поиск по имени или email...">
+        <div class="filters-container">
+            <input type="text" id="searchInput" class="search-box" placeholder="🔍 Поиск по имени или email...">
             
-            <select id="tierFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white">
+            <select id="tierFilter" class="filter-select">
                 <option value="">Все сегменты</option>
                 <option value="vip">VIP клиенты</option>
                 <option value="regular">Постоянные</option>
                 <option value="new">Новые</option>
             </select>
 
-            <select id="sortFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white">
+            <select id="sortFilter" class="filter-select">
                 <option value="total_spent_desc">По сумме покупок ↓</option>
                 <option value="total_spent_asc">По сумме покупок ↑</option>
                 <option value="orders_desc">По кол-ву заказов ↓</option>
@@ -97,7 +98,7 @@
         </div>
 
         <!-- Pagination -->
-        <div class="flex justify-center items-center space-x-2 mt-6" id="paginationContainer" style="display: none;">
+        <div class="pagination" id="paginationContainer" style="display: none;">
             <button onclick="previousPage()" id="prevBtn">← Предыдущая</button>
             <span class="page-info">
                 Страница <span id="currentPage">1</span> из <span id="totalPages">1</span>
@@ -271,7 +272,7 @@
             
             if (filteredCustomers.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center py-16 px-8">
+                    <div class="empty-state">
                         <h3>😊 Пока нет клиентов</h3>
                         <p>Когда кто-то купит ваши товары, они появятся здесь</p>
                     </div>
@@ -306,15 +307,15 @@
                             <div class="customer-stats">
                                 <div class="customer-stat">
                                     <div class="label">Заказов</div>
-                                    <div class="text-3xl font-bold mb-2">${customer.total_orders}</div>
+                                    <div class="value">${customer.total_orders}</div>
                                 </div>
                                 <div class="customer-stat">
                                     <div class="label">Потрачено</div>
-                                    <div class="text-3xl font-bold mb-2">$${customer.total_spent.toFixed(2)}</div>
+                                    <div class="value">$${customer.total_spent.toFixed(2)}</div>
                                 </div>
                                 <div class="customer-stat">
                                     <div class="label">Средний чек</div>
-                                    <div class="text-3xl font-bold mb-2">$${customer.avg_order_value.toFixed(2)}</div>
+                                    <div class="value">$${customer.avg_order_value.toFixed(2)}</div>
                                 </div>
                             </div>
                         </div>
@@ -343,22 +344,22 @@
             const modalHTML = `
                 <div class="modal-overlay" onclick="closeModal(event)">
                     <div class="modal-container" onclick="event.stopPropagation()">
-                        <div class="border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+                        <div class="modal-header">
                             <h2>👤 ${escapeHtml(customer.name)}</h2>
                             <button class="modal-close" onclick="closeModal()">&times;</button>
                         </div>
-                        <div class="px-6 py-4">
+                        <div class="modal-body">
                             <!-- Customer Info -->
                             <div class="customer-detail-section">
                                 <h3>📋 Информация о клиенте</h3>
                                 <div class="detail-grid">
                                     <div class="detail-item">
                                         <div class="label">Email</div>
-                                        <div class="text-3xl font-bold mb-2">${escapeHtml(customer.email)}</div>
+                                        <div class="value">${escapeHtml(customer.email)}</div>
                                     </div>
                                     <div class="detail-item">
                                         <div class="label">Сегмент</div>
-                                        <div class="text-3xl font-bold mb-2">
+                                        <div class="value">
                                             <span class="customer-tier ${customer.tier}">
                                                 ${customer.tier === 'vip' ? '⭐ VIP' : customer.tier === 'regular' ? '🔄 Постоянный' : '🆕 Новый'}
                                             </span>
@@ -366,11 +367,11 @@
                                     </div>
                                     <div class="detail-item">
                                         <div class="label">Первый заказ</div>
-                                        <div class="text-3xl font-bold mb-2">${formatDate(customer.first_order_date)}</div>
+                                        <div class="value">${formatDate(customer.first_order_date)}</div>
                                     </div>
                                     <div class="detail-item">
                                         <div class="label">Последний заказ</div>
-                                        <div class="text-3xl font-bold mb-2">${formatDate(customer.last_order_date)}</div>
+                                        <div class="value">${formatDate(customer.last_order_date)}</div>
                                     </div>
                                 </div>
                             </div>
@@ -381,19 +382,19 @@
                                 <div class="detail-grid">
                                     <div class="detail-item">
                                         <div class="label">Всего заказов</div>
-                                        <div class="text-3xl font-bold mb-2">${customer.total_orders}</div>
+                                        <div class="value">${customer.total_orders}</div>
                                     </div>
                                     <div class="detail-item">
                                         <div class="label">Общая сумма</div>
-                                        <div class="text-3xl font-bold mb-2">$${customer.total_spent.toFixed(2)}</div>
+                                        <div class="value">$${customer.total_spent.toFixed(2)}</div>
                                     </div>
                                     <div class="detail-item">
                                         <div class="label">Средний чек</div>
-                                        <div class="text-3xl font-bold mb-2">$${customer.avg_order_value.toFixed(2)}</div>
+                                        <div class="value">$${customer.avg_order_value.toFixed(2)}</div>
                                     </div>
                                     <div class="detail-item">
                                         <div class="label">Дней с первого заказа</div>
-                                        <div class="text-3xl font-bold mb-2">${getDaysSinceFirstOrder(customer.first_order_date)}</div>
+                                        <div class="value">${getDaysSinceFirstOrder(customer.first_order_date)}</div>
                                     </div>
                                 </div>
                             </div>

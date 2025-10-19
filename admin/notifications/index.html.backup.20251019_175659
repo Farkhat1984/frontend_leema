@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3/dist/tailwind.min.css" rel="stylesheet">
     <!-- Redesigned with Tailwind CSS -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -644,9 +644,9 @@
     </style>
 </head>
 <body>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="container">
         <!-- Header -->
-        <div class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+        <div class="header">
             <div class="header-top">
                 <div class="header-title">
                     <i class="fas fa-bell" style="color: #667eea; font-size: 2rem;"></i>
@@ -660,7 +660,7 @@
 
             <!-- Statistics -->
             <div class="stats-grid">
-                <div class="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl p-6 text-white shadow-lg">
+                <div class="stat-card">
                     <div class="stat-label">Total Notifications</div>
                     <div class="stat-value" id="statTotal">0</div>
                 </div>
@@ -727,11 +727,11 @@
                 </div>
             </div>
             <div class="filter-actions">
-                <button class="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-colors" onclick="applyFilters()">
+                <button class="btn btn-primary" onclick="applyFilters()">
                     <i class="fas fa-filter"></i>
                     Apply Filters
                 </button>
-                <button class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors" onclick="resetFilters()">
+                <button class="btn btn-secondary" onclick="resetFilters()">
                     <i class="fas fa-redo"></i>
                     Reset
                 </button>
@@ -747,11 +747,11 @@
             <div class="notifications-header">
                 <h2>Notifications</h2>
                 <div class="bulk-actions">
-                    <button class="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-colors" onclick="markAllAsRead()">
+                    <button class="btn btn-primary" onclick="markAllAsRead()">
                         <i class="fas fa-check-double"></i>
                         Mark All as Read
                     </button>
-                    <button class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors" onclick="clearAll()">
+                    <button class="btn btn-secondary" onclick="clearAll()">
                         <i class="fas fa-trash"></i>
                         Clear All
                     </button>
@@ -766,7 +766,7 @@
             </div>
 
             <!-- Pagination -->
-            <div class="flex justify-center items-center space-x-2 mt-6" id="paginationContainer" style="display: none;">
+            <div class="pagination" id="paginationContainer" style="display: none;">
                 <div class="pagination-info">
                     Showing <span id="pageStart">0</span>-<span id="pageEnd">0</span> of <span id="pageTotal">0</span>
                 </div>
@@ -784,9 +784,9 @@
     </div>
 
     <!-- Settings Modal -->
-    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="settingsModal">
+    <div class="modal" id="settingsModal">
         <div class="modal-content">
-            <div class="border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+            <div class="modal-header">
                 <h2>Notification Settings</h2>
                 <button class="close-btn" onclick="closeSettings()">
                     <i class="fas fa-times"></i>
@@ -872,11 +872,11 @@
             </div>
 
             <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                <button class="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-colors" style="flex: 1;" onclick="saveSettings()">
+                <button class="btn btn-primary" style="flex: 1;" onclick="saveSettings()">
                     <i class="fas fa-save"></i>
                     Save Settings
                 </button>
-                <button class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors" onclick="closeSettings()">
+                <button class="btn btn-secondary" onclick="closeSettings()">
                     Cancel
                 </button>
             </div>
@@ -1081,7 +1081,7 @@
 
             if (pageNotifications.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center py-16 px-8">
+                    <div class="empty-state">
                         <i class="fas fa-bell-slash"></i>
                         <h3>No Notifications</h3>
                         <p>There are no notifications matching your filters</p>

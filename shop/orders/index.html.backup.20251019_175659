@@ -2,68 +2,70 @@
 <html lang="ru">
 
 <head>
+    <!-- Redesigned with Tailwind CSS -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мои заказы - Fashion AI Platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../assets/css/pages/shop.css">
 </head>
 
 <body>
-    <div id="shopOrdersPage" class="min-h-screen bg-gray-50">
-        <div class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+    <div id="shopOrdersPage" class="dashboard">
+        <div class="header">
             <h1>🛍️ Мои заказы</h1>
-            <div class="flex items-center space-x-4">
-                <div class="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center font-semibold" id="shopAvatar">М</div>
+            <div class="user-info">
+                <div class="user-avatar" id="shopAvatar">М</div>
                 <span id="shopName">Мой магазин</span>
-                <button class="text-gray-600 hover:text-gray-900 ml-4" onclick="logout()">Выйти</button>
+                <button class="logout-btn" onclick="logout()">Выйти</button>
             </div>
         </div>
 
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="container">
             <div id="alertContainer"></div>
 
             <!-- Навигация назад -->
             <div style="margin-bottom: 20px;">
-                <button class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors" onclick="window.location.href='/shop/index.html'">
+                <button class="btn btn-secondary" onclick="window.location.href='/shop/index.html'">
                     ← Вернуться на главную
                 </button>
             </div>
 
             <!-- Статистика -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div class="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl p-6 text-white shadow-lg">
+            <div class="orders-stats">
+                <div class="stat-card">
                     <h3>Сегодня</h3>
-                    <div class="text-3xl font-bold mb-2" id="todayOrders">0</div>
-                    <div class="text-sm opacity-90" id="todayRevenue">$0.00</div>
+                    <div class="value" id="todayOrders">0</div>
+                    <div class="subvalue" id="todayRevenue">$0.00</div>
                 </div>
-                <div class="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl p-6 text-white shadow-lg" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
                     <h3>Эта неделя</h3>
-                    <div class="text-3xl font-bold mb-2" id="weekOrders">0</div>
-                    <div class="text-sm opacity-90" id="weekRevenue">$0.00</div>
+                    <div class="value" id="weekOrders">0</div>
+                    <div class="subvalue" id="weekRevenue">$0.00</div>
                 </div>
-                <div class="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl p-6 text-white shadow-lg" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
                     <h3>Этот месяц</h3>
-                    <div class="text-3xl font-bold mb-2" id="monthOrders">0</div>
-                    <div class="text-sm opacity-90" id="monthRevenue">$0.00</div>
+                    <div class="value" id="monthOrders">0</div>
+                    <div class="subvalue" id="monthRevenue">$0.00</div>
                 </div>
-                <div class="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl p-6 text-white shadow-lg" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
                     <h3>Всего</h3>
-                    <div class="text-3xl font-bold mb-2" id="totalOrders">0</div>
-                    <div class="text-sm opacity-90" id="totalRevenue">$0.00</div>
+                    <div class="value" id="totalOrders">0</div>
+                    <div class="subvalue" id="totalRevenue">$0.00</div>
                 </div>
             </div>
 
             <!-- Фильтры и поиск -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-                <div class="flex flex-wrap gap-4 mb-6">
+            <div class="section">
+                <div class="filters-container">
                     <input type="text" 
                            id="searchInput" 
-                           class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                           class="search-box"
                            placeholder="🔍 Поиск по номеру заказа или имени клиента..."
                            oninput="handleSearch()">
                     
-                    <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white" onchange="handleFilter()">
+                    <select id="statusFilter" class="filter-select" onchange="handleFilter()">
                         <option value="all">Все статусы</option>
                         <option value="pending">В обработке</option>
                         <option value="completed">Выполнен</option>
@@ -71,14 +73,14 @@
                         <option value="refunded">Возвращен</option>
                     </select>
 
-                    <select id="dateFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white" onchange="handleFilter()">
+                    <select id="dateFilter" class="filter-select" onchange="handleFilter()">
                         <option value="all">Все даты</option>
                         <option value="today">Сегодня</option>
                         <option value="week">Эта неделя</option>
                         <option value="month">Этот месяц</option>
                     </select>
 
-                    <select id="sortSelect" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white" onchange="handleSort()">
+                    <select id="sortSelect" class="filter-select" onchange="handleSort()">
                         <option value="newest">Сначала новые</option>
                         <option value="oldest">Сначала старые</option>
                         <option value="amount_high">Сумма: по убыванию</option>
@@ -88,7 +90,7 @@
 
                 <!-- Таблица заказов -->
                 <div id="ordersTableContainer">
-                    <table class="w-full overflow-x-auto">
+                    <table class="orders-table">
                         <thead>
                             <tr>
                                 <th>Номер заказа</th>
@@ -108,19 +110,19 @@
                 </div>
 
                 <!-- Пустое состояние -->
-                <div id="emptyState" class="text-center py-16 px-8" style="display: none;">
-                    <div class="text-gray-300 text-6xl mb-4">📦</div>
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <div class="empty-state-icon">📦</div>
                     <h3>Заказов пока нет</h3>
                     <p>Когда клиенты начнут покупать ваши товары, здесь появятся заказы</p>
                 </div>
 
                 <!-- Пагинация -->
-                <div id="paginationContainer" class="flex justify-center items-center space-x-2 mt-6" style="display: none;">
-                    <button class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors" id="prevPageBtn" onclick="changePage(-1)" disabled>
+                <div id="paginationContainer" class="pagination" style="display: none;">
+                    <button class="btn btn-secondary" id="prevPageBtn" onclick="changePage(-1)" disabled>
                         Предыдущая
                     </button>
                     <span id="pageInfo" style="font-weight: 600;">Страница 1</span>
-                    <button class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors" id="nextPageBtn" onclick="changePage(1)">
+                    <button class="btn btn-secondary" id="nextPageBtn" onclick="changePage(1)">
                         Следующая
                     </button>
                 </div>
@@ -129,28 +131,28 @@
     </div>
 
     <!-- Модальное окно деталей заказа -->
-    <div id="orderDetailModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div class="border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+    <div id="orderDetailModal" class="modal">
+        <div class="modal-dialog">
+            <div class="modal-header">
                 <h2 id="modalOrderNumber">Заказ #</h2>
-                <span class="text-gray-400 hover:text-gray-600 text-2xl cursor-pointer" onclick="closeOrderDetail()">&times;</span>
+                <span class="close-modal" onclick="closeOrderDetail()">&times;</span>
             </div>
-            <div class="px-6 py-4">
+            <div class="modal-body">
                 <!-- Информация о заказе -->
                 <div class="order-info-grid">
-                    <div class="mb-4">
+                    <div class="info-item">
                         <label>Статус</label>
                         <value id="modalStatus"></value>
                     </div>
-                    <div class="mb-4">
+                    <div class="info-item">
                         <label>Дата заказа</label>
                         <value id="modalDate"></value>
                     </div>
-                    <div class="mb-4">
+                    <div class="info-item">
                         <label>Способ оплаты</label>
                         <value id="modalPayment"></value>
                     </div>
-                    <div class="mb-4">
+                    <div class="info-item">
                         <label>Сумма заказа</label>
                         <value id="modalTotal"></value>
                     </div>
@@ -158,7 +160,7 @@
 
                 <!-- Информация о клиенте -->
                 <h3 style="margin: 20px 0 10px 0;">👤 Клиент</h3>
-                <div class="mb-4">
+                <div class="info-item">
                     <p id="modalCustomer"></p>
                 </div>
 
@@ -174,8 +176,8 @@
                     <p style="color: #666; font-size: 14px; margin: 5px 0 0 0;">Сумма за ваши товары в этом заказе</p>
                 </div>
             </div>
-            <div class="border-t border-gray-200 px-6 py-4 flex justify-end space-x-3">
-                <button class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors" onclick="closeOrderDetail()">Закрыть</button>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeOrderDetail()">Закрыть</button>
             </div>
         </div>
     </div>

@@ -81,7 +81,7 @@ async function loadShopDashboard() {
 
     const dashboardEl = document.getElementById('shopDashboard');
     if (dashboardEl) {
-        dashboardEl.style.display = 'block';
+        dashboardEl.classList.remove('hidden');
     }
 
     try {
@@ -170,7 +170,7 @@ async function loadShopProducts() {
             container.innerHTML = '<div class="empty-state"><p>У вас пока нет товаров</p></div>';
             const paginationContainer = document.getElementById('shopPaginationContainer');
             if (paginationContainer) {
-                paginationContainer.style.display = 'none';
+                paginationContainer.classList.add('hidden');
             }
             return;
         }
@@ -239,9 +239,9 @@ function renderShopProductsPage() {
         const message = shopSearchQuery.trim() 
             ? `Не найдено товаров по запросу "${shopSearchQuery}"` 
             : 'У вас пока нет товаров';
-        container.innerHTML = `<div class="empty-state"><p>${message}</p></div>`;
+        container.innerHTML = `<div class="col-span-full text-center py-12"><p class="text-gray-500 text-lg">${message}</p></div>`;
         const paginationContainer = document.getElementById('shopPaginationContainer');
-        if (paginationContainer) paginationContainer.style.display = 'none';
+        if (paginationContainer) paginationContainer.classList.add('hidden');
         return;
     }
 
@@ -259,55 +259,50 @@ function renderShopProductsPage() {
         });
 
         return `
-            <div class="product-card">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow flex flex-col">
                 <!-- Секция 1: Изображение -->
-                <div class="product-image">
-                    ${imageUrl
-                ? `<img data-src="${imageUrl}" alt="${product.name}" loading="lazy" onerror="this.parentElement.innerHTML='<div style=&quot;color: #999; padding: 40px; text-align: center;&quot;>Ошибка загрузки</div>'">`
-                : '<div style="color: #999; padding: 40px; text-align: center;">Нет изображения</div>'}
+                <div class="aspect-square bg-gray-50 flex items-center justify-center overflow-hidden">
+                    ${imageUrl ? `<img src="${imageUrl}" alt="${product.name}" loading="lazy" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<div class=&quot;text-gray-400 text-center p-4&quot;>Ошибка загрузки</div>'">` : '<div class="text-gray-400 text-center p-4">Нет изображения</div>'}
                 </div>
                 
                 <!-- Секция 2: Информация о товаре -->
-                <div class="product-info">
-                    <div class="product-detail-row">
-                        <span class="product-detail-label">Наименование</span>
-                        <div class="product-detail-value product-name">${product.name || 'Без названия'}</div>
+                <div class="p-3 flex-1 flex flex-col space-y-2">
+                    <div>
+                        <div class="text-xs text-gray-500 mb-1">Наименование</div>
+                        <div class="font-semibold text-sm text-gray-900 line-clamp-2">${product.name || 'Без названия'}</div>
                     </div>
                     
-                    <div class="product-detail-row">
-                        <span class="product-detail-label">Цена</span>
-                        <div class="product-detail-value product-price">$${product.price ? product.price.toFixed(2) : '0.00'}</div>
+                    <div>
+                        <div class="text-xs text-gray-500 mb-1">Цена</div>
+                        <div class="text-purple-600 font-bold text-base">$${product.price ? product.price.toFixed(2) : '0.00'}</div>
                     </div>
                     
-                    <div class="product-details">
-                        <div class="product-detail-row">
-                            <span class="product-detail-label">Описание</span>
-                            <div class="product-detail-value product-description">
-                                ${product.description || 'Нет описания'}
-                            </div>
+                    <div class="flex-1">
+                        <div class="text-xs text-gray-500 mb-1">Описание</div>
+                        <div class="text-xs text-gray-700 line-clamp-3">
+                            ${product.description || 'Нет описания'}
                         </div>
-                        
-                        <div class="product-detail-row">
-                            <span class="product-detail-label">Дата добавления</span>
-                            <div class="product-detail-value product-date">
-                                ${createdDate}
-                            </div>
+                    </div>
+                    
+                    <div>
+                        <div class="text-xs text-gray-500 mb-1">Дата добавления</div>
+                        <div class="text-xs text-gray-600">
+                            ${createdDate}
                         </div>
                     </div>
                 </div>
                 
                 <!-- Секция 3: Статус -->
-                <div class="product-status-section">
-                    <span class="product-status ${product.moderation_status === 'approved' ? 'status-approved' : product.moderation_status === 'rejected' ? 'status-rejected' : 'status-pending'}">
-                        ${product.moderation_status === 'pending' ? 'На модерации' :
-                product.moderation_status === 'approved' ? 'Одобрен' : 'Отклонен'}
+                <div class="px-3 pb-2">
+                    <span class="inline-block px-2 py-1 text-xs font-medium rounded ${product.moderation_status === 'approved' ? 'bg-green-100 text-green-800' : product.moderation_status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}">
+                        ${product.moderation_status === 'pending' ? 'На модерации' : product.moderation_status === 'approved' ? 'Одобрен' : 'Отклонен'}
                     </span>
                 </div>
                 
                 <!-- Секция 4: Действия -->
-                <div class="product-actions">
-                    <button class="btn btn-secondary" onclick="openEditProduct(${product.id})">Изменить</button>
-                    <button class="btn btn-danger" onclick="deleteProduct(${product.id})">Удалить</button>
+                <div class="p-3 pt-0 flex gap-2">
+                    <button class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded text-xs font-medium transition-colors" onclick="openEditProduct(${product.id})">Изменить</button>
+                    <button class="flex-1 bg-red-100 hover:bg-red-200 text-red-700 px-3 py-2 rounded text-xs font-medium transition-colors" onclick="deleteProduct(${product.id})">Удалить</button>
                 </div>
             </div>
         `;
@@ -320,7 +315,7 @@ function renderShopProductsPage() {
     const paginationContainer = document.getElementById('shopPaginationContainer');
     if (paginationContainer) {
         if (totalPages > 1) {
-            paginationContainer.style.display = 'flex';
+            paginationContainer.classList.remove('hidden');
             const pageInfo = document.getElementById('shopPageInfo');
             const prevBtn = document.getElementById('shopPrevPageBtn');
             const nextBtn = document.getElementById('shopNextPageBtn');
@@ -329,7 +324,7 @@ function renderShopProductsPage() {
             if (prevBtn) prevBtn.disabled = shopCurrentPage === 1;
             if (nextBtn) nextBtn.disabled = shopCurrentPage === totalPages;
         } else {
-            paginationContainer.style.display = 'none';
+            paginationContainer.classList.add('hidden');
         }
     }
 
@@ -370,11 +365,11 @@ async function updateShopProfile() {
 }
 
 function openAddProductModal() {
-    document.getElementById('addProductModal').classList.add('active');
+    document.getElementById('addProductModal').classList.remove('hidden');
 }
 
 function closeAddProductModal() {
-    document.getElementById('addProductModal').classList.remove('active');
+    document.getElementById('addProductModal').classList.add('hidden');
     document.getElementById('productName').value = '';
     document.getElementById('productDescription').value = '';
     document.getElementById('productPrice').value = '';
@@ -471,14 +466,14 @@ async function openEditProduct(productId) {
         window.currentProductImages = product.images || [];
         updateCurrentImagesDisplay();
 
-        document.getElementById('editProductModal').classList.add('active');
+        document.getElementById('editProductModal').classList.remove('hidden');
     } catch (error) {
         showAlert('Ошибка загрузки товара: ' + error.message, 'error');
     }
 }
 
 function closeEditProductModal() {
-    document.getElementById('editProductModal').classList.remove('active');
+    document.getElementById('editProductModal').classList.add('hidden');
 }
 
 async function updateProduct() {
@@ -580,14 +575,14 @@ window.showConfirmDialog = function(message) {
         const dialogEl = document.getElementById('confirmDialog');
 
         if (messageEl) messageEl.textContent = message;
-        if (dialogEl) dialogEl.classList.add('active');
+        if (dialogEl) dialogEl.classList.remove('hidden');
         confirmCallback = resolve;
     });
 };
 
 window.closeConfirmDialog = function(result) {
     const dialogEl = document.getElementById('confirmDialog');
-    dialogEl.classList.remove('active');
+    dialogEl.classList.add('hidden');
     if (confirmCallback) {
         confirmCallback(result);
         confirmCallback = null;

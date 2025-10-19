@@ -7,8 +7,8 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Shop Dashboard - Fashion AI Platform</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css?v=999.0">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3/dist/tailwind.min.css?v=2.0" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css?v=2.0">
     <!-- Redesigned with Tailwind CSS v2.0 -->
 </head>
 <body class="bg-gray-50">
@@ -228,14 +228,14 @@
         </div>
     </div>
 
-    <script defer src="../assets/js/core/config.js?v=999"></script>
-    <script defer src="../assets/js/core/auth.js?v=999"></script>
-    <script defer src="../assets/js/core/websocket.js?v=999"></script>
-    <script defer src="../assets/js/core/notifications.js?v=999"></script>
-    <script defer src="../assets/js/shared/lazy-loader.js?v=999"></script>
-    <script defer src="../assets/js/core/cache.js?v=999"></script>
-    <script defer src="../assets/js/shared/common-utils.js?v=999"></script>
-    <script defer src="../assets/js/pages/shop/dashboard.js?v=999"></script>
+    <script defer src="../assets/js/core/config.js?v=14"></script>
+    <script defer src="../assets/js/core/auth.js?v=14"></script>
+    <script defer src="../assets/js/core/websocket.js?v=14"></script>
+    <script defer src="../assets/js/core/notifications.js?v=14"></script>
+    <script defer src="../assets/js/shared/lazy-loader.js?v=14"></script>
+    <script defer src="../assets/js/core/cache.js?v=14"></script>
+    <script defer src="../assets/js/shared/common-utils.js?v=14"></script>
+    <script defer src="../assets/js/pages/shop/dashboard.js?v=14"></script>
 
     <script>
         function logout() {
