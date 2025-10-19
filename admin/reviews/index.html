@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reviews Moderation - Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-8">
+                    <div class="flex items-center">
+                        <i class="fas fa-shield-alt text-purple-600 text-2xl mr-3"></i>
+                        <span class="text-xl font-bold text-gray-900">Admin Panel</span>
+                    </div>
+                    <div class="hidden md:flex space-x-4">
+                        <a href="../index.html" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-home mr-2"></i>Dashboard
+                        </a>
+                        <a href="../products/index.html" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-box mr-2"></i>Products
+                        </a>
+                        <a href="../shops/index.html" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-store mr-2"></i>Shops
+                        </a>
+                        <a href="#" class="bg-purple-50 text-purple-600 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-star mr-2"></i>Reviews
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative" id="notificationBell">
+                        <button class="text-gray-600 hover:text-gray-900 relative">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span id="notificationBadge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div class="text-right">
+                            <p class="text-sm font-medium text-gray-900" id="adminName">Admin</p>
+                            <p class="text-xs text-gray-500">Administrator</p>
+                        </div>
+                        <button onclick="logout()" class="text-gray-600 hover:text-gray-900">
+                            <i class="fas fa-sign-out-alt text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                <i class="fas fa-star text-purple-600 mr-3"></i>Reviews Moderation
+            </h1>
+            <p class="text-gray-600">Moderate and manage all platform reviews for quality control</p>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-6">
+            <!-- Total Reviews -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-star text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+                <h3 class="text-sm text-gray-600 mb-1">Total Reviews</h3>
+                <p class="text-2xl font-bold text-gray-900" id="totalReviews">0</p>
+                <p class="text-xs text-gray-500 mt-1">All platform reviews</p>
+            </div>
+
+            <!-- Pending Approval -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-clock text-yellow-600 text-xl"></i>
+                    </div>
+                </div>
+                <h3 class="text-sm text-gray-600 mb-1">Pending Approval</h3>
+                <p class="text-2xl font-bold text-yellow-600" id="pendingReviews">0</p>
+                <p class="text-xs text-gray-500 mt-1">Needs moderation</p>
+            </div>
+
+            <!-- Approved -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                    </div>
+                </div>
+                <h3 class="text-sm text-gray-600 mb-1">Approved</h3>
+                <p class="text-2xl font-bold text-green-600" id="approvedReviews">0</p>
+                <p class="text-xs text-gray-500 mt-1">Live on platform</p>
+            </div>
+
+            <!-- Rejected -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-times-circle text-red-600 text-xl"></i>
+                    </div>
+                </div>
+                <h3 class="text-sm text-gray-600 mb-1">Rejected</h3>
+                <p class="text-2xl font-bold text-red-600" id="rejectedReviews">0</p>
+                <p class="text-xs text-gray-500 mt-1">Removed/Spam</p>
+            </div>
+
+            <!-- Average Rating -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-chart-line text-purple-600 text-xl"></i>
+                    </div>
+                </div>
+                <h3 class="text-sm text-gray-600 mb-1">Platform Rating</h3>
+                <p class="text-2xl font-bold text-gray-900" id="avgRating">0.0</p>
+                <div id="avgStars" class="flex gap-1 mt-1">
+                    <!-- Stars will be inserted here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters & Bulk Actions -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+                <!-- Filters -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1">
+                    <!-- Search -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                        <div class="relative">
+                            <input type="text" id="searchInput" placeholder="Search by user, product, or content..."
+                                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                        </div>
+                    </div>
+
+                    <!-- Status Filter -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                        <select id="statusFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <option value="all">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </div>
+
+                    <!-- Rating Filter -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Rating</label>
+                        <select id="ratingFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <option value="">All Ratings</option>
+                            <option value="5">⭐⭐⭐⭐⭐ (5 stars)</option>
+                            <option value="4">⭐⭐⭐⭐ (4 stars)</option>
+                            <option value="3">⭐⭐⭐ (3 stars)</option>
+                            <option value="2">⭐⭐ (2 stars)</option>
+                            <option value="1">⭐ (1 star)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Bulk Actions -->
+                <div class="flex gap-2">
+                    <button onclick="bulkApprove()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed" id="bulkApproveBtn" disabled>
+                        <i class="fas fa-check mr-2"></i>Approve Selected
+                    </button>
+                    <button onclick="bulkReject()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed" id="bulkRejectBtn" disabled>
+                        <i class="fas fa-times mr-2"></i>Reject Selected
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-4 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="selectAll" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
+                    <label for="selectAll" class="text-sm text-gray-600">Select All</label>
+                    <span class="text-sm text-gray-500" id="selectedCount">(0 selected)</span>
+                </div>
+                <button onclick="resetFilters()" class="text-sm text-purple-600 hover:text-purple-700 font-medium">
+                    <i class="fas fa-redo mr-1"></i>Reset Filters
+                </button>
+            </div>
+        </div>
+
+        <!-- Reviews List -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-gray-900">
+                        <i class="fas fa-list mr-2"></i>All Reviews
+                    </h2>
+                    <span class="text-sm text-gray-600">
+                        Showing <span id="showingCount">0</span> of <span id="totalCount">0</span> reviews
+                    </span>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="p-12 text-center">
+                <i class="fas fa-spinner fa-spin text-4xl text-purple-600 mb-4"></i>
+                <p class="text-gray-600">Loading reviews...</p>
+            </div>
+
+            <!-- Reviews Container -->
+            <div id="reviewsContainer" class="hidden divide-y divide-gray-200">
+                <!-- Reviews will be inserted here -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden p-12 text-center">
+                <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No reviews found</h3>
+                <p class="text-gray-600">Try adjusting your filters or search criteria</p>
+            </div>
+
+            <!-- Pagination -->
+            <div id="paginationContainer" class="hidden px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm text-gray-600">Rows per page:</span>
+                    <select id="rowsPerPage" class="border border-gray-300 rounded px-2 py-1 text-sm">
+                        <option value="20">20</option>
+                        <option value="50" selected>50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="changePage('first')" id="firstPageBtn" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-angle-double-left"></i>
+                    </button>
+                    <button onclick="changePage('prev')" id="prevPageBtn" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-angle-left"></i>
+                    </button>
+                    <span class="text-sm text-gray-600">
+                        Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
+                    </span>
+                    <button onclick="changePage('next')" id="nextPageBtn" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-angle-right"></i>
+                    </button>
+                    <button onclick="changePage('last')" id="lastPageBtn" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-angle-double-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Detail Modal -->
+    <div id="reviewDetailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-xl font-semibold text-gray-900">
+                    <i class="fas fa-star text-purple-600 mr-2"></i>Review Details
+                </h3>
+                <button onclick="closeReviewDetail()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="reviewDetailContent" class="p-6">
+                <!-- Review details will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Reject Reason Modal -->
+    <div id="rejectModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-xl font-semibold text-gray-900">
+                    <i class="fas fa-times-circle text-red-600 mr-2"></i>Reject Review
+                </h3>
+            </div>
+            <div class="p-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Rejection Reason</label>
+                <select id="rejectReason" class="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4">
+                    <option value="">Select a reason...</option>
+                    <option value="spam">Spam or irrelevant content</option>
+                    <option value="inappropriate">Inappropriate language</option>
+                    <option value="fake">Fake or suspicious review</option>
+                    <option value="offensive">Offensive or abusive content</option>
+                    <option value="competitor">Competitor sabotage</option>
+                    <option value="other">Other reason</option>
+                </select>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Additional Notes (Optional)</label>
+                <textarea id="rejectNotes" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Add any additional context..."></textarea>
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-end gap-2">
+                <button onclick="closeRejectModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50">
+                    Cancel
+                </button>
+                <button onclick="confirmReject()" class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700">
+                    Reject Review
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3000/api/v1';
+        let currentPage = 1;
+        let rowsPerPage = 50;
+        let allReviews = [];
+        let filteredReviews = [];
+        let selectedReviews = new Set();
+        let currentRejectReviewId = null;
+
+        // Check authentication
+        const token = localStorage.getItem('token');
+        const userRole = localStorage.getItem('userRole');
+
+        if (!token || userRole !== 'admin') {
+            window.location.href = '../../index.html';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            loadReviews();
+        });
+
+        function setupEventListeners() {
+            // Search with debounce
+            let searchTimeout;
+            document.getElementById('searchInput').addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    applyFilters();
+                }, 300);
+            });
+
+            // Filter changes
+            document.getElementById('statusFilter').addEventListener('change', applyFilters);
+            document.getElementById('ratingFilter').addEventListener('change', applyFilters);
+
+            // Select all
+            document.getElementById('selectAll').addEventListener('change', function(e) {
+                if (e.target.checked) {
+                    selectedReviews = new Set(filteredReviews.map(r => r.id));
+                } else {
+                    selectedReviews.clear();
+                }
+                updateBulkActions();
+                renderReviews();
+            });
+
+            // Rows per page
+            document.getElementById('rowsPerPage').addEventListener('change', function() {
+                rowsPerPage = parseInt(this.value);
+                currentPage = 1;
+                renderReviews();
+            });
+        }
+
+        async function loadReviews() {
+            try {
+                showLoading();
+                
+                // Mock API call - replace with actual endpoint when backend is ready
+                // const response = await fetch(`${API_BASE_URL}/admin/reviews`, {
+                //     headers: {
+                //         'Authorization': `Bearer ${token}`,
+                //         'Content-Type': 'application/json'
+                //     }
+                // });
+                
+                // Generate mock data for now
+                allReviews = generateMockReviews(200);
+                
+                filteredReviews = [...allReviews];
+                updateStatistics();
+                renderReviews();
+                hideLoading();
+            } catch (error) {
+                console.error('Error loading reviews:', error);
+                showNotification('Failed to load reviews', 'error');
+                hideLoading();
+            }
+        }
+
+        function generateMockReviews(count) {
+            const reviews = [];
+            const shops = ['Fashion Store', 'Style Hub', 'Trendy Boutique', 'Chic Shop', 'Urban Wear'];
+            const users = ['John Doe', 'Jane Smith', 'Mike Johnson', 'Sarah Williams', 'Tom Brown'];
+            const products = ['Summer Dress', 'Classic Jeans', 'Leather Jacket', 'Sneakers', 'Handbag'];
+            const statuses = ['pending', 'approved', 'rejected'];
+            const comments = [
+                'Great product! Highly recommend.',
+                'Good quality, fast shipping.',
+                'Not what I expected, disappointed.',
+                'Perfect fit, love it!',
+                'Amazing design and comfortable.',
+                'Poor quality, would not buy again.',
+                'Excellent service and product.',
+                'Best purchase ever!',
+                'Spam content here...',
+                'Inappropriate language removed'
+            ];
+            
+            for (let i = 0; i < count; i++) {
+                const rating = Math.floor(Math.random() * 5) + 1;
+                const status = statuses[Math.floor(Math.random() * statuses.length)];
+                const timestamp = new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000);
+                
+                reviews.push({
+                    id: i + 1,
+                    user: {
+                        name: users[Math.floor(Math.random() * users.length)],
+                        email: `user${i}@example.com`
+                    },
+                    shop: {
+                        name: shops[Math.floor(Math.random() * shops.length)],
+                        id: Math.floor(Math.random() * 100) + 1
+                    },
+                    product: {
+                        name: products[Math.floor(Math.random() * products.length)],
+                        id: Math.floor(Math.random() * 1000) + 1
+                    },
+                    rating: rating,
+                    comment: comments[Math.floor(Math.random() * comments.length)],
+                    status: status,
+                    created_at: timestamp.toISOString(),
+                    verified_purchase: Math.random() > 0.3,
+                    helpful_count: Math.floor(Math.random() * 50),
+                    spam_score: Math.random(),
+                    moderation_notes: status === 'rejected' ? 'Spam content detected' : null
+                });
+            }
+            
+            return reviews.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        }
+
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const status = document.getElementById('statusFilter').value;
+            const rating = document.getElementById('ratingFilter').value;
+
+            filteredReviews = allReviews.filter(review => {
+                // Search filter
+                const matchesSearch = !searchTerm || 
+                    review.user.name.toLowerCase().includes(searchTerm) ||
+                    review.user.email.toLowerCase().includes(searchTerm) ||
+                    review.product.name.toLowerCase().includes(searchTerm) ||
+                    review.shop.name.toLowerCase().includes(searchTerm) ||
+                    review.comment.toLowerCase().includes(searchTerm);
+
+                // Status filter
+                const matchesStatus = status === 'all' || review.status === status;
+
+                // Rating filter
+                const matchesRating = !rating || review.rating === parseInt(rating);
+
+                return matchesSearch && matchesStatus && matchesRating;
+            });
+
+            currentPage = 1;
+            selectedReviews.clear();
+            updateStatistics();
+            updateBulkActions();
+            renderReviews();
+        }
+
+        function updateStatistics() {
+            document.getElementById('totalReviews').textContent = allReviews.length;
+            document.getElementById('pendingReviews').textContent = allReviews.filter(r => r.status === 'pending').length;
+            document.getElementById('approvedReviews').textContent = allReviews.filter(r => r.status === 'approved').length;
+            document.getElementById('rejectedReviews').textContent = allReviews.filter(r => r.status === 'rejected').length;
+            
+            const avgRating = allReviews.length > 0 
+                ? (allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length).toFixed(1)
+                : '0.0';
+            document.getElementById('avgRating').textContent = avgRating;
+            document.getElementById('avgStars').innerHTML = renderStars(parseFloat(avgRating));
+        }
+
+        function renderReviews() {
+            const container = document.getElementById('reviewsContainer');
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = startIndex + rowsPerPage;
+            const reviewsToShow = filteredReviews.slice(startIndex, endIndex);
+
+            if (reviewsToShow.length === 0) {
+                showEmptyState();
+                return;
+            }
+
+            container.innerHTML = reviewsToShow.map(review => `
+                <div class="p-6 hover:bg-gray-50">
+                    <div class="flex items-start gap-4">
+                        <!-- Checkbox -->
+                        <input type="checkbox" 
+                            class="mt-1 w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                            ${selectedReviews.has(review.id) ? 'checked' : ''}
+                            onchange="toggleReviewSelection(${review.id})">
+                        
+                        <!-- Review Content -->
+                        <div class="flex-1">
+                            <div class="flex items-start justify-between mb-2">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="font-semibold text-gray-900">${escapeHtml(review.user.name)}</span>
+                                        ${review.verified_purchase ? '<span class="px-2 py-0.5 bg-green-100 text-green-800 text-xs font-semibold rounded">Verified Purchase</span>' : ''}
+                                        ${review.spam_score > 0.7 ? '<span class="px-2 py-0.5 bg-red-100 text-red-800 text-xs font-semibold rounded"><i class="fas fa-exclamation-triangle mr-1"></i>Spam Risk</span>' : ''}
+                                    </div>
+                                    <div class="flex items-center gap-2 text-sm text-gray-500">
+                                        <span>${review.user.email}</span>
+                                        <span>•</span>
+                                        <span>${formatDate(review.created_at)}</span>
+                                    </div>
+                                </div>
+                                ${getStatusBadge(review.status)}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="flex items-center gap-2 mb-1">
+                                    ${renderStars(review.rating)}
+                                    <span class="text-sm text-gray-600">${review.rating}/5</span>
+                                </div>
+                            </div>
+                            
+                            <p class="text-gray-700 mb-3">${escapeHtml(review.comment)}</p>
+                            
+                            <div class="flex items-center gap-4 text-sm text-gray-500 mb-3">
+                                <span><i class="fas fa-store mr-1"></i>${escapeHtml(review.shop.name)}</span>
+                                <span><i class="fas fa-box mr-1"></i>${escapeHtml(review.product.name)}</span>
+                                <span><i class="fas fa-thumbs-up mr-1"></i>${review.helpful_count} helpful</span>
+                            </div>
+                            
+                            <div class="flex gap-2">
+                                <button onclick="viewReviewDetail(${review.id})" class="px-3 py-1 text-sm text-purple-600 hover:text-purple-700 font-medium">
+                                    <i class="fas fa-eye mr-1"></i>View Details
+                                </button>
+                                ${review.status === 'pending' ? `
+                                    <button onclick="approveReview(${review.id})" class="px-3 py-1 text-sm text-green-600 hover:text-green-700 font-medium">
+                                        <i class="fas fa-check mr-1"></i>Approve
+                                    </button>
+                                    <button onclick="showRejectModal(${review.id})" class="px-3 py-1 text-sm text-red-600 hover:text-red-700 font-medium">
+                                        <i class="fas fa-times mr-1"></i>Reject
+                                    </button>
+                                ` : ''}
+                                ${review.status === 'approved' ? `
+                                    <button onclick="showRejectModal(${review.id})" class="px-3 py-1 text-sm text-red-600 hover:text-red-700 font-medium">
+                                        <i class="fas fa-ban mr-1"></i>Remove
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            updatePagination();
+            showReviews();
+        }
+
+        function toggleReviewSelection(reviewId) {
+            if (selectedReviews.has(reviewId)) {
+                selectedReviews.delete(reviewId);
+            } else {
+                selectedReviews.add(reviewId);
+            }
+            updateBulkActions();
+            document.getElementById('selectAll').checked = selectedReviews.size === filteredReviews.length;
+        }
+
+        function updateBulkActions() {
+            const count = selectedReviews.size;
+            document.getElementById('selectedCount').textContent = `(${count} selected)`;
+            document.getElementById('bulkApproveBtn').disabled = count === 0;
+            document.getElementById('bulkRejectBtn').disabled = count === 0;
+        }
+
+        function renderStars(rating) {
+            let html = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= rating) {
+                    html += '<i class="fas fa-star text-yellow-400"></i>';
+                } else if (i - 0.5 <= rating) {
+                    html += '<i class="fas fa-star-half-alt text-yellow-400"></i>';
+                } else {
+                    html += '<i class="far fa-star text-gray-300"></i>';
+                }
+            }
+            return html;
+        }
+
+        function getStatusBadge(status) {
+            const badges = {
+                pending: '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>',
+                approved: '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Approved</span>',
+                rejected: '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Rejected</span>'
+            };
+            return badges[status] || status;
+        }
+
+        async function approveReview(reviewId) {
+            if (!confirm('Are you sure you want to approve this review?')) return;
+
+            try {
+                // Mock API call
+                // await fetch(`${API_BASE_URL}/admin/reviews/${reviewId}/approve`, {
+                //     method: 'POST',
+                //     headers: {
+                //         'Authorization': `Bearer ${token}`,
+                //         'Content-Type': 'application/json'
+                //     }
+                // });
+
+                const review = allReviews.find(r => r.id === reviewId);
+                if (review) {
+                    review.status = 'approved';
+                    applyFilters();
+                    showNotification('Review approved successfully', 'success');
+                }
+            } catch (error) {
+                console.error('Error approving review:', error);
+                showNotification('Failed to approve review', 'error');
+            }
+        }
+
+        function showRejectModal(reviewId) {
+            currentRejectReviewId = reviewId;
+            document.getElementById('rejectReason').value = '';
+            document.getElementById('rejectNotes').value = '';
+            document.getElementById('rejectModal').classList.remove('hidden');
+        }
+
+        function closeRejectModal() {
+            currentRejectReviewId = null;
+            document.getElementById('rejectModal').classList.add('hidden');
+        }
+
+        async function confirmReject() {
+            const reason = document.getElementById('rejectReason').value;
+            const notes = document.getElementById('rejectNotes').value;
+
+            if (!reason) {
+                showNotification('Please select a rejection reason', 'error');
+                return;
+            }
+
+            try {
+                // Mock API call
+                // await fetch(`${API_BASE_URL}/admin/reviews/${currentRejectReviewId}/reject`, {
+                //     method: 'POST',
+                //     headers: {
+                //         'Authorization': `Bearer ${token}`,
+                //         'Content-Type': 'application/json'
+                //     },
+                //     body: JSON.stringify({ reason, notes })
+                // });
+
+                const review = allReviews.find(r => r.id === currentRejectReviewId);
+                if (review) {
+                    review.status = 'rejected';
+                    review.moderation_notes = `${reason}: ${notes}`;
+                    applyFilters();
+                    showNotification('Review rejected successfully', 'success');
+                }
+                
+                closeRejectModal();
+            } catch (error) {
+                console.error('Error rejecting review:', error);
+                showNotification('Failed to reject review', 'error');
+            }
+        }
+
+        async function bulkApprove() {
+            if (!confirm(`Approve ${selectedReviews.size} selected reviews?`)) return;
+
+            try {
+                for (const reviewId of selectedReviews) {
+                    const review = allReviews.find(r => r.id === reviewId);
+                    if (review) review.status = 'approved';
+                }
+                
+                selectedReviews.clear();
+                applyFilters();
+                showNotification(`Successfully approved ${selectedReviews.size} reviews`, 'success');
+            } catch (error) {
+                console.error('Error bulk approving:', error);
+                showNotification('Failed to approve reviews', 'error');
+            }
+        }
+
+        async function bulkReject() {
+            if (!confirm(`Reject ${selectedReviews.size} selected reviews?`)) return;
+
+            try {
+                for (const reviewId of selectedReviews) {
+                    const review = allReviews.find(r => r.id === reviewId);
+                    if (review) {
+                        review.status = 'rejected';
+                        review.moderation_notes = 'Bulk rejected';
+                    }
+                }
+                
+                selectedReviews.clear();
+                applyFilters();
+                showNotification(`Successfully rejected ${selectedReviews.size} reviews`, 'success');
+            } catch (error) {
+                console.error('Error bulk rejecting:', error);
+                showNotification('Failed to reject reviews', 'error');
+            }
+        }
+
+        function viewReviewDetail(reviewId) {
+            const review = allReviews.find(r => r.id === reviewId);
+            if (!review) return;
+
+            const content = `
+                <div class="space-y-6">
+                    <!-- User Info -->
+                    <div>
+                        <h4 class="text-sm font-semibold text-gray-900 mb-3">User Information</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 mb-1">Name</p>
+                                <p class="text-sm text-gray-900">${escapeHtml(review.user.name)}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 mb-1">Email</p>
+                                <p class="text-sm text-gray-900">${escapeHtml(review.user.email)}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product Info -->
+                    <div class="border-t pt-4">
+                        <h4 class="text-sm font-semibold text-gray-900 mb-3">Product & Shop</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 mb-1">Product</p>
+                                <p class="text-sm text-gray-900">${escapeHtml(review.product.name)} (#${review.product.id})</p>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 mb-1">Shop</p>
+                                <p class="text-sm text-gray-900">${escapeHtml(review.shop.name)} (#${review.shop.id})</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Review Content -->
+                    <div class="border-t pt-4">
+                        <h4 class="text-sm font-semibold text-gray-900 mb-3">Review Content</h4>
+                        <div class="mb-3">
+                            <p class="text-sm font-medium text-gray-500 mb-1">Rating</p>
+                            <div class="flex items-center gap-2">
+                                ${renderStars(review.rating)}
+                                <span class="text-sm text-gray-600">${review.rating}/5</span>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 mb-1">Comment</p>
+                            <p class="text-sm text-gray-900">${escapeHtml(review.comment)}</p>
+                        </div>
+                    </div>
+
+                    <!-- Review Metrics -->
+                    <div class="border-t pt-4">
+                        <h4 class="text-sm font-semibold text-gray-900 mb-3">Review Metrics</h4>
+                        <div class="grid grid-cols-3 gap-4">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 mb-1">Status</p>
+                                ${getStatusBadge(review.status)}
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 mb-1">Verified Purchase</p>
+                                <p class="text-sm text-gray-900">${review.verified_purchase ? 'Yes ✓' : 'No'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 mb-1">Helpful Votes</p>
+                                <p class="text-sm text-gray-900">${review.helpful_count}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Spam Analysis -->
+                    <div class="border-t pt-4">
+                        <h4 class="text-sm font-semibold text-gray-900 mb-3">Spam Analysis</h4>
+                        <div class="mb-2">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-gray-600">Spam Score</span>
+                                <span class="${review.spam_score > 0.7 ? 'text-red-600' : 'text-green-600'} font-medium">
+                                    ${(review.spam_score * 100).toFixed(0)}%
+                                </span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="h-2 rounded-full ${review.spam_score > 0.7 ? 'bg-red-500' : 'bg-green-500'}" 
+                                     style="width: ${review.spam_score * 100}%"></div>
+                            </div>
+                        </div>
+                        ${review.spam_score > 0.7 ? '<p class="text-xs text-red-600 mt-2"><i class="fas fa-exclamation-triangle mr-1"></i>High spam risk detected</p>' : ''}
+                    </div>
+
+                    ${review.moderation_notes ? `
+                    <div class="border-t pt-4">
+                        <h4 class="text-sm font-semibold text-gray-900 mb-3">Moderation Notes</h4>
+                        <p class="text-sm text-gray-700 bg-gray-50 p-3 rounded">${escapeHtml(review.moderation_notes)}</p>
+                    </div>
+                    ` : ''}
+
+                    <div class="border-t pt-4">
+                        <p class="text-xs text-gray-500">
+                            Review ID: #${review.id} • Created: ${formatDate(review.created_at)}
+                        </p>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('reviewDetailContent').innerHTML = content;
+            document.getElementById('reviewDetailModal').classList.remove('hidden');
+        }
+
+        function closeReviewDetail() {
+            document.getElementById('reviewDetailModal').classList.add('hidden');
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = 'all';
+            document.getElementById('ratingFilter').value = '';
+            applyFilters();
+        }
+
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredReviews.length / rowsPerPage);
+            
+            document.getElementById('showingCount').textContent = Math.min(filteredReviews.length, rowsPerPage * currentPage);
+            document.getElementById('totalCount').textContent = allReviews.length;
+            document.getElementById('currentPage').textContent = currentPage;
+            document.getElementById('totalPages').textContent = totalPages;
+
+            document.getElementById('firstPageBtn').disabled = currentPage === 1;
+            document.getElementById('prevPageBtn').disabled = currentPage === 1;
+            document.getElementById('nextPageBtn').disabled = currentPage === totalPages;
+            document.getElementById('lastPageBtn').disabled = currentPage === totalPages;
+
+            document.getElementById('paginationContainer').classList.remove('hidden');
+        }
+
+        function changePage(direction) {
+            const totalPages = Math.ceil(filteredReviews.length / rowsPerPage);
+            
+            switch(direction) {
+                case 'first':
+                    currentPage = 1;
+                    break;
+                case 'prev':
+                    if (currentPage > 1) currentPage--;
+                    break;
+                case 'next':
+                    if (currentPage < totalPages) currentPage++;
+                    break;
+                case 'last':
+                    currentPage = totalPages;
+                    break;
+            }
+            
+            renderReviews();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins} min${diffMins > 1 ? 's' : ''} ago`;
+            if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+            if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+            
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        function showLoading() {
+            document.getElementById('loadingState').classList.remove('hidden');
+            document.getElementById('reviewsContainer').classList.add('hidden');
+            document.getElementById('emptyState').classList.add('hidden');
+            document.getElementById('paginationContainer').classList.add('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingState').classList.add('hidden');
+        }
+
+        function showReviews() {
+            document.getElementById('reviewsContainer').classList.remove('hidden');
+            document.getElementById('emptyState').classList.add('hidden');
+        }
+
+        function showEmptyState() {
+            document.getElementById('reviewsContainer').classList.add('hidden');
+            document.getElementById('emptyState').classList.remove('hidden');
+            document.getElementById('paginationContainer').classList.add('hidden');
+        }
+
+        function showNotification(message, type = 'info') {
+            const bgColors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500'
+            };
+
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 ${bgColors[type]} text-white px-6 py-3 rounded-lg shadow-lg z-50`;
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'} mr-2"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('userRole');
+            window.location.href = '../../index.html';
+        }
+
+        // Close modals when clicking outside
+        document.getElementById('reviewDetailModal').addEventListener('click', function(e) {
+            if (e.target === this) closeReviewDetail();
+        });
+
+        document.getElementById('rejectModal').addEventListener('click', function(e) {
+            if (e.target === this) closeRejectModal();
+        });
+    </script>
+</body>
+</html>

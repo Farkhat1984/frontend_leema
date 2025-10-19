@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Reports - Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-8">
+                    <div class="flex items-center">
+                        <i class="fas fa-shield-alt text-purple-600 text-2xl mr-3"></i>
+                        <span class="text-xl font-bold text-gray-900">Admin Panel</span>
+                    </div>
+                    <div class="hidden md:flex space-x-4">
+                        <a href="../index.html" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-home mr-2"></i>Dashboard
+                        </a>
+                        <a href="../orders/index.html" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-shopping-cart mr-2"></i>Orders
+                        </a>
+                        <a href="../analytics/index.html" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-chart-bar mr-2"></i>Analytics
+                        </a>
+                        <a href="../logs/index.html" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-history mr-2"></i>Logs
+                        </a>
+                        <a href="#" class="bg-purple-50 text-purple-600 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-file-invoice-dollar mr-2"></i>Reports
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative" id="notificationBell">
+                        <button class="text-gray-600 hover:text-gray-900 relative">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span id="notificationBadge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div class="text-right">
+                            <p class="text-sm font-medium text-gray-900" id="adminName">Admin</p>
+                            <p class="text-xs text-gray-500">Administrator</p>
+                        </div>
+                        <button onclick="logout()" class="text-gray-600 hover:text-gray-900">
+                            <i class="fas fa-sign-out-alt text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                <i class="fas fa-file-invoice-dollar text-purple-600 mr-3"></i>Platform Financial Reports
+            </h1>
+            <p class="text-gray-600">Comprehensive financial overview, revenue tracking, and commission analysis</p>
+        </div>
+
+        <!-- Date Range Selector & Export -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+                <!-- Date Range -->
+                <div class="flex flex-col md:flex-row gap-4 flex-1">
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+                        <div class="flex gap-2 flex-wrap">
+                            <button onclick="setDateRange('today')" class="period-btn px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+                                Today
+                            </button>
+                            <button onclick="setDateRange('week')" class="period-btn px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+                                This Week
+                            </button>
+                            <button onclick="setDateRange('month')" class="period-btn active px-4 py-2 border border-purple-600 bg-purple-50 text-purple-600 rounded-lg text-sm font-medium">
+                                This Month
+                            </button>
+                            <button onclick="setDateRange('year')" class="period-btn px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+                                This Year
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Custom Date Range -->
+                    <div class="flex gap-2">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">From</label>
+                            <input type="date" id="dateFrom" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">To</label>
+                            <input type="date" id="dateTo" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                        </div>
+                        <div class="flex items-end">
+                            <button onclick="applyCustomRange()" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm font-medium">
+                                Apply
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Export Buttons -->
+                <div class="flex gap-2">
+                    <button onclick="exportCSV()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-file-csv mr-2"></i>Export CSV
+                    </button>
+                    <button onclick="exportPDF()" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm font-medium">
+                        <i class="fas fa-file-pdf mr-2"></i>Export PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <!-- Total Revenue -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-dollar-sign text-green-600 text-xl"></i>
+                    </div>
+                    <span class="text-xs font-semibold px-2 py-1 bg-green-100 text-green-800 rounded-full" id="revenueChange">+0%</span>
+                </div>
+                <h3 class="text-sm text-gray-600 mb-1">Total Platform Revenue</h3>
+                <p class="text-2xl font-bold text-gray-900" id="totalRevenue">$0.00</p>
+                <p class="text-xs text-gray-500 mt-1">Gross sales across all shops</p>
+            </div>
+
+            <!-- Commission Earned -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-percentage text-purple-600 text-xl"></i>
+                    </div>
+                    <span class="text-xs font-semibold px-2 py-1 bg-purple-100 text-purple-800 rounded-full" id="commissionChange">+0%</span>
+                </div>
+                <h3 class="text-sm text-gray-600 mb-1">Commission Earned</h3>
+                <p class="text-2xl font-bold text-gray-900" id="commissionEarned">$0.00</p>
+                <p class="text-xs text-gray-500 mt-1">Platform commission (5%)</p>
+            </div>
+
+            <!-- Total Orders -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-shopping-cart text-blue-600 text-xl"></i>
+                    </div>
+                    <span class="text-xs font-semibold px-2 py-1 bg-blue-100 text-blue-800 rounded-full" id="ordersChange">+0%</span>
+                </div>
+                <h3 class="text-sm text-gray-600 mb-1">Total Orders</h3>
+                <p class="text-2xl font-bold text-gray-900" id="totalOrders">0</p>
+                <p class="text-xs text-gray-500 mt-1">Completed transactions</p>
+            </div>
+
+            <!-- Active Shops -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-store text-orange-600 text-xl"></i>
+                    </div>
+                    <span class="text-xs font-semibold px-2 py-1 bg-orange-100 text-orange-800 rounded-full" id="shopsChange">+0</span>
+                </div>
+                <h3 class="text-sm text-gray-600 mb-1">Active Shops</h3>
+                <p class="text-2xl font-bold text-gray-900" id="activeShops">0</p>
+                <p class="text-xs text-gray-500 mt-1">Shops with sales</p>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- Revenue Breakdown Chart -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-chart-pie text-purple-600 mr-2"></i>Revenue Breakdown
+                </h3>
+                <div class="h-80">
+                    <canvas id="revenueBreakdownChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Commission Trend Chart -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-chart-line text-purple-600 mr-2"></i>Commission Trend
+                </h3>
+                <div class="h-80">
+                    <canvas id="commissionTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Methods & Refunds -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- Payment Methods Distribution -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-credit-card text-purple-600 mr-2"></i>Payment Methods
+                </h3>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fab fa-cc-paypal text-blue-600"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-900">PayPal</p>
+                                <p class="text-sm text-gray-500" id="paypalOrders">0 orders</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-gray-900" id="paypalRevenue">$0.00</p>
+                            <p class="text-sm text-gray-500" id="paypalPercent">0%</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fab fa-cc-stripe text-purple-600"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-900">Stripe</p>
+                                <p class="text-sm text-gray-500" id="stripeOrders">0 orders</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-gray-900" id="stripeRevenue">$0.00</p>
+                            <p class="text-sm text-gray-500" id="stripePercent">0%</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-credit-card text-green-600"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-900">Credit Card</p>
+                                <p class="text-sm text-gray-500" id="cardOrders">0 orders</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-gray-900" id="cardRevenue">$0.00</p>
+                            <p class="text-sm text-gray-500" id="cardPercent">0%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Refunds Overview -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-undo text-purple-600 mr-2"></i>Refunds Overview
+                </h3>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-4 bg-red-50 rounded-lg">
+                        <div>
+                            <p class="text-sm text-gray-600">Total Refunded</p>
+                            <p class="text-2xl font-bold text-red-600" id="totalRefunded">$0.00</p>
+                        </div>
+                        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-undo text-red-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="p-4 bg-gray-50 rounded-lg">
+                            <p class="text-sm text-gray-600">Refund Count</p>
+                            <p class="text-xl font-bold text-gray-900" id="refundCount">0</p>
+                        </div>
+                        <div class="p-4 bg-gray-50 rounded-lg">
+                            <p class="text-sm text-gray-600">Refund Rate</p>
+                            <p class="text-xl font-bold text-gray-900" id="refundRate">0%</p>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-yellow-50 rounded-lg">
+                        <p class="text-sm text-gray-600 mb-1">Commission Lost</p>
+                        <p class="text-lg font-bold text-yellow-700" id="commissionLost">$0.00</p>
+                        <p class="text-xs text-gray-500 mt-1">From refunded orders</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Shops Performance -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    <i class="fas fa-trophy text-purple-600 mr-2"></i>Top Performing Shops
+                </h3>
+                <span class="text-sm text-gray-600">By revenue generated</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rank</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Shop</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Revenue</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Commission</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Orders</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Avg Order</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Growth</th>
+                        </tr>
+                    </thead>
+                    <tbody id="topShopsTable" class="divide-y divide-gray-200">
+                        <!-- Shops will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Monthly Commission Breakdown -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-calendar-alt text-purple-600 mr-2"></i>Monthly Commission Breakdown
+            </h3>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Month</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Gross Revenue</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Commission (5%)</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Orders</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Active Shops</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Growth</th>
+                        </tr>
+                    </thead>
+                    <tbody id="monthlyBreakdownTable" class="divide-y divide-gray-200">
+                        <!-- Monthly data will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Transaction History -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    <i class="fas fa-receipt text-purple-600 mr-2"></i>Recent Transactions
+                </h3>
+                <div class="flex gap-2">
+                    <select id="statusFilter" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                        <option value="">All Status</option>
+                        <option value="completed">Completed</option>
+                        <option value="pending">Pending</option>
+                        <option value="refunded">Refunded</option>
+                    </select>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Transaction ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Shop</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Commission</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Payment Method</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionsTable" class="divide-y divide-gray-200">
+                        <!-- Transactions will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- Pagination -->
+            <div class="flex items-center justify-between mt-4">
+                <div>
+                    <span class="text-sm text-gray-600">Showing <span id="showingCount">0</span> of <span id="totalTransactions">0</span> transactions</span>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="changePage('prev')" id="prevBtn" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Previous
+                    </button>
+                    <button onclick="changePage('next')" id="nextBtn" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Next
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3000/api/v1';
+        const COMMISSION_RATE = 0.05; // 5% platform commission
+        
+        let currentDateRange = 'month';
+        let currentPage = 1;
+        let transactionsPerPage = 20;
+        let allTransactions = [];
+        let filteredTransactions = [];
+        let revenueBreakdownChart, commissionTrendChart;
+
+        // Check authentication
+        const token = localStorage.getItem('token');
+        const userRole = localStorage.getItem('userRole');
+
+        if (!token || userRole !== 'admin') {
+            window.location.href = '../../index.html';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            loadReports();
+            setDefaultDates();
+        });
+
+        function setupEventListeners() {
+            document.getElementById('statusFilter').addEventListener('change', filterTransactions);
+        }
+
+        function setDefaultDates() {
+            const today = new Date();
+            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+            
+            document.getElementById('dateFrom').value = firstDay.toISOString().split('T')[0];
+            document.getElementById('dateTo').value = today.toISOString().split('T')[0];
+        }
+
+        async function loadReports() {
+            try {
+                // Mock API call - replace with actual endpoint when backend is ready
+                // const response = await fetch(`${API_BASE_URL}/admin/reports/financial`, {
+                //     headers: {
+                //         'Authorization': `Bearer ${token}`,
+                //         'Content-Type': 'application/json'
+                //     }
+                // });
+                
+                // Generate mock data for now
+                const data = generateMockReportData();
+                
+                updateSummaryCards(data.summary);
+                renderCharts(data.charts);
+                renderTopShops(data.topShops);
+                renderMonthlyBreakdown(data.monthlyBreakdown);
+                renderPaymentMethods(data.paymentMethods);
+                renderRefundsOverview(data.refunds);
+                
+                allTransactions = data.transactions;
+                filteredTransactions = [...allTransactions];
+                renderTransactions();
+            } catch (error) {
+                console.error('Error loading reports:', error);
+                showNotification('Failed to load financial reports', 'error');
+            }
+        }
+
+        function generateMockReportData() {
+            const totalRevenue = 125000 + Math.random() * 25000;
+            const commission = totalRevenue * COMMISSION_RATE;
+            const totalOrders = Math.floor(500 + Math.random() * 200);
+            const activeShops = Math.floor(25 + Math.random() * 10);
+            
+            // Generate transactions
+            const transactions = [];
+            const shops = ['Fashion Store', 'Style Hub', 'Trendy Boutique', 'Chic Shop', 'Urban Wear'];
+            const paymentMethods = ['PayPal', 'Stripe', 'Credit Card'];
+            const statuses = ['completed', 'pending', 'refunded'];
+            
+            for (let i = 0; i < 100; i++) {
+                const amount = 50 + Math.random() * 450;
+                const shop = shops[Math.floor(Math.random() * shops.length)];
+                const status = statuses[Math.floor(Math.random() * statuses.length)];
+                const date = new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000);
+                
+                transactions.push({
+                    id: `TXN${String(i + 1).padStart(6, '0')}`,
+                    shop: shop,
+                    amount: amount,
+                    commission: amount * COMMISSION_RATE,
+                    paymentMethod: paymentMethods[Math.floor(Math.random() * paymentMethods.length)],
+                    status: status,
+                    date: date.toISOString()
+                });
+            }
+            
+            // Generate top shops
+            const topShops = [];
+            for (let i = 0; i < 10; i++) {
+                const revenue = (50000 - i * 5000) + Math.random() * 5000;
+                topShops.push({
+                    rank: i + 1,
+                    name: shops[i % shops.length] + ` #${i + 1}`,
+                    revenue: revenue,
+                    commission: revenue * COMMISSION_RATE,
+                    orders: Math.floor(100 - i * 8),
+                    avgOrder: revenue / (100 - i * 8),
+                    growth: (Math.random() * 40) - 10
+                });
+            }
+            
+            // Monthly breakdown
+            const monthlyBreakdown = [];
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+            for (let i = 0; i < 6; i++) {
+                const monthRevenue = 15000 + Math.random() * 10000 + i * 2000;
+                monthlyBreakdown.push({
+                    month: months[i],
+                    revenue: monthRevenue,
+                    commission: monthRevenue * COMMISSION_RATE,
+                    orders: Math.floor(80 + Math.random() * 40 + i * 5),
+                    shops: Math.floor(20 + Math.random() * 5),
+                    growth: (Math.random() * 30) - 5
+                });
+            }
+            
+            return {
+                summary: {
+                    totalRevenue: totalRevenue,
+                    commission: commission,
+                    totalOrders: totalOrders,
+                    activeShops: activeShops,
+                    revenueChange: 12.5,
+                    commissionChange: 12.5,
+                    ordersChange: 8.3,
+                    shopsChange: 3
+                },
+                charts: {
+                    revenueBreakdown: {
+                        labels: ['Shop Revenue', 'Commission', 'Refunded'],
+                        data: [totalRevenue - commission, commission, totalRevenue * 0.02]
+                    },
+                    commissionTrend: {
+                        labels: months,
+                        data: monthlyBreakdown.map(m => m.commission)
+                    }
+                },
+                topShops: topShops,
+                monthlyBreakdown: monthlyBreakdown,
+                paymentMethods: {
+                    paypal: { orders: Math.floor(totalOrders * 0.4), revenue: totalRevenue * 0.4 },
+                    stripe: { orders: Math.floor(totalOrders * 0.35), revenue: totalRevenue * 0.35 },
+                    card: { orders: Math.floor(totalOrders * 0.25), revenue: totalRevenue * 0.25 }
+                },
+                refunds: {
+                    total: totalRevenue * 0.02,
+                    count: Math.floor(totalOrders * 0.03),
+                    rate: 3,
+                    commissionLost: totalRevenue * 0.02 * COMMISSION_RATE
+                },
+                transactions: transactions
+            };
+        }
+
+        function updateSummaryCards(summary) {
+            document.getElementById('totalRevenue').textContent = `$${summary.totalRevenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+            document.getElementById('commissionEarned').textContent = `$${summary.commission.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+            document.getElementById('totalOrders').textContent = summary.totalOrders.toLocaleString();
+            document.getElementById('activeShops').textContent = summary.activeShops.toLocaleString();
+            
+            document.getElementById('revenueChange').textContent = `+${summary.revenueChange}%`;
+            document.getElementById('commissionChange').textContent = `+${summary.commissionChange}%`;
+            document.getElementById('ordersChange').textContent = `+${summary.ordersChange}%`;
+            document.getElementById('shopsChange').textContent = `+${summary.shopsChange}`;
+        }
+
+        function renderCharts(chartsData) {
+            // Revenue Breakdown Chart
+            const ctx1 = document.getElementById('revenueBreakdownChart').getContext('2d');
+            if (revenueBreakdownChart) revenueBreakdownChart.destroy();
+            
+            revenueBreakdownChart = new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: chartsData.revenueBreakdown.labels,
+                    datasets: [{
+                        data: chartsData.revenueBreakdown.data,
+                        backgroundColor: ['#10b981', '#667eea', '#ef4444'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Commission Trend Chart
+            const ctx2 = document.getElementById('commissionTrendChart').getContext('2d');
+            if (commissionTrendChart) commissionTrendChart.destroy();
+            
+            commissionTrendChart = new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: chartsData.commissionTrend.labels,
+                    datasets: [{
+                        label: 'Commission Earned',
+                        data: chartsData.commissionTrend.data,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderTopShops(shops) {
+            const tbody = document.getElementById('topShopsTable');
+            tbody.innerHTML = shops.map(shop => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            ${getMedalIcon(shop.rank)}
+                            <span class="ml-2 font-medium text-gray-900">#${shop.rank}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-store text-purple-600 text-sm"></i>
+                            </div>
+                            <span class="font-medium text-gray-900">${escapeHtml(shop.name)}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        $${shop.revenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-purple-600">
+                        $${shop.commission.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${shop.orders}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        $${shop.avgOrder.toFixed(2)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        ${getGrowthBadge(shop.growth)}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderMonthlyBreakdown(breakdown) {
+            const tbody = document.getElementById('monthlyBreakdownTable');
+            tbody.innerHTML = breakdown.map(month => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
+                        ${month.month} 2025
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        $${month.revenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-purple-600">
+                        $${month.commission.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${month.orders}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${month.shops}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        ${getGrowthBadge(month.growth)}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderPaymentMethods(methods) {
+            const total = methods.paypal.revenue + methods.stripe.revenue + methods.card.revenue;
+            
+            document.getElementById('paypalOrders').textContent = `${methods.paypal.orders} orders`;
+            document.getElementById('paypalRevenue').textContent = `$${methods.paypal.revenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+            document.getElementById('paypalPercent').textContent = `${((methods.paypal.revenue / total) * 100).toFixed(1)}%`;
+            
+            document.getElementById('stripeOrders').textContent = `${methods.stripe.orders} orders`;
+            document.getElementById('stripeRevenue').textContent = `$${methods.stripe.revenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+            document.getElementById('stripePercent').textContent = `${((methods.stripe.revenue / total) * 100).toFixed(1)}%`;
+            
+            document.getElementById('cardOrders').textContent = `${methods.card.orders} orders`;
+            document.getElementById('cardRevenue').textContent = `$${methods.card.revenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+            document.getElementById('cardPercent').textContent = `${((methods.card.revenue / total) * 100).toFixed(1)}%`;
+        }
+
+        function renderRefundsOverview(refunds) {
+            document.getElementById('totalRefunded').textContent = `$${refunds.total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+            document.getElementById('refundCount').textContent = refunds.count;
+            document.getElementById('refundRate').textContent = `${refunds.rate}%`;
+            document.getElementById('commissionLost').textContent = `$${refunds.commissionLost.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+        }
+
+        function renderTransactions() {
+            const tbody = document.getElementById('transactionsTable');
+            const startIndex = (currentPage - 1) * transactionsPerPage;
+            const endIndex = startIndex + transactionsPerPage;
+            const pageTransactions = filteredTransactions.slice(startIndex, endIndex);
+
+            tbody.innerHTML = pageTransactions.map(tx => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        ${tx.id}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${escapeHtml(tx.shop)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        $${tx.amount.toFixed(2)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-purple-600">
+                        $${tx.commission.toFixed(2)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${getPaymentMethodBadge(tx.paymentMethod)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        ${getStatusBadge(tx.status)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${formatDate(tx.date)}
+                    </td>
+                </tr>
+            `).join('');
+
+            updatePagination();
+        }
+
+        function filterTransactions() {
+            const status = document.getElementById('statusFilter').value;
+            
+            filteredTransactions = allTransactions.filter(tx => {
+                return !status || tx.status === status;
+            });
+            
+            currentPage = 1;
+            renderTransactions();
+        }
+
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredTransactions.length / transactionsPerPage);
+            
+            document.getElementById('showingCount').textContent = Math.min(filteredTransactions.length, transactionsPerPage);
+            document.getElementById('totalTransactions').textContent = filteredTransactions.length;
+            
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages;
+        }
+
+        function changePage(direction) {
+            if (direction === 'prev' && currentPage > 1) {
+                currentPage--;
+            } else if (direction === 'next') {
+                const totalPages = Math.ceil(filteredTransactions.length / transactionsPerPage);
+                if (currentPage < totalPages) currentPage++;
+            }
+            renderTransactions();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function setDateRange(range) {
+            currentDateRange = range;
+            
+            // Update button states
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.classList.remove('active', 'border-purple-600', 'bg-purple-50', 'text-purple-600');
+                btn.classList.add('border-gray-300');
+            });
+            event.target.classList.add('active', 'border-purple-600', 'bg-purple-50', 'text-purple-600');
+            event.target.classList.remove('border-gray-300');
+            
+            // Update date inputs
+            const today = new Date();
+            let fromDate = new Date();
+            
+            switch(range) {
+                case 'today':
+                    fromDate = today;
+                    break;
+                case 'week':
+                    fromDate.setDate(today.getDate() - 7);
+                    break;
+                case 'month':
+                    fromDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                    break;
+                case 'year':
+                    fromDate = new Date(today.getFullYear(), 0, 1);
+                    break;
+            }
+            
+            document.getElementById('dateFrom').value = fromDate.toISOString().split('T')[0];
+            document.getElementById('dateTo').value = today.toISOString().split('T')[0];
+            
+            loadReports();
+        }
+
+        function applyCustomRange() {
+            loadReports();
+        }
+
+        function exportCSV() {
+            const headers = ['Transaction ID', 'Shop', 'Amount', 'Commission', 'Payment Method', 'Status', 'Date'];
+            const rows = filteredTransactions.map(tx => [
+                tx.id,
+                tx.shop,
+                tx.amount.toFixed(2),
+                tx.commission.toFixed(2),
+                tx.paymentMethod,
+                tx.status,
+                formatDate(tx.date)
+            ]);
+
+            const csvContent = [
+                headers.join(','),
+                ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `platform_financial_report_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+
+            showNotification('Report exported successfully', 'success');
+        }
+
+        function exportPDF() {
+            showNotification('PDF export will be available soon', 'info');
+            // PDF export implementation would go here
+        }
+
+        function getMedalIcon(rank) {
+            if (rank === 1) return '<i class="fas fa-trophy text-yellow-500 text-lg"></i>';
+            if (rank === 2) return '<i class="fas fa-medal text-gray-400 text-lg"></i>';
+            if (rank === 3) return '<i class="fas fa-medal text-orange-600 text-lg"></i>';
+            return '';
+        }
+
+        function getGrowthBadge(growth) {
+            const color = growth > 0 ? 'green' : growth < 0 ? 'red' : 'gray';
+            const icon = growth > 0 ? 'arrow-up' : growth < 0 ? 'arrow-down' : 'minus';
+            return `<span class="px-2 py-1 text-xs font-semibold rounded-full bg-${color}-100 text-${color}-800">
+                <i class="fas fa-${icon} mr-1"></i>${Math.abs(growth).toFixed(1)}%
+            </span>`;
+        }
+
+        function getStatusBadge(status) {
+            const badges = {
+                completed: '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span>',
+                pending: '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>',
+                refunded: '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Refunded</span>'
+            };
+            return badges[status] || status;
+        }
+
+        function getPaymentMethodBadge(method) {
+            const badges = {
+                'PayPal': '<span class="px-2 py-1 text-xs font-medium rounded bg-blue-100 text-blue-800"><i class="fab fa-paypal mr-1"></i>PayPal</span>',
+                'Stripe': '<span class="px-2 py-1 text-xs font-medium rounded bg-purple-100 text-purple-800"><i class="fab fa-stripe mr-1"></i>Stripe</span>',
+                'Credit Card': '<span class="px-2 py-1 text-xs font-medium rounded bg-green-100 text-green-800"><i class="fas fa-credit-card mr-1"></i>Card</span>'
+            };
+            return badges[method] || method;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function showNotification(message, type = 'info') {
+            const bgColors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500'
+            };
+
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 ${bgColors[type]} text-white px-6 py-3 rounded-lg shadow-lg z-50`;
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'} mr-2"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('userRole');
+            window.location.href = '../../index.html';
+        }
+    </script>
+</body>
+</html>

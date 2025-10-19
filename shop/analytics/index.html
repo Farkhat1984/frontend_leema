@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Продвинутая аналитика - Fashion AI Platform</title>
+    <link rel="stylesheet" href="../../assets/css/layouts/style.css">
+    <link rel="stylesheet" href="../../assets/css/pages/shop.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .analytics-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .analytics-header h2 {
+            margin: 0;
+            font-size: 28px;
+            color: #1f2937;
+        }
+
+        .period-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .period-btn {
+            padding: 8px 16px;
+            border: 2px solid #e5e7eb;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6b7280;
+            transition: all 0.3s;
+        }
+
+        .period-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .period-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .date-range-picker {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .date-range-picker input {
+            padding: 8px 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .analytics-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            border: 2px solid #f3f4f6;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .stat-card.highlight {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+        }
+
+        .stat-card h3 {
+            margin: 0 0 8px 0;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card.highlight h3 {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .stat-card .value {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #1f2937;
+        }
+
+        .stat-card.highlight .value {
+            color: white;
+        }
+
+        .stat-card .trend {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .trend.up {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .trend.down {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .trend.neutral {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .stat-card.highlight .trend {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .chart-section {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            border: 2px solid #f3f4f6;
+            margin-bottom: 30px;
+        }
+
+        .chart-section h3 {
+            margin: 0 0 20px 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+        }
+
+        .chart-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .chart-controls button {
+            padding: 6px 12px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .chart-controls button:hover {
+            background: #f9fafb;
+        }
+
+        .chart-controls button.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #f3f4f6;
+        }
+
+        .metric-card h4 {
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .metric-item:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .metric-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .top-products-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .top-products-table th {
+            text-align: left;
+            padding: 12px;
+            background: #f9fafb;
+            font-size: 13px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .top-products-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 14px;
+        }
+
+        .top-products-table tr:hover {
+            background: #f9fafb;
+        }
+
+        .product-name {
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        .product-sales {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .product-revenue {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .export-section {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .export-btn {
+            padding: 10px 20px;
+            border: none;
+            background: #667eea;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .export-btn:hover {
+            background: #5568d3;
+            transform: translateY(-1px);
+        }
+
+        .export-btn.secondary {
+            background: #10b981;
+        }
+
+        .export-btn.secondary:hover {
+            background: #059669;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f4f6;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .insight-card {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #3b82f6;
+            margin-bottom: 20px;
+        }
+
+        .insight-card h4 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e40af;
+        }
+
+        .insight-card p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #1e3a8a;
+            line-height: 1.6;
+        }
+
+        .comparison-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .comparison-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #f3f4f6;
+        }
+
+        .comparison-card h4 {
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .comparison-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .comparison-label {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        @media (max-width: 768px) {
+            .analytics-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .period-selector {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+            .comparison-section {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <div class="dashboard">
+        <div class="header">
+            <h1>📊 Продвинутая аналитика</h1>
+            <div class="user-info">
+                <div class="user-avatar" id="shopAvatar">М</div>
+                <span id="shopName">Мой магазин</span>
+                <button class="logout-btn" onclick="logout()">Выйти</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <div id="alertContainer"></div>
+
+            <!-- Back Button -->
+            <button onclick="window.location.href='../index.html'" 
+                    style="margin-bottom: 20px; padding: 10px 20px; border: none; background: #f3f4f6; border-radius: 8px; cursor: pointer; font-size: 14px;">
+                ← Назад к панели
+            </button>
+
+            <!-- Analytics Header with Period Selector -->
+            <div class="analytics-header">
+                <h2>Обзор производительности</h2>
+                <div class="period-selector">
+                    <button class="period-btn active" data-period="7" onclick="changePeriod(7)">7 дней</button>
+                    <button class="period-btn" data-period="30" onclick="changePeriod(30)">30 дней</button>
+                    <button class="period-btn" data-period="90" onclick="changePeriod(90)">90 дней</button>
+                    <button class="period-btn" data-period="365" onclick="changePeriod(365)">Год</button>
+                    <div class="date-range-picker">
+                        <input type="date" id="dateFrom" onchange="applyCustomDateRange()">
+                        <span>-</span>
+                        <input type="date" id="dateTo" onchange="applyCustomDateRange()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Metrics -->
+            <div class="analytics-stats">
+                <div class="stat-card highlight">
+                    <h3>💰 Общая выручка</h3>
+                    <div class="value" id="totalRevenue">$0</div>
+                    <span class="trend up" id="revenueTrend">
+                        <span>↑</span> 0%
+                    </span>
+                </div>
+                <div class="stat-card">
+                    <h3>🛍️ Заказов</h3>
+                    <div class="value" id="totalOrders">0</div>
+                    <span class="trend neutral" id="ordersTrend">
+                        <span>→</span> 0%
+                    </span>
+                </div>
+                <div class="stat-card">
+                    <h3>📊 Средний чек</h3>
+                    <div class="value" id="averageOrder">$0</div>
+                    <span class="trend neutral" id="avgTrend">
+                        <span>→</span> 0%
+                    </span>
+                </div>
+                <div class="stat-card">
+                    <h3>👥 Клиентов</h3>
+                    <div class="value" id="totalCustomers">0</div>
+                    <span class="trend neutral" id="customersTrend">
+                        <span>→</span> 0%
+                    </span>
+                </div>
+            </div>
+
+            <!-- Insights -->
+            <div class="insight-card" id="insightCard" style="display: none;">
+                <h4>💡 Ключевые инсайты</h4>
+                <p id="insightText"></p>
+            </div>
+
+            <!-- Revenue Chart -->
+            <div class="chart-section">
+                <h3>
+                    <span>📈 Динамика выручки</span>
+                    <div class="chart-controls">
+                        <button class="active" onclick="changeRevenueView('daily')">По дням</button>
+                        <button onclick="changeRevenueView('weekly')">По неделям</button>
+                        <button onclick="changeRevenueView('monthly')">По месяцам</button>
+                    </div>
+                </h3>
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Orders Chart -->
+            <div class="chart-section">
+                <h3>📦 Динамика заказов</h3>
+                <div class="chart-container">
+                    <canvas id="ordersChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Comparison Section -->
+            <div class="comparison-section">
+                <div class="comparison-card">
+                    <h4>Сравнение с предыдущим периодом</h4>
+                    <div class="comparison-value" id="comparisonRevenue">+0%</div>
+                    <div class="comparison-label">Изменение выручки</div>
+                    <div style="margin-top: 15px;">
+                        <div class="metric-item">
+                            <span class="metric-label">Текущий период</span>
+                            <span class="metric-value" id="currentPeriodRevenue">$0</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">Предыдущий период</span>
+                            <span class="metric-value" id="previousPeriodRevenue">$0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="comparison-card">
+                    <h4>Конверсия и эффективность</h4>
+                    <div class="comparison-value" id="conversionRate">0%</div>
+                    <div class="comparison-label">Коэффициент конверсии</div>
+                    <div style="margin-top: 15px;">
+                        <div class="metric-item">
+                            <span class="metric-label">Просмотры товаров</span>
+                            <span class="metric-value" id="productViews">0</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">Продажи</span>
+                            <span class="metric-value" id="productSales">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Metrics Grid -->
+            <div class="metrics-grid">
+                <!-- Customer Metrics -->
+                <div class="metric-card">
+                    <h4>👥 Метрики клиентов</h4>
+                    <div class="metric-item">
+                        <span class="metric-label">Новые клиенты</span>
+                        <span class="metric-value" id="newCustomers">0</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Повторные покупки</span>
+                        <span class="metric-value" id="returningCustomers">0</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">LTV (средний)</span>
+                        <span class="metric-value" id="customerLTV">$0</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Удержание</span>
+                        <span class="metric-value" id="retentionRate">0%</span>
+                    </div>
+                </div>
+
+                <!-- Product Metrics -->
+                <div class="metric-card">
+                    <h4>📦 Метрики товаров</h4>
+                    <div class="metric-item">
+                        <span class="metric-label">Активные товары</span>
+                        <span class="metric-value" id="activeProducts">0</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">На модерации</span>
+                        <span class="metric-value" id="pendingProducts">0</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Всего просмотров</span>
+                        <span class="metric-value" id="totalViews">0</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Всего примерок</span>
+                        <span class="metric-value" id="totalTryOns">0</span>
+                    </div>
+                </div>
+
+                <!-- Order Metrics -->
+                <div class="metric-card">
+                    <h4>🛍️ Метрики заказов</h4>
+                    <div class="metric-item">
+                        <span class="metric-label">Завершено</span>
+                        <span class="metric-value" id="completedOrders">0</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">В обработке</span>
+                        <span class="metric-value" id="pendingOrders">0</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Отменено</span>
+                        <span class="metric-value" id="cancelledOrders">0</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Возвратов</span>
+                        <span class="metric-value" id="refundedOrders">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Products -->
+            <div class="chart-section">
+                <h3>🏆 Топ товаров по продажам</h3>
+                <table class="top-products-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Товар</th>
+                            <th>Продано</th>
+                            <th>Выручка</th>
+                            <th>Средний чек</th>
+                        </tr>
+                    </thead>
+                    <tbody id="topProductsBody">
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 40px; color: #9ca3af;">
+                                Загрузка данных...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Category Performance -->
+            <div class="chart-section">
+                <h3>📊 Производительность по категориям</h3>
+                <div class="chart-container">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Export Section -->
+            <div class="chart-section">
+                <h3>📥 Экспорт данных</h3>
+                <p style="color: #6b7280; margin-bottom: 15px;">
+                    Экспортируйте аналитические данные для дальнейшего анализа
+                </p>
+                <div class="export-section">
+                    <button class="export-btn" onclick="exportToCSV()">
+                        <span>📄</span> Экспорт в CSV
+                    </button>
+                    <button class="export-btn secondary" onclick="exportToJSON()">
+                        <span>📊</span> Экспорт в JSON
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script defer src="../../assets/js/core/config.js?v=15"></script>
+    <script defer src="../../assets/js/core/auth.js?v=15"></script>
+    <script defer src="../../assets/js/shared/common-utils.js?v=15"></script>
+    <script defer src="../../assets/js/pages/shop/analytics.js?v=15"></script>
+</body>
+
+</html>

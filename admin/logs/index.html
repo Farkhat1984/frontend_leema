@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity Logs - Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-8">
+                    <div class="flex items-center">
+                        <i class="fas fa-shield-alt text-purple-600 text-2xl mr-3"></i>
+                        <span class="text-xl font-bold text-gray-900">Admin Panel</span>
+                    </div>
+                    <div class="hidden md:flex space-x-4">
+                        <a href="../index.html" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-home mr-2"></i>Dashboard
+                        </a>
+                        <a href="../products/index.html" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-box mr-2"></i>Products
+                        </a>
+                        <a href="../orders/index.html" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-shopping-cart mr-2"></i>Orders
+                        </a>
+                        <a href="../shops/index.html" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-store mr-2"></i>Shops
+                        </a>
+                        <a href="#" class="bg-purple-50 text-purple-600 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-history mr-2"></i>Activity Logs
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative" id="notificationBell">
+                        <button class="text-gray-600 hover:text-gray-900 relative">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span id="notificationBadge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div class="text-right">
+                            <p class="text-sm font-medium text-gray-900" id="adminName">Admin</p>
+                            <p class="text-xs text-gray-500">Administrator</p>
+                        </div>
+                        <button onclick="logout()" class="text-gray-600 hover:text-gray-900">
+                            <i class="fas fa-sign-out-alt text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                <i class="fas fa-history text-purple-600 mr-3"></i>Activity Logs
+            </h1>
+            <p class="text-gray-600">Complete audit trail of user actions, admin activities, and system events</p>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <!-- Total Logs -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Total Logs</p>
+                        <p class="text-2xl font-bold text-gray-900" id="totalLogs">-</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-list text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Actions -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">User Actions</p>
+                        <p class="text-2xl font-bold text-gray-900" id="userActions">-</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-users text-green-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Actions -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Admin Actions</p>
+                        <p class="text-2xl font-bold text-gray-900" id="adminActions">-</p>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-purple-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Events -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">System Events</p>
+                        <p class="text-2xl font-bold text-gray-900" id="systemEvents">-</p>
+                    </div>
+                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-cog text-orange-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-semibold text-gray-900">
+                    <i class="fas fa-filter mr-2"></i>Filters & Search
+                </h2>
+                <button onclick="resetFilters()" class="text-sm text-purple-600 hover:text-purple-700 font-medium">
+                    <i class="fas fa-redo mr-1"></i>Reset All
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <!-- Search -->
+                <div class="lg:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                    <div class="relative">
+                        <input type="text" id="searchInput" placeholder="Search logs by user, action, or details..."
+                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                </div>
+
+                <!-- Action Type -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Action Type</label>
+                    <select id="actionTypeFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <option value="">All Actions</option>
+                        <option value="create">Create</option>
+                        <option value="update">Update</option>
+                        <option value="delete">Delete</option>
+                        <option value="login">Login</option>
+                        <option value="logout">Logout</option>
+                        <option value="approve">Approve</option>
+                        <option value="reject">Reject</option>
+                        <option value="refund">Refund</option>
+                    </select>
+                </div>
+
+                <!-- Actor Type -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Actor Type</label>
+                    <select id="actorTypeFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <option value="">All Actors</option>
+                        <option value="user">Users</option>
+                        <option value="shop">Shops</option>
+                        <option value="admin">Admins</option>
+                        <option value="system">System</option>
+                    </select>
+                </div>
+
+                <!-- Date Range -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+                    <select id="dateRangeFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <option value="today">Today</option>
+                        <option value="yesterday">Yesterday</option>
+                        <option value="7days" selected>Last 7 Days</option>
+                        <option value="30days">Last 30 Days</option>
+                        <option value="90days">Last 90 Days</option>
+                        <option value="custom">Custom Range</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Custom Date Range (hidden by default) -->
+            <div id="customDateRange" class="hidden mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">From Date</label>
+                    <input type="date" id="dateFrom" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">To Date</label>
+                    <input type="date" id="dateTo" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                </div>
+            </div>
+
+            <!-- Export Button -->
+            <div class="mt-4 flex justify-end">
+                <button onclick="exportLogs()" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                    <i class="fas fa-download mr-2"></i>Export Logs (CSV)
+                </button>
+            </div>
+        </div>
+
+        <!-- Logs Table -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-gray-900">
+                        <i class="fas fa-clipboard-list mr-2"></i>Activity Log Entries
+                    </h2>
+                    <span class="text-sm text-gray-600">
+                        Showing <span id="showingCount">0</span> of <span id="totalCount">0</span> logs
+                    </span>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="p-12 text-center">
+                <i class="fas fa-spinner fa-spin text-4xl text-purple-600 mb-4"></i>
+                <p class="text-gray-600">Loading activity logs...</p>
+            </div>
+
+            <!-- Table -->
+            <div id="logsTableContainer" class="hidden overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actor</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Resource</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Details</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP Address</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logsTableBody" class="bg-white divide-y divide-gray-200">
+                        <!-- Logs will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden p-12 text-center">
+                <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No logs found</h3>
+                <p class="text-gray-600">Try adjusting your filters or search criteria</p>
+            </div>
+
+            <!-- Pagination -->
+            <div id="paginationContainer" class="hidden px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm text-gray-600">Rows per page:</span>
+                    <select id="rowsPerPage" class="border border-gray-300 rounded px-2 py-1 text-sm">
+                        <option value="25">25</option>
+                        <option value="50" selected>50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="changePage('first')" id="firstPageBtn" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-angle-double-left"></i>
+                    </button>
+                    <button onclick="changePage('prev')" id="prevPageBtn" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-angle-left"></i>
+                    </button>
+                    <span class="text-sm text-gray-600">
+                        Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
+                    </span>
+                    <button onclick="changePage('next')" id="nextPageBtn" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-angle-right"></i>
+                    </button>
+                    <button onclick="changePage('last')" id="lastPageBtn" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-angle-double-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Log Detail Modal -->
+    <div id="logDetailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-xl font-semibold text-gray-900">
+                    <i class="fas fa-info-circle text-purple-600 mr-2"></i>Log Entry Details
+                </h3>
+                <button onclick="closeLogDetail()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="logDetailContent" class="p-6">
+                <!-- Log details will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3000/api/v1';
+        let currentPage = 1;
+        let rowsPerPage = 50;
+        let allLogs = [];
+        let filteredLogs = [];
+
+        // Check authentication
+        const token = localStorage.getItem('token');
+        const userRole = localStorage.getItem('userRole');
+
+        if (!token || userRole !== 'admin') {
+            window.location.href = '../../index.html';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            loadLogs();
+            updateLastActive();
+        });
+
+        function setupEventListeners() {
+            // Search with debounce
+            let searchTimeout;
+            document.getElementById('searchInput').addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    applyFilters();
+                }, 300);
+            });
+
+            // Filter changes
+            document.getElementById('actionTypeFilter').addEventListener('change', applyFilters);
+            document.getElementById('actorTypeFilter').addEventListener('change', applyFilters);
+            document.getElementById('dateRangeFilter').addEventListener('change', function() {
+                const customRange = document.getElementById('customDateRange');
+                if (this.value === 'custom') {
+                    customRange.classList.remove('hidden');
+                } else {
+                    customRange.classList.add('hidden');
+                    applyFilters();
+                }
+            });
+            
+            document.getElementById('dateFrom').addEventListener('change', applyFilters);
+            document.getElementById('dateTo').addEventListener('change', applyFilters);
+
+            // Rows per page
+            document.getElementById('rowsPerPage').addEventListener('change', function() {
+                rowsPerPage = parseInt(this.value);
+                currentPage = 1;
+                renderLogs();
+            });
+        }
+
+        async function loadLogs() {
+            try {
+                showLoading();
+                
+                // Mock API call - replace with actual endpoint when backend is ready
+                // const response = await fetch(`${API_BASE_URL}/admin/logs`, {
+                //     headers: {
+                //         'Authorization': `Bearer ${token}`,
+                //         'Content-Type': 'application/json'
+                //     }
+                // });
+                
+                // if (!response.ok) throw new Error('Failed to fetch logs');
+                // const data = await response.json();
+                // allLogs = data.logs || [];
+
+                // Generate mock data for now
+                allLogs = generateMockLogs(500);
+                
+                filteredLogs = [...allLogs];
+                updateStatistics();
+                renderLogs();
+                hideLoading();
+            } catch (error) {
+                console.error('Error loading logs:', error);
+                showError('Failed to load activity logs');
+                hideLoading();
+            }
+        }
+
+        function generateMockLogs(count) {
+            const logs = [];
+            const actions = ['create', 'update', 'delete', 'login', 'logout', 'approve', 'reject', 'refund'];
+            const actors = [
+                { type: 'admin', name: 'John Admin', email: 'john@admin.com' },
+                { type: 'shop', name: 'Fashion Store', email: 'store@fashion.com' },
+                { type: 'user', name: 'Alice User', email: 'alice@user.com' },
+                { type: 'system', name: 'System', email: 'system@platform.com' }
+            ];
+            const resources = ['Product', 'Order', 'User', 'Shop', 'Refund', 'Review', 'Category'];
+            
+            for (let i = 0; i < count; i++) {
+                const actor = actors[Math.floor(Math.random() * actors.length)];
+                const action = actions[Math.floor(Math.random() * actions.length)];
+                const resource = resources[Math.floor(Math.random() * resources.length)];
+                const timestamp = new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000);
+                
+                logs.push({
+                    id: i + 1,
+                    timestamp: timestamp.toISOString(),
+                    actor: {
+                        type: actor.type,
+                        name: actor.name,
+                        email: actor.email,
+                        id: Math.floor(Math.random() * 1000) + 1
+                    },
+                    action: action,
+                    resource: {
+                        type: resource,
+                        id: Math.floor(Math.random() * 10000) + 1,
+                        name: `${resource} #${Math.floor(Math.random() * 10000) + 1}`
+                    },
+                    details: `${action.charAt(0).toUpperCase() + action.slice(1)}d ${resource.toLowerCase()} successfully`,
+                    ip_address: `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`,
+                    user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                    metadata: {
+                        previous_value: action === 'update' ? 'old_value' : null,
+                        new_value: action === 'update' ? 'new_value' : null,
+                        reason: ['approve', 'reject', 'refund'].includes(action) ? 'Quality check' : null
+                    }
+                });
+            }
+            
+            return logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        }
+
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const actionType = document.getElementById('actionTypeFilter').value;
+            const actorType = document.getElementById('actorTypeFilter').value;
+            const dateRange = document.getElementById('dateRangeFilter').value;
+
+            filteredLogs = allLogs.filter(log => {
+                // Search filter
+                const matchesSearch = !searchTerm || 
+                    log.actor.name.toLowerCase().includes(searchTerm) ||
+                    log.actor.email.toLowerCase().includes(searchTerm) ||
+                    log.action.toLowerCase().includes(searchTerm) ||
+                    log.details.toLowerCase().includes(searchTerm) ||
+                    log.resource.name.toLowerCase().includes(searchTerm);
+
+                // Action type filter
+                const matchesAction = !actionType || log.action === actionType;
+
+                // Actor type filter
+                const matchesActor = !actorType || log.actor.type === actorType;
+
+                // Date range filter
+                let matchesDate = true;
+                const logDate = new Date(log.timestamp);
+                const now = new Date();
+                
+                if (dateRange === 'today') {
+                    matchesDate = logDate.toDateString() === now.toDateString();
+                } else if (dateRange === 'yesterday') {
+                    const yesterday = new Date(now);
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    matchesDate = logDate.toDateString() === yesterday.toDateString();
+                } else if (dateRange === '7days') {
+                    const weekAgo = new Date(now);
+                    weekAgo.setDate(weekAgo.getDate() - 7);
+                    matchesDate = logDate >= weekAgo;
+                } else if (dateRange === '30days') {
+                    const monthAgo = new Date(now);
+                    monthAgo.setDate(monthAgo.getDate() - 30);
+                    matchesDate = logDate >= monthAgo;
+                } else if (dateRange === '90days') {
+                    const threeMonthsAgo = new Date(now);
+                    threeMonthsAgo.setDate(threeMonthsAgo.getDate() - 90);
+                    matchesDate = logDate >= threeMonthsAgo;
+                } else if (dateRange === 'custom') {
+                    const dateFrom = document.getElementById('dateFrom').value;
+                    const dateTo = document.getElementById('dateTo').value;
+                    if (dateFrom) {
+                        matchesDate = matchesDate && logDate >= new Date(dateFrom);
+                    }
+                    if (dateTo) {
+                        const toDate = new Date(dateTo);
+                        toDate.setHours(23, 59, 59, 999);
+                        matchesDate = matchesDate && logDate <= toDate;
+                    }
+                }
+
+                return matchesSearch && matchesAction && matchesActor && matchesDate;
+            });
+
+            currentPage = 1;
+            updateStatistics();
+            renderLogs();
+        }
+
+        function updateStatistics() {
+            document.getElementById('totalLogs').textContent = allLogs.length.toLocaleString();
+            
+            const userActions = allLogs.filter(log => log.actor.type === 'user').length;
+            document.getElementById('userActions').textContent = userActions.toLocaleString();
+            
+            const adminActions = allLogs.filter(log => log.actor.type === 'admin').length;
+            document.getElementById('adminActions').textContent = adminActions.toLocaleString();
+            
+            const systemEvents = allLogs.filter(log => log.actor.type === 'system').length;
+            document.getElementById('systemEvents').textContent = systemEvents.toLocaleString();
+        }
+
+        function renderLogs() {
+            const tbody = document.getElementById('logsTableBody');
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = startIndex + rowsPerPage;
+            const logsToShow = filteredLogs.slice(startIndex, endIndex);
+
+            if (logsToShow.length === 0) {
+                showEmptyState();
+                return;
+            }
+
+            tbody.innerHTML = logsToShow.map(log => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${formatDateTime(log.timestamp)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            ${getActorIcon(log.actor.type)}
+                            <div class="ml-3">
+                                <div class="text-sm font-medium text-gray-900">${escapeHtml(log.actor.name)}</div>
+                                <div class="text-sm text-gray-500">${escapeHtml(log.actor.email)}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        ${getActionBadge(log.action)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">${escapeHtml(log.resource.type)}</div>
+                        <div class="text-sm text-gray-500">${escapeHtml(log.resource.name)}</div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-900 max-w-xs truncate">
+                        ${escapeHtml(log.details)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <i class="fas fa-globe mr-1"></i>${log.ip_address}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <button onclick="viewLogDetail(${log.id})" class="text-purple-600 hover:text-purple-900">
+                            <i class="fas fa-eye mr-1"></i>View
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            updatePagination();
+            showTable();
+        }
+
+        function getActorIcon(actorType) {
+            const icons = {
+                admin: '<div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center"><i class="fas fa-shield-alt text-purple-600"></i></div>',
+                shop: '<div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center"><i class="fas fa-store text-blue-600"></i></div>',
+                user: '<div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center"><i class="fas fa-user text-green-600"></i></div>',
+                system: '<div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center"><i class="fas fa-cog text-orange-600"></i></div>'
+            };
+            return icons[actorType] || icons.user;
+        }
+
+        function getActionBadge(action) {
+            const badges = {
+                create: '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800"><i class="fas fa-plus mr-1"></i>Create</span>',
+                update: '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800"><i class="fas fa-edit mr-1"></i>Update</span>',
+                delete: '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800"><i class="fas fa-trash mr-1"></i>Delete</span>',
+                login: '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-800"><i class="fas fa-sign-in-alt mr-1"></i>Login</span>',
+                logout: '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800"><i class="fas fa-sign-out-alt mr-1"></i>Logout</span>',
+                approve: '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800"><i class="fas fa-check mr-1"></i>Approve</span>',
+                reject: '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800"><i class="fas fa-times mr-1"></i>Reject</span>',
+                refund: '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800"><i class="fas fa-undo mr-1"></i>Refund</span>'
+            };
+            return badges[action] || `<span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">${action}</span>`;
+        }
+
+        function viewLogDetail(logId) {
+            const log = allLogs.find(l => l.id === logId);
+            if (!log) return;
+
+            const content = `
+                <div class="space-y-6">
+                    <!-- Basic Info -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 mb-1">Log ID</p>
+                            <p class="text-sm text-gray-900">#${log.id}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500 mb-1">Timestamp</p>
+                            <p class="text-sm text-gray-900">${formatDateTime(log.timestamp)}</p>
+                        </div>
+                    </div>
+
+                    <!-- Actor Info -->
+                    <div class="border-t pt-4">
+                        <h4 class="text-sm font-semibold text-gray-900 mb-3">Actor Information</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 mb-1">Type</p>
+                                <p class="text-sm text-gray-900 capitalize">${log.actor.type}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 mb-1">Name</p>
+                                <p class="text-sm text-gray-900">${escapeHtml(log.actor.name)}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 mb-1">Email</p>
+                                <p class="text-sm text-gray-900">${escapeHtml(log.actor.email)}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 mb-1">Actor ID</p>
+                                <p class="text-sm text-gray-900">#${log.actor.id}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Info -->
+                    <div class="border-t pt-4">
+                        <h4 class="text-sm font-semibold text-gray-900 mb-3">Action Details</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 mb-1">Action</p>
+                                <div class="mt-1">${getActionBadge(log.action)}</div>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 mb-1">Resource Type</p>
+                                <p class="text-sm text-gray-900">${log.resource.type}</p>
+                            </div>
+                            <div class="col-span-2">
+                                <p class="text-sm font-medium text-gray-500 mb-1">Resource</p>
+                                <p class="text-sm text-gray-900">${escapeHtml(log.resource.name)} (ID: ${log.resource.id})</p>
+                            </div>
+                            <div class="col-span-2">
+                                <p class="text-sm font-medium text-gray-500 mb-1">Details</p>
+                                <p class="text-sm text-gray-900">${escapeHtml(log.details)}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Technical Info -->
+                    <div class="border-t pt-4">
+                        <h4 class="text-sm font-semibold text-gray-900 mb-3">Technical Information</h4>
+                        <div class="space-y-3">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 mb-1">IP Address</p>
+                                <p class="text-sm text-gray-900 font-mono">${log.ip_address}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 mb-1">User Agent</p>
+                                <p class="text-sm text-gray-900 break-all">${escapeHtml(log.user_agent)}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    ${log.metadata && (log.metadata.previous_value || log.metadata.new_value || log.metadata.reason) ? `
+                    <!-- Metadata -->
+                    <div class="border-t pt-4">
+                        <h4 class="text-sm font-semibold text-gray-900 mb-3">Additional Metadata</h4>
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <pre class="text-xs text-gray-700 whitespace-pre-wrap">${JSON.stringify(log.metadata, null, 2)}</pre>
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+
+            document.getElementById('logDetailContent').innerHTML = content;
+            document.getElementById('logDetailModal').classList.remove('hidden');
+        }
+
+        function closeLogDetail() {
+            document.getElementById('logDetailModal').classList.add('hidden');
+        }
+
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredLogs.length / rowsPerPage);
+            
+            document.getElementById('showingCount').textContent = filteredLogs.length.toLocaleString();
+            document.getElementById('totalCount').textContent = allLogs.length.toLocaleString();
+            document.getElementById('currentPage').textContent = currentPage;
+            document.getElementById('totalPages').textContent = totalPages;
+
+            // Enable/disable pagination buttons
+            document.getElementById('firstPageBtn').disabled = currentPage === 1;
+            document.getElementById('prevPageBtn').disabled = currentPage === 1;
+            document.getElementById('nextPageBtn').disabled = currentPage === totalPages;
+            document.getElementById('lastPageBtn').disabled = currentPage === totalPages;
+
+            document.getElementById('paginationContainer').classList.remove('hidden');
+        }
+
+        function changePage(direction) {
+            const totalPages = Math.ceil(filteredLogs.length / rowsPerPage);
+            
+            switch(direction) {
+                case 'first':
+                    currentPage = 1;
+                    break;
+                case 'prev':
+                    if (currentPage > 1) currentPage--;
+                    break;
+                case 'next':
+                    if (currentPage < totalPages) currentPage++;
+                    break;
+                case 'last':
+                    currentPage = totalPages;
+                    break;
+            }
+            
+            renderLogs();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('actionTypeFilter').value = '';
+            document.getElementById('actorTypeFilter').value = '';
+            document.getElementById('dateRangeFilter').value = '7days';
+            document.getElementById('customDateRange').classList.add('hidden');
+            document.getElementById('dateFrom').value = '';
+            document.getElementById('dateTo').value = '';
+            
+            applyFilters();
+        }
+
+        async function exportLogs() {
+            try {
+                // Create CSV content
+                const headers = ['Timestamp', 'Actor Type', 'Actor Name', 'Actor Email', 'Action', 'Resource Type', 'Resource', 'Details', 'IP Address'];
+                const rows = filteredLogs.map(log => [
+                    formatDateTime(log.timestamp),
+                    log.actor.type,
+                    log.actor.name,
+                    log.actor.email,
+                    log.action,
+                    log.resource.type,
+                    log.resource.name,
+                    log.details,
+                    log.ip_address
+                ]);
+
+                const csvContent = [
+                    headers.join(','),
+                    ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+                ].join('\n');
+
+                // Download
+                const blob = new Blob([csvContent], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `activity_logs_${new Date().toISOString().split('T')[0]}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+
+                showNotification('Logs exported successfully', 'success');
+            } catch (error) {
+                console.error('Error exporting logs:', error);
+                showNotification('Failed to export logs', 'error');
+            }
+        }
+
+        function formatDateTime(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins} min${diffMins > 1 ? 's' : ''} ago`;
+            if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+            if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+            
+            return date.toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function showLoading() {
+            document.getElementById('loadingState').classList.remove('hidden');
+            document.getElementById('logsTableContainer').classList.add('hidden');
+            document.getElementById('emptyState').classList.add('hidden');
+            document.getElementById('paginationContainer').classList.add('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingState').classList.add('hidden');
+        }
+
+        function showTable() {
+            document.getElementById('logsTableContainer').classList.remove('hidden');
+            document.getElementById('emptyState').classList.add('hidden');
+        }
+
+        function showEmptyState() {
+            document.getElementById('logsTableContainer').classList.add('hidden');
+            document.getElementById('emptyState').classList.remove('hidden');
+            document.getElementById('paginationContainer').classList.add('hidden');
+        }
+
+        function showNotification(message, type = 'info') {
+            const bgColors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500'
+            };
+
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 ${bgColors[type]} text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in-down`;
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'} mr-2"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        function showError(message) {
+            showNotification(message, 'error');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function updateLastActive() {
+            localStorage.setItem('lastActive', new Date().toISOString());
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('userRole');
+            window.location.href = '../../index.html';
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('logDetailModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeLogDetail();
+            }
+        });
+    </script>
+
+    <style>
+        @keyframes fade-in-down {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-fade-in-down {
+            animation: fade-in-down 0.3s ease-out;
+        }
+    </style>
+</body>
+</html>

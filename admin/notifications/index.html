@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications Center - Admin Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-title h1 {
+            color: #1a202c;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .back-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .back-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1.5rem;
+            border-radius: 16px;
+            color: white;
+        }
+
+        .stat-card.unread {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .stat-card.orders {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+
+        .stat-card.shops {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .stat-card.reviews {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+
+        .stat-card.system {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .filters-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .filters-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .filter-group label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            transition: all 0.3s;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .btn-settings {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-settings:hover {
+            background: #059669;
+        }
+
+        .notifications-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        }
+
+        .notifications-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .notifications-header h2 {
+            color: #1a202c;
+            font-size: 1.5rem;
+        }
+
+        .bulk-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .notifications-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .notification-item {
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .notification-item:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.1);
+        }
+
+        .notification-item.unread {
+            background: #f0f4ff;
+            border-color: #667eea;
+        }
+
+        .notification-item.priority-high {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+
+        .notification-header-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+        }
+
+        .notification-left {
+            display: flex;
+            gap: 1rem;
+            flex: 1;
+        }
+
+        .notification-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .notification-icon.orders {
+            background: #dbeafe;
+            color: #3b82f6;
+        }
+
+        .notification-icon.shops {
+            background: #d1fae5;
+            color: #10b981;
+        }
+
+        .notification-icon.reviews {
+            background: #ede9fe;
+            color: #8b5cf6;
+        }
+
+        .notification-icon.system {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 0.25rem;
+            font-size: 1rem;
+        }
+
+        .notification-message {
+            color: #64748b;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            margin-bottom: 0.5rem;
+        }
+
+        .notification-meta {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: flex-start;
+        }
+
+        .notification-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-unread {
+            background: #dbeafe;
+            color: #3b82f6;
+        }
+
+        .badge-priority-high {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        .badge-priority-normal {
+            background: #f0fdf4;
+            color: #10b981;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .action-btn.mark-read {
+            background: #dbeafe;
+            color: #3b82f6;
+        }
+
+        .action-btn.delete {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #e2e8f0;
+        }
+
+        .pagination-info {
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .pagination-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: #cbd5e0;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state h3 {
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            color: #94a3b8;
+        }
+
+        /* Settings Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .modal-header h2 {
+            color: #1a202c;
+            font-size: 1.5rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .close-btn:hover {
+            color: #ef4444;
+        }
+
+        .settings-section {
+            margin-bottom: 2rem;
+        }
+
+        .settings-section h3 {
+            color: #1a202c;
+            margin-bottom: 1rem;
+            font-size: 1.125rem;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+        }
+
+        .setting-info {
+            flex: 1;
+        }
+
+        .setting-label {
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 0.25rem;
+        }
+
+        .setting-description {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 32px;
+        }
+
+        .toggle-switch input {
+            display: none;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #cbd5e0;
+            transition: 0.4s;
+            border-radius: 32px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 24px;
+            width: 24px;
+            left: 4px;
+            bottom: 4px;
+            background: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background: #667eea;
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(28px);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #94a3b8;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filters-row {
+                grid-template-columns: 1fr;
+            }
+
+            .notification-header-item {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .notification-actions {
+                width: 100%;
+            }
+
+            .bulk-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-top">
+                <div class="header-title">
+                    <i class="fas fa-bell" style="color: #667eea; font-size: 2rem;"></i>
+                    <h1>Notifications Center</h1>
+                </div>
+                <a href="../index.html" class="back-btn">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Dashboard
+                </a>
+            </div>
+
+            <!-- Statistics -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Notifications</div>
+                    <div class="stat-value" id="statTotal">0</div>
+                </div>
+                <div class="stat-card unread">
+                    <div class="stat-label">Unread</div>
+                    <div class="stat-value" id="statUnread">0</div>
+                </div>
+                <div class="stat-card orders">
+                    <div class="stat-label">Orders</div>
+                    <div class="stat-value" id="statOrders">0</div>
+                </div>
+                <div class="stat-card shops">
+                    <div class="stat-label">Shops</div>
+                    <div class="stat-value" id="statShops">0</div>
+                </div>
+                <div class="stat-card reviews">
+                    <div class="stat-label">Reviews</div>
+                    <div class="stat-value" id="statReviews">0</div>
+                </div>
+                <div class="stat-card system">
+                    <div class="stat-label">System</div>
+                    <div class="stat-value" id="statSystem">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-card">
+            <div class="filters-row">
+                <div class="filter-group">
+                    <label>Type</label>
+                    <select id="filterType">
+                        <option value="all">All Types</option>
+                        <option value="orders">Orders</option>
+                        <option value="shops">Shops</option>
+                        <option value="reviews">Reviews</option>
+                        <option value="system">System</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Status</label>
+                    <select id="filterStatus">
+                        <option value="all">All Status</option>
+                        <option value="unread">Unread Only</option>
+                        <option value="read">Read Only</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Priority</label>
+                    <select id="filterPriority">
+                        <option value="all">All Priorities</option>
+                        <option value="high">High Priority</option>
+                        <option value="normal">Normal Priority</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Time Period</label>
+                    <select id="filterPeriod">
+                        <option value="all">All Time</option>
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-actions">
+                <button class="btn btn-primary" onclick="applyFilters()">
+                    <i class="fas fa-filter"></i>
+                    Apply Filters
+                </button>
+                <button class="btn btn-secondary" onclick="resetFilters()">
+                    <i class="fas fa-redo"></i>
+                    Reset
+                </button>
+                <button class="btn btn-settings" onclick="openSettings()">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </button>
+            </div>
+        </div>
+
+        <!-- Notifications List -->
+        <div class="notifications-card">
+            <div class="notifications-header">
+                <h2>Notifications</h2>
+                <div class="bulk-actions">
+                    <button class="btn btn-primary" onclick="markAllAsRead()">
+                        <i class="fas fa-check-double"></i>
+                        Mark All as Read
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearAll()">
+                        <i class="fas fa-trash"></i>
+                        Clear All
+                    </button>
+                </div>
+            </div>
+
+            <div id="notificationsContainer">
+                <div class="loading">
+                    <i class="fas fa-spinner"></i>
+                    <p>Loading notifications...</p>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="paginationContainer" style="display: none;">
+                <div class="pagination-info">
+                    Showing <span id="pageStart">0</span>-<span id="pageEnd">0</span> of <span id="pageTotal">0</span>
+                </div>
+                <div class="pagination-controls">
+                    <button class="pagination-btn" onclick="changePage('prev')">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <span id="paginationNumbers"></span>
+                    <button class="pagination-btn" onclick="changePage('next')">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Notification Settings</h2>
+                <button class="close-btn" onclick="closeSettings()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="settings-section">
+                <h3>Notification Types</h3>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Order Notifications</div>
+                        <div class="setting-description">Receive notifications for new orders and updates</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="settingOrders" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Shop Notifications</div>
+                        <div class="setting-description">Notifications about shop registrations and updates</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="settingShops" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Review Notifications</div>
+                        <div class="setting-description">Alerts for new reviews and review reports</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="settingReviews" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">System Notifications</div>
+                        <div class="setting-description">Important system alerts and warnings</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="settingSystem" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>Preferences</h3>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Sound Notifications</div>
+                        <div class="setting-description">Play sound for important notifications</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="settingSound" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Desktop Notifications</div>
+                        <div class="setting-description">Show browser notifications</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="settingDesktop">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Auto Mark as Read</div>
+                        <div class="setting-description">Automatically mark notifications as read when viewed</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="settingAutoRead">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button class="btn btn-primary" style="flex: 1;" onclick="saveSettings()">
+                    <i class="fas fa-save"></i>
+                    Save Settings
+                </button>
+                <button class="btn btn-secondary" onclick="closeSettings()">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let notifications = [];
+        let filteredNotifications = [];
+        let currentPage = 1;
+        let itemsPerPage = 15;
+        let ws = null;
+
+        // Load settings from localStorage
+        function loadSettings() {
+            const settings = {
+                orders: localStorage.getItem('admin_notif_orders') !== 'false',
+                shops: localStorage.getItem('admin_notif_shops') !== 'false',
+                reviews: localStorage.getItem('admin_notif_reviews') !== 'false',
+                system: localStorage.getItem('admin_notif_system') !== 'false',
+                sound: localStorage.getItem('admin_notif_sound') !== 'false',
+                desktop: localStorage.getItem('admin_notif_desktop') === 'true',
+                autoRead: localStorage.getItem('admin_notif_autoRead') === 'true'
+            };
+
+            document.getElementById('settingOrders').checked = settings.orders;
+            document.getElementById('settingShops').checked = settings.shops;
+            document.getElementById('settingReviews').checked = settings.reviews;
+            document.getElementById('settingSystem').checked = settings.system;
+            document.getElementById('settingSound').checked = settings.sound;
+            document.getElementById('settingDesktop').checked = settings.desktop;
+            document.getElementById('settingAutoRead').checked = settings.autoRead;
+
+            return settings;
+        }
+
+        // Save settings
+        function saveSettings() {
+            localStorage.setItem('admin_notif_orders', document.getElementById('settingOrders').checked);
+            localStorage.setItem('admin_notif_shops', document.getElementById('settingShops').checked);
+            localStorage.setItem('admin_notif_reviews', document.getElementById('settingReviews').checked);
+            localStorage.setItem('admin_notif_system', document.getElementById('settingSystem').checked);
+            localStorage.setItem('admin_notif_sound', document.getElementById('settingSound').checked);
+            localStorage.setItem('admin_notif_desktop', document.getElementById('settingDesktop').checked);
+            localStorage.setItem('admin_notif_autoRead', document.getElementById('settingAutoRead').checked);
+            
+            closeSettings();
+            alert('Settings saved successfully!');
+        }
+
+        // Generate mock notifications
+        function generateMockNotifications() {
+            const types = ['orders', 'shops', 'reviews', 'system'];
+            const priorities = ['high', 'normal'];
+            const mockData = [];
+
+            const templates = {
+                orders: [
+                    { title: 'New Order Placed', message: 'Order #{{id}} has been placed by customer {{name}}' },
+                    { title: 'Order Cancelled', message: 'Order #{{id}} was cancelled by {{name}}' },
+                    { title: 'Refund Requested', message: 'Refund request for order #{{id}} requires attention' },
+                    { title: 'Payment Failed', message: 'Payment failed for order #{{id}}' },
+                    { title: 'Large Order Alert', message: 'High-value order #{{id}} (${{amount}}) requires verification' }
+                ],
+                shops: [
+                    { title: 'New Shop Registration', message: '{{name}} has registered as a new shop' },
+                    { title: 'Shop Verification Required', message: '{{name}} shop requires verification' },
+                    { title: 'Shop Suspended', message: '{{name}} shop has been suspended due to violations' },
+                    { title: 'Shop Document Update', message: '{{name}} uploaded new verification documents' },
+                    { title: 'Shop Performance Alert', message: '{{name}} has low customer satisfaction rating' }
+                ],
+                reviews: [
+                    { title: 'New Review Posted', message: 'New {{rating}}-star review on product "{{product}}"' },
+                    { title: 'Review Reported', message: 'Review #{{id}} has been reported as inappropriate' },
+                    { title: 'Review Needs Moderation', message: 'Suspicious review detected on "{{product}}"' },
+                    { title: 'Negative Review Alert', message: '1-star review posted on popular product "{{product}}"' }
+                ],
+                system: [
+                    { title: 'System Maintenance', message: 'Scheduled maintenance on {{date}}' },
+                    { title: 'Security Alert', message: 'Unusual activity detected from IP {{ip}}' },
+                    { title: 'Database Backup', message: 'Daily backup completed successfully' },
+                    { title: 'API Error', message: 'High error rate detected in payment gateway' },
+                    { title: 'Server Load Warning', message: 'Server CPU usage above 90%' }
+                ]
+            };
+
+            for (let i = 0; i < 150; i++) {
+                const type = types[Math.floor(Math.random() * types.length)];
+                const template = templates[type][Math.floor(Math.random() * templates[type].length)];
+                const priority = type === 'system' || template.title.includes('Alert') || Math.random() > 0.7 ? 'high' : 'normal';
+                const isRead = Math.random() > 0.4;
+                const daysAgo = Math.floor(Math.random() * 30);
+                const date = new Date();
+                date.setDate(date.getDate() - daysAgo);
+                date.setHours(Math.floor(Math.random() * 24));
+                date.setMinutes(Math.floor(Math.random() * 60));
+
+                let message = template.message
+                    .replace('{{id}}', 10000 + i)
+                    .replace('{{name}}', ['John Doe', 'Fashion Store', 'Style Shop', 'Trendy Boutique', 'Luxury Fashion'][Math.floor(Math.random() * 5)])
+                    .replace('{{rating}}', Math.floor(Math.random() * 5) + 1)
+                    .replace('{{product}}', ['Summer Dress', 'Winter Jacket', 'Sneakers', 'Handbag', 'Designer Shoes'][Math.floor(Math.random() * 5)])
+                    .replace('{{date}}', new Date(date.getTime() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString())
+                    .replace('{{ip}}', `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`)
+                    .replace('{{amount}}', (500 + Math.random() * 2000).toFixed(2));
+
+                mockData.push({
+                    id: i + 1,
+                    type: type,
+                    title: template.title,
+                    message: message,
+                    priority: priority,
+                    isRead: isRead,
+                    timestamp: date.toISOString(),
+                    actor: type === 'system' ? 'System' : ['John Doe', 'Jane Smith', 'Shop Owner', 'Customer'][Math.floor(Math.random() * 4)],
+                    actionUrl: type === 'orders' ? '/admin/orders/' : type === 'shops' ? '/admin/shops/' : type === 'reviews' ? '/admin/reviews/' : null
+                });
+            }
+
+            return mockData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        }
+
+        // Load notifications
+        function loadNotifications() {
+            const cached = localStorage.getItem('admin_notifications');
+            if (cached) {
+                notifications = JSON.parse(cached);
+            } else {
+                notifications = generateMockNotifications();
+                localStorage.setItem('admin_notifications', JSON.stringify(notifications));
+            }
+
+            applyFilters();
+            updateStatistics();
+        }
+
+        // Update statistics
+        function updateStatistics() {
+            const stats = {
+                total: notifications.length,
+                unread: notifications.filter(n => !n.isRead).length,
+                orders: notifications.filter(n => n.type === 'orders').length,
+                shops: notifications.filter(n => n.type === 'shops').length,
+                reviews: notifications.filter(n => n.type === 'reviews').length,
+                system: notifications.filter(n => n.type === 'system').length
+            };
+
+            document.getElementById('statTotal').textContent = stats.total;
+            document.getElementById('statUnread').textContent = stats.unread;
+            document.getElementById('statOrders').textContent = stats.orders;
+            document.getElementById('statShops').textContent = stats.shops;
+            document.getElementById('statReviews').textContent = stats.reviews;
+            document.getElementById('statSystem').textContent = stats.system;
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const type = document.getElementById('filterType').value;
+            const status = document.getElementById('filterStatus').value;
+            const priority = document.getElementById('filterPriority').value;
+            const period = document.getElementById('filterPeriod').value;
+
+            filteredNotifications = notifications.filter(notif => {
+                if (type !== 'all' && notif.type !== type) return false;
+                if (status === 'unread' && notif.isRead) return false;
+                if (status === 'read' && !notif.isRead) return false;
+                if (priority !== 'all' && notif.priority !== priority) return false;
+
+                if (period !== 'all') {
+                    const notifDate = new Date(notif.timestamp);
+                    const now = new Date();
+                    const diffDays = Math.floor((now - notifDate) / (1000 * 60 * 60 * 24));
+
+                    if (period === 'today' && diffDays > 0) return false;
+                    if (period === 'week' && diffDays > 7) return false;
+                    if (period === 'month' && diffDays > 30) return false;
+                }
+
+                return true;
+            });
+
+            currentPage = 1;
+            renderNotifications();
+        }
+
+        // Reset filters
+        function resetFilters() {
+            document.getElementById('filterType').value = 'all';
+            document.getElementById('filterStatus').value = 'all';
+            document.getElementById('filterPriority').value = 'all';
+            document.getElementById('filterPeriod').value = 'all';
+            applyFilters();
+        }
+
+        // Render notifications
+        function renderNotifications() {
+            const container = document.getElementById('notificationsContainer');
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageNotifications = filteredNotifications.slice(start, end);
+
+            if (pageNotifications.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-bell-slash"></i>
+                        <h3>No Notifications</h3>
+                        <p>There are no notifications matching your filters</p>
+                    </div>
+                `;
+                document.getElementById('paginationContainer').style.display = 'none';
+                return;
+            }
+
+            const html = pageNotifications.map(notif => {
+                const timeAgo = getTimeAgo(notif.timestamp);
+                return `
+                    <div class="notification-item ${!notif.isRead ? 'unread' : ''} ${notif.priority === 'high' ? 'priority-high' : ''}" 
+                         onclick="viewNotification(${notif.id})">
+                        <div class="notification-header-item">
+                            <div class="notification-left">
+                                <div class="notification-icon ${notif.type}">
+                                    <i class="fas fa-${getTypeIcon(notif.type)}"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <div class="notification-title">${notif.title}</div>
+                                    <div class="notification-message">${notif.message}</div>
+                                    <div class="notification-meta">
+                                        <span class="meta-item">
+                                            <i class="fas fa-clock"></i>
+                                            ${timeAgo}
+                                        </span>
+                                        <span class="meta-item">
+                                            <i class="fas fa-user"></i>
+                                            ${notif.actor}
+                                        </span>
+                                        <span class="meta-item">
+                                            <i class="fas fa-tag"></i>
+                                            ${notif.type.charAt(0).toUpperCase() + notif.type.slice(1)}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="notification-actions">
+                                ${!notif.isRead ? '<span class="notification-badge badge-unread">Unread</span>' : ''}
+                                ${notif.priority === 'high' ? '<span class="notification-badge badge-priority-high"><i class="fas fa-exclamation"></i> High</span>' : ''}
+                                <button class="action-btn mark-read" onclick="event.stopPropagation(); toggleRead(${notif.id})" title="${notif.isRead ? 'Mark as unread' : 'Mark as read'}">
+                                    <i class="fas fa-${notif.isRead ? 'envelope' : 'envelope-open'}"></i>
+                                </button>
+                                <button class="action-btn delete" onclick="event.stopPropagation(); deleteNotification(${notif.id})" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+            updatePagination();
+        }
+
+        // Get type icon
+        function getTypeIcon(type) {
+            const icons = {
+                orders: 'shopping-cart',
+                shops: 'store',
+                reviews: 'star',
+                system: 'cog'
+            };
+            return icons[type] || 'bell';
+        }
+
+        // Get time ago
+        function getTimeAgo(timestamp) {
+            const now = new Date();
+            const date = new Date(timestamp);
+            const seconds = Math.floor((now - date) / 1000);
+
+            if (seconds < 60) return 'Just now';
+            if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes ago`;
+            if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
+            if (seconds < 2592000) return `${Math.floor(seconds / 86400)} days ago`;
+            return date.toLocaleDateString();
+        }
+
+        // Update pagination
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredNotifications.length / itemsPerPage);
+            const start = (currentPage - 1) * itemsPerPage + 1;
+            const end = Math.min(start + itemsPerPage - 1, filteredNotifications.length);
+
+            document.getElementById('pageStart').textContent = start;
+            document.getElementById('pageEnd').textContent = end;
+            document.getElementById('pageTotal').textContent = filteredNotifications.length;
+
+            let paginationHTML = '';
+            for (let i = 1; i <= Math.min(totalPages, 5); i++) {
+                paginationHTML += `
+                    <button class="pagination-btn ${i === currentPage ? 'active' : ''}" 
+                            onclick="goToPage(${i})">
+                        ${i}
+                    </button>
+                `;
+            }
+
+            document.getElementById('paginationNumbers').innerHTML = paginationHTML;
+            document.getElementById('paginationContainer').style.display = 'flex';
+        }
+
+        // Change page
+        function changePage(direction) {
+            const totalPages = Math.ceil(filteredNotifications.length / itemsPerPage);
+            if (direction === 'prev' && currentPage > 1) {
+                currentPage--;
+            } else if (direction === 'next' && currentPage < totalPages) {
+                currentPage++;
+            }
+            renderNotifications();
+        }
+
+        // Go to page
+        function goToPage(page) {
+            currentPage = page;
+            renderNotifications();
+        }
+
+        // View notification
+        function viewNotification(id) {
+            const notif = notifications.find(n => n.id === id);
+            if (!notif) return;
+
+            const autoRead = localStorage.getItem('admin_notif_autoRead') === 'true';
+            if (autoRead && !notif.isRead) {
+                toggleRead(id);
+            }
+
+            if (notif.actionUrl) {
+                window.location.href = notif.actionUrl;
+            }
+        }
+
+        // Toggle read status
+        function toggleRead(id) {
+            const notif = notifications.find(n => n.id === id);
+            if (notif) {
+                notif.isRead = !notif.isRead;
+                localStorage.setItem('admin_notifications', JSON.stringify(notifications));
+                applyFilters();
+                updateStatistics();
+            }
+        }
+
+        // Delete notification
+        function deleteNotification(id) {
+            if (!confirm('Are you sure you want to delete this notification?')) return;
+
+            notifications = notifications.filter(n => n.id !== id);
+            localStorage.setItem('admin_notifications', JSON.stringify(notifications));
+            applyFilters();
+            updateStatistics();
+        }
+
+        // Mark all as read
+        function markAllAsRead() {
+            notifications.forEach(n => n.isRead = true);
+            localStorage.setItem('admin_notifications', JSON.stringify(notifications));
+            applyFilters();
+            updateStatistics();
+        }
+
+        // Clear all
+        function clearAll() {
+            if (!confirm('Are you sure you want to clear all notifications? This cannot be undone.')) return;
+
+            notifications = [];
+            localStorage.setItem('admin_notifications', JSON.stringify(notifications));
+            applyFilters();
+            updateStatistics();
+        }
+
+        // Settings modal
+        function openSettings() {
+            document.getElementById('settingsModal').classList.add('active');
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').classList.remove('active');
+        }
+
+        // WebSocket connection
+        function connectWebSocket() {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+
+            ws = new WebSocket(`ws://localhost:8080/ws?token=${token}`);
+
+            ws.onopen = () => console.log('WebSocket connected');
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                handleWebSocketMessage(data);
+            };
+
+            ws.onerror = (error) => console.error('WebSocket error:', error);
+
+            ws.onclose = () => {
+                console.log('WebSocket disconnected. Reconnecting...');
+                setTimeout(connectWebSocket, 5000);
+            };
+        }
+
+        // Handle WebSocket message
+        function handleWebSocketMessage(data) {
+            const settings = loadSettings();
+            
+            if (data.type === 'orders' && !settings.orders) return;
+            if (data.type === 'shops' && !settings.shops) return;
+            if (data.type === 'reviews' && !settings.reviews) return;
+            if (data.type === 'system' && !settings.system) return;
+
+            const newNotif = {
+                id: notifications.length + 1,
+                type: data.type || 'system',
+                title: data.title || 'New Notification',
+                message: data.message || '',
+                priority: data.priority || 'normal',
+                isRead: false,
+                timestamp: new Date().toISOString(),
+                actor: data.actor || 'System',
+                actionUrl: data.actionUrl || null
+            };
+
+            notifications.unshift(newNotif);
+            localStorage.setItem('admin_notifications', JSON.stringify(notifications));
+            applyFilters();
+            updateStatistics();
+
+            if (settings.sound) {
+                playNotificationSound();
+            }
+
+            if (settings.desktop && 'Notification' in window && Notification.permission === 'granted') {
+                new Notification(newNotif.title, {
+                    body: newNotif.message,
+                    icon: '/assets/logo.png'
+                });
+            }
+        }
+
+        // Play notification sound
+        function playNotificationSound() {
+            const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OShURQKTKbj8LZkGgg5kdfy0H4qBSh+zPLaizsKGGS57O+hTRAMUqjl77RnHAU7k9r0yXkpBSh+zPDaizsKF2S57O+hTQ==');
+            audio.play().catch(e => console.log('Audio play failed:', e));
+        }
+
+        // Request desktop notification permission
+        function requestNotificationPermission() {
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSettings();
+            loadNotifications();
+            connectWebSocket();
+            requestNotificationPermission();
+        });
+
+        // Close modal on outside click
+        document.getElementById('settingsModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSettings();
+            }
+        });
+    </script>
+</body>
+</html>

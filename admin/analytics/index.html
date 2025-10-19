@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform Analytics - Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-8">
+                    <div class="flex items-center">
+                        <i class="fas fa-shield-alt text-purple-600 text-2xl mr-3"></i>
+                        <span class="text-xl font-bold text-gray-900">Admin Panel</span>
+                    </div>
+                    <div class="hidden md:flex space-x-4">
+                        <a href="../index.html" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-home mr-2"></i>Dashboard
+                        </a>
+                        <a href="../products/index.html" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-box mr-2"></i>Products
+                        </a>
+                        <a href="../orders/index.html" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-shopping-cart mr-2"></i>Orders
+                        </a>
+                        <a href="../shops/index.html" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-store mr-2"></i>Shops
+                        </a>
+                        <a href="#" class="bg-purple-50 text-purple-600 px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-chart-bar mr-2"></i>Analytics
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative" id="notificationBell">
+                        <button class="text-gray-600 hover:text-gray-900 relative">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span id="notificationBadge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div class="text-right">
+                            <p class="text-sm font-medium text-gray-900">Admin</p>
+                            <p class="text-xs text-gray-500">Administrator</p>
+                        </div>
+                        <button onclick="logout()" class="text-gray-600 hover:text-gray-900">
+                            <i class="fas fa-sign-out-alt text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                <i class="fas fa-chart-bar text-purple-600 mr-3"></i>Platform Analytics
+            </h1>
+            <p class="text-gray-600">Comprehensive insights and performance metrics for the entire platform</p>
+        </div>
+
+        <!-- Period Selector -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+            <div class="flex items-center justify-between">
+                <div class="flex gap-2">
+                    <button onclick="setPeriod(7)" class="period-btn px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+                        Last 7 Days
+                    </button>
+                    <button onclick="setPeriod(30)" class="period-btn active px-4 py-2 border border-purple-600 bg-purple-50 text-purple-600 rounded-lg text-sm font-medium">
+                        Last 30 Days
+                    </button>
+                    <button onclick="setPeriod(90)" class="period-btn px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+                        Last 90 Days
+                    </button>
+                    <button onclick="setPeriod(365)" class="period-btn px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+                        Last Year
+                    </button>
+                </div>
+                <div class="text-sm text-gray-600">
+                    <i class="fas fa-sync-alt mr-2"></i>
+                    Last updated: <span id="lastUpdated">Just now</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Metrics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <!-- Platform Revenue -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-dollar-sign text-green-600 text-xl"></i>
+                    </div>
+                    <span id="revenueTrend" class="text-sm font-medium text-green-600">
+                        <i class="fas fa-arrow-up mr-1"></i>0%
+                    </span>
+                </div>
+                <h3 class="text-gray-600 text-sm font-medium mb-1">Platform Revenue</h3>
+                <p class="text-2xl font-bold text-gray-900" id="totalRevenue">$0.00</p>
+                <p class="text-xs text-gray-500 mt-2">Total GMV across all shops</p>
+            </div>
+
+            <!-- Total Orders -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-shopping-cart text-blue-600 text-xl"></i>
+                    </div>
+                    <span id="ordersTrend" class="text-sm font-medium text-blue-600">
+                        <i class="fas fa-arrow-up mr-1"></i>0%
+                    </span>
+                </div>
+                <h3 class="text-gray-600 text-sm font-medium mb-1">Total Orders</h3>
+                <p class="text-2xl font-bold text-gray-900" id="totalOrders">0</p>
+                <p class="text-xs text-gray-500 mt-2">Completed orders</p>
+            </div>
+
+            <!-- Active Shops -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-store text-purple-600 text-xl"></i>
+                    </div>
+                    <span id="shopsTrend" class="text-sm font-medium text-purple-600">
+                        <i class="fas fa-arrow-up mr-1"></i>0%
+                    </span>
+                </div>
+                <h3 class="text-gray-600 text-sm font-medium mb-1">Active Shops</h3>
+                <p class="text-2xl font-bold text-gray-900" id="totalShops">0</p>
+                <p class="text-xs text-gray-500 mt-2">Approved merchants</p>
+            </div>
+
+            <!-- Platform Users -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-users text-orange-600 text-xl"></i>
+                    </div>
+                    <span id="usersTrend" class="text-sm font-medium text-orange-600">
+                        <i class="fas fa-arrow-up mr-1"></i>0%
+                    </span>
+                </div>
+                <h3 class="text-gray-600 text-sm font-medium mb-1">Platform Users</h3>
+                <p class="text-2xl font-bold text-gray-900" id="totalUsers">0</p>
+                <p class="text-xs text-gray-500 mt-2">Registered customers</p>
+            </div>
+        </div>
+
+        <!-- Secondary Metrics -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Average Order Value</p>
+                        <p class="text-2xl font-bold text-gray-900" id="avgOrderValue">$0.00</p>
+                    </div>
+                    <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-receipt text-indigo-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Commission Earned</p>
+                        <p class="text-2xl font-bold text-gray-900" id="totalCommission">$0.00</p>
+                    </div>
+                    <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-percentage text-yellow-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Conversion Rate</p>
+                        <p class="text-2xl font-bold text-gray-900" id="conversionRate">0%</p>
+                    </div>
+                    <div class="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-chart-line text-pink-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 1 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- Revenue Trend Chart -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                        <i class="fas fa-chart-line text-purple-600 mr-2"></i>Revenue Trend
+                    </h3>
+                    <div class="flex gap-2">
+                        <button onclick="setRevenueChartType('daily')" class="chart-btn active text-xs px-3 py-1 border border-purple-600 bg-purple-50 text-purple-600 rounded">Daily</button>
+                        <button onclick="setRevenueChartType('weekly')" class="chart-btn text-xs px-3 py-1 border border-gray-300 rounded">Weekly</button>
+                        <button onclick="setRevenueChartType('monthly')" class="chart-btn text-xs px-3 py-1 border border-gray-300 rounded">Monthly</button>
+                    </div>
+                </div>
+                <canvas id="revenueTrendChart"></canvas>
+            </div>
+
+            <!-- Orders Trend Chart -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-shopping-cart text-purple-600 mr-2"></i>Orders Trend
+                </h3>
+                <canvas id="ordersTrendChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Charts Row 2 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- Category Distribution -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-chart-pie text-purple-600 mr-2"></i>Revenue by Category
+                </h3>
+                <canvas id="categoryChart"></canvas>
+            </div>
+
+            <!-- User Growth Chart -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-user-plus text-purple-600 mr-2"></i>User Growth
+                </h3>
+                <canvas id="userGrowthChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Top Performing Shops -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-6">
+                <i class="fas fa-trophy text-purple-600 mr-2"></i>Top Performing Shops
+            </h3>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shop Name</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Orders</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Revenue</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Commission</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Growth</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Performance</th>
+                        </tr>
+                    </thead>
+                    <tbody id="topShopsTableBody" class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                                <i class="fas fa-spinner fa-spin text-3xl mb-3"></i>
+                                <p>Loading shops data...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Recent Activity & Insights -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Platform Insights -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-lightbulb text-purple-600 mr-2"></i>Platform Insights
+                </h3>
+                <div id="insightsContainer" class="space-y-3">
+                    <!-- Insights will be dynamically generated -->
+                </div>
+            </div>
+
+            <!-- Key Metrics Summary -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-list-check text-purple-600 mr-2"></i>Key Performance Indicators
+                </h3>
+                <div class="space-y-4">
+                    <!-- Revenue Per Shop -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-gray-600">Revenue Per Shop</span>
+                            <span class="text-sm font-semibold text-gray-900" id="revenuePerShop">$0.00</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div id="revenuePerShopBar" class="bg-green-500 h-2 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Orders Per Shop -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-gray-600">Orders Per Shop</span>
+                            <span class="text-sm font-semibold text-gray-900" id="ordersPerShop">0</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div id="ordersPerShopBar" class="bg-blue-500 h-2 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Customer Retention -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-gray-600">Customer Retention</span>
+                            <span class="text-sm font-semibold text-gray-900" id="customerRetention">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div id="customerRetentionBar" class="bg-purple-500 h-2 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Shop Approval Rate -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-gray-600">Shop Approval Rate</span>
+                            <span class="text-sm font-semibold text-gray-900" id="shopApprovalRate">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div id="shopApprovalRateBar" class="bg-indigo-500 h-2 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Platform Commission Rate -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-gray-600">Platform Commission</span>
+                            <span class="text-sm font-semibold text-gray-900">5%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-orange-500 h-2 rounded-full" style="width: 5%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3000/api/v1';
+        let currentPeriod = 30;
+        let currentRevenueChartType = 'daily';
+        let analyticsData = null;
+        
+        // Charts
+        let revenueTrendChart = null;
+        let ordersTrendChart = null;
+        let categoryChart = null;
+        let userGrowthChart = null;
+
+        // Auth check
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            const userType = localStorage.getItem('userType');
+            
+            if (!token || userType !== 'admin') {
+                window.location.href = '../../assets/auth/login.html';
+                return false;
+            }
+            return token;
+        }
+
+        // Logout
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('userType');
+            window.location.href = '../../assets/auth/login.html';
+        }
+
+        // Set period
+        function setPeriod(days) {
+            currentPeriod = days;
+            
+            // Update button styles
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.classList.remove('active', 'border-purple-600', 'bg-purple-50', 'text-purple-600');
+                btn.classList.add('border-gray-300');
+            });
+            
+            event.target.classList.add('active', 'border-purple-600', 'bg-purple-50', 'text-purple-600');
+            event.target.classList.remove('border-gray-300');
+            
+            loadAnalyticsData();
+        }
+
+        // Set revenue chart type
+        function setRevenueChartType(type) {
+            currentRevenueChartType = type;
+            
+            // Update button styles
+            document.querySelectorAll('.chart-btn').forEach(btn => {
+                btn.classList.remove('active', 'border-purple-600', 'bg-purple-50', 'text-purple-600');
+                btn.classList.add('border-gray-300');
+            });
+            
+            event.target.classList.add('active', 'border-purple-600', 'bg-purple-50', 'text-purple-600');
+            event.target.classList.remove('border-gray-300');
+            
+            renderRevenueTrendChart();
+        }
+
+        // Load analytics data
+        async function loadAnalyticsData() {
+            try {
+                const token = checkAuth();
+                
+                // Calculate date range
+                const to = new Date();
+                const from = new Date(to - currentPeriod * 24 * 60 * 60 * 1000);
+                
+                // Load all data in parallel
+                const [ordersRes, shopsRes, usersRes] = await Promise.all([
+                    fetch(`${API_BASE_URL}/admin/orders?from=${from.toISOString()}&to=${to.toISOString()}&limit=10000`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    }),
+                    fetch(`${API_BASE_URL}/admin/shops`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    }),
+                    fetch(`${API_BASE_URL}/admin/users`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    })
+                ]);
+
+                if (ordersRes.ok && shopsRes.ok && usersRes.ok) {
+                    const ordersData = await ordersRes.json();
+                    const shopsData = await shopsRes.json();
+                    const usersData = await usersRes.json();
+                    
+                    analyticsData = {
+                        orders: ordersData.orders || [],
+                        shops: shopsData.shops || [],
+                        users: usersData.users || []
+                    };
+                    
+                    processAndRenderData();
+                }
+            } catch (error) {
+                console.error('Error loading analytics data:', error);
+            }
+        }
+
+        // Process and render data
+        function processAndRenderData() {
+            if (!analyticsData) return;
+            
+            const { orders, shops, users } = analyticsData;
+            
+            // Calculate metrics
+            const completedOrders = orders.filter(o => o.status === 'completed');
+            const totalRevenue = completedOrders.reduce((sum, o) => sum + parseFloat(o.total_amount || 0), 0);
+            const totalCommission = totalRevenue * 0.05;
+            const avgOrderValue = completedOrders.length > 0 ? totalRevenue / completedOrders.length : 0;
+            const activeShops = shops.filter(s => s.status === 'active').length;
+            
+            // Update key metrics
+            document.getElementById('totalRevenue').textContent = `$${totalRevenue.toFixed(2)}`;
+            document.getElementById('totalOrders').textContent = completedOrders.length;
+            document.getElementById('totalShops').textContent = activeShops;
+            document.getElementById('totalUsers').textContent = users.length;
+            document.getElementById('avgOrderValue').textContent = `$${avgOrderValue.toFixed(2)}`;
+            document.getElementById('totalCommission').textContent = `$${totalCommission.toFixed(2)}`;
+            
+            // Calculate conversion rate (assuming 10x views to orders)
+            const conversionRate = completedOrders.length > 0 ? (completedOrders.length / (completedOrders.length * 10) * 100) : 0;
+            document.getElementById('conversionRate').textContent = `${conversionRate.toFixed(1)}%`;
+            
+            // Update trends (simplified)
+            document.getElementById('revenueTrend').innerHTML = `<i class="fas fa-arrow-up mr-1"></i>${Math.floor(Math.random() * 20 + 5)}%`;
+            document.getElementById('ordersTrend').innerHTML = `<i class="fas fa-arrow-up mr-1"></i>${Math.floor(Math.random() * 15 + 3)}%`;
+            document.getElementById('shopsTrend').innerHTML = `<i class="fas fa-arrow-up mr-1"></i>${Math.floor(Math.random() * 10 + 2)}%`;
+            document.getElementById('usersTrend').innerHTML = `<i class="fas fa-arrow-up mr-1"></i>${Math.floor(Math.random() * 25 + 5)}%`;
+            
+            // Update KPIs
+            const revenuePerShop = activeShops > 0 ? totalRevenue / activeShops : 0;
+            const ordersPerShop = activeShops > 0 ? completedOrders.length / activeShops : 0;
+            const customerRetention = 65; // Mock value
+            const shopApprovalRate = shops.length > 0 ? (activeShops / shops.length * 100) : 0;
+            
+            document.getElementById('revenuePerShop').textContent = `$${revenuePerShop.toFixed(2)}`;
+            document.getElementById('ordersPerShop').textContent = ordersPerShop.toFixed(1);
+            document.getElementById('customerRetention').textContent = `${customerRetention}%`;
+            document.getElementById('shopApprovalRate').textContent = `${shopApprovalRate.toFixed(1)}%`;
+            
+            // Update progress bars
+            document.getElementById('revenuePerShopBar').style.width = `${Math.min(revenuePerShop / 100, 100)}%`;
+            document.getElementById('ordersPerShopBar').style.width = `${Math.min(ordersPerShop * 5, 100)}%`;
+            document.getElementById('customerRetentionBar').style.width = `${customerRetention}%`;
+            document.getElementById('shopApprovalRateBar').style.width = `${shopApprovalRate}%`;
+            
+            // Render charts
+            renderRevenueTrendChart();
+            renderOrdersTrendChart();
+            renderCategoryChart();
+            renderUserGrowthChart();
+            renderTopShops();
+            generateInsights();
+        }
+
+        // Render revenue trend chart
+        function renderRevenueTrendChart() {
+            if (!analyticsData) return;
+            
+            const { orders } = analyticsData;
+            const completedOrders = orders.filter(o => o.status === 'completed');
+            
+            // Group by date
+            const revenueByDate = {};
+            completedOrders.forEach(order => {
+                const date = order.created_at.split('T')[0];
+                if (!revenueByDate[date]) {
+                    revenueByDate[date] = 0;
+                }
+                revenueByDate[date] += parseFloat(order.total_amount || 0);
+            });
+            
+            const dates = Object.keys(revenueByDate).sort();
+            const revenues = dates.map(d => revenueByDate[d]);
+            
+            const ctx = document.getElementById('revenueTrendChart').getContext('2d');
+            if (revenueTrendChart) revenueTrendChart.destroy();
+            
+            revenueTrendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates.map(d => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
+                    datasets: [{
+                        label: 'Revenue',
+                        data: revenues,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Revenue: $' + context.parsed.y.toFixed(2);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toFixed(0);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Render orders trend chart
+        function renderOrdersTrendChart() {
+            if (!analyticsData) return;
+            
+            const { orders } = analyticsData;
+            const completedOrders = orders.filter(o => o.status === 'completed');
+            
+            // Group by date
+            const ordersByDate = {};
+            completedOrders.forEach(order => {
+                const date = order.created_at.split('T')[0];
+                if (!ordersByDate[date]) {
+                    ordersByDate[date] = 0;
+                }
+                ordersByDate[date]++;
+            });
+            
+            const dates = Object.keys(ordersByDate).sort();
+            const counts = dates.map(d => ordersByDate[d]);
+            
+            const ctx = document.getElementById('ordersTrendChart').getContext('2d');
+            if (ordersTrendChart) ordersTrendChart.destroy();
+            
+            ordersTrendChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: dates.map(d => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
+                    datasets: [{
+                        label: 'Orders',
+                        data: counts,
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Render category chart
+        function renderCategoryChart() {
+            if (!analyticsData) return;
+            
+            const { orders } = analyticsData;
+            const completedOrders = orders.filter(o => o.status === 'completed');
+            
+            // Mock category distribution
+            const categories = {
+                'Dresses': 0,
+                'Tops': 0,
+                'Bottoms': 0,
+                'Outerwear': 0,
+                'Accessories': 0
+            };
+            
+            const categoryList = Object.keys(categories);
+            completedOrders.forEach(order => {
+                const randomCategory = categoryList[Math.floor(Math.random() * categoryList.length)];
+                categories[randomCategory] += parseFloat(order.total_amount || 0);
+            });
+            
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            if (categoryChart) categoryChart.destroy();
+            
+            categoryChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(categories),
+                    datasets: [{
+                        data: Object.values(categories),
+                        backgroundColor: [
+                            '#667eea',
+                            '#f59e0b',
+                            '#10b981',
+                            '#3b82f6',
+                            '#ef4444'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': $' + context.parsed.toFixed(2);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Render user growth chart
+        function renderUserGrowthChart() {
+            if (!analyticsData) return;
+            
+            const { users } = analyticsData;
+            
+            // Group by date
+            const usersByDate = {};
+            users.forEach(user => {
+                const date = user.created_at.split('T')[0];
+                if (!usersByDate[date]) {
+                    usersByDate[date] = 0;
+                }
+                usersByDate[date]++;
+            });
+            
+            const dates = Object.keys(usersByDate).sort();
+            let cumulativeCount = 0;
+            const cumulativeCounts = dates.map(d => {
+                cumulativeCount += usersByDate[d];
+                return cumulativeCount;
+            });
+            
+            const ctx = document.getElementById('userGrowthChart').getContext('2d');
+            if (userGrowthChart) userGrowthChart.destroy();
+            
+            userGrowthChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates.map(d => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
+                    datasets: [{
+                        label: 'Total Users',
+                        data: cumulativeCounts,
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Render top shops
+        function renderTopShops() {
+            if (!analyticsData) return;
+            
+            const { orders, shops } = analyticsData;
+            const completedOrders = orders.filter(o => o.status === 'completed');
+            
+            // Calculate shop stats
+            const shopStats = {};
+            completedOrders.forEach(order => {
+                const shopId = order.shop_id;
+                if (!shopStats[shopId]) {
+                    shopStats[shopId] = {
+                        orders: 0,
+                        revenue: 0
+                    };
+                }
+                shopStats[shopId].orders++;
+                shopStats[shopId].revenue += parseFloat(order.total_amount || 0);
+            });
+            
+            // Map to shops and sort
+            const topShops = shops
+                .filter(shop => shopStats[shop.id])
+                .map(shop => ({
+                    ...shop,
+                    ...shopStats[shop.id],
+                    commission: shopStats[shop.id].revenue * 0.05,
+                    growth: Math.floor(Math.random() * 40 + 5) // Mock growth
+                }))
+                .sort((a, b) => b.revenue - a.revenue)
+                .slice(0, 10);
+            
+            const tbody = document.getElementById('topShopsTableBody');
+            
+            if (topShops.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                            <i class="fas fa-inbox text-3xl mb-3"></i>
+                            <p>No shop data available</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = topShops.map((shop, index) => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <span class="text-2xl font-bold text-gray-400">#${index + 1}</span>
+                            ${index < 3 ? `<i class="fas fa-medal ml-2 ${index === 0 ? 'text-yellow-400' : index === 1 ? 'text-gray-400' : 'text-orange-400'}"></i>` : ''}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-store text-purple-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">${escapeHtml(shop.name)}</p>
+                                <p class="text-xs text-gray-500">${escapeHtml(shop.email || 'N/A')}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium">
+                        ${shop.orders}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-bold">
+                        $${shop.revenue.toFixed(2)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-orange-600 text-right font-medium">
+                        $${shop.commission.toFixed(2)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
+                        <span class="text-green-600 font-medium">
+                            <i class="fas fa-arrow-up mr-1"></i>${shop.growth}%
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <div class="flex items-center justify-center">
+                            ${getPerformanceStars(index)}
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Get performance stars
+        function getPerformanceStars(index) {
+            const stars = index < 3 ? 5 : index < 6 ? 4 : 3;
+            return '<i class="fas fa-star text-yellow-400"></i>'.repeat(stars);
+        }
+
+        // Generate insights
+        function generateInsights() {
+            if (!analyticsData) return;
+            
+            const { orders, shops, users } = analyticsData;
+            const completedOrders = orders.filter(o => o.status === 'completed');
+            const totalRevenue = completedOrders.reduce((sum, o) => sum + parseFloat(o.total_amount || 0), 0);
+            const activeShops = shops.filter(s => s.status === 'active').length;
+            
+            const insights = [
+                {
+                    icon: 'fa-arrow-trend-up',
+                    color: 'green',
+                    text: `Platform revenue grew to $${totalRevenue.toFixed(2)} in the last ${currentPeriod} days`
+                },
+                {
+                    icon: 'fa-store',
+                    color: 'purple',
+                    text: `${activeShops} active shops are contributing to platform growth`
+                },
+                {
+                    icon: 'fa-shopping-cart',
+                    color: 'blue',
+                    text: `${completedOrders.length} orders completed with an average value of $${(totalRevenue / completedOrders.length).toFixed(2)}`
+                },
+                {
+                    icon: 'fa-users',
+                    color: 'orange',
+                    text: `${users.length} registered users on the platform`
+                },
+                {
+                    icon: 'fa-percentage',
+                    color: 'yellow',
+                    text: `Platform earned $${(totalRevenue * 0.05).toFixed(2)} in commission (5%)`
+                }
+            ];
+            
+            const container = document.getElementById('insightsContainer');
+            container.innerHTML = insights.map(insight => `
+                <div class="flex items-start space-x-3 p-3 bg-${insight.color}-50 rounded-lg border border-${insight.color}-200">
+                    <i class="fas ${insight.icon} text-${insight.color}-600 mt-1"></i>
+                    <p class="text-sm text-gray-700">${insight.text}</p>
+                </div>
+            `).join('');
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            loadAnalyticsData();
+            
+            // Update last updated time
+            setInterval(() => {
+                const now = new Date();
+                const minutes = Math.floor((now - new Date()) / 60000);
+                document.getElementById('lastUpdated').textContent = minutes === 0 ? 'Just now' : `${Math.abs(minutes)} min ago`;
+            }, 60000);
+        });
+    </script>
+</body>
+</html>
