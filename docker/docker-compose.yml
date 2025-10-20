@@ -11,6 +11,15 @@ services:
     restart: unless-stopped
     networks:
       - leema-network
+    volumes:
+      # Mount source directories for hot reload
+      - ../public:/usr/share/nginx/html/public
+      - ../shop:/usr/share/nginx/html/shop
+      - ../user:/usr/share/nginx/html/user
+      - ../admin:/usr/share/nginx/html/admin
+      - ../assets:/usr/share/nginx/html/assets
+      # Mount nginx config for hot reload
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
 
 networks:
   leema-network:

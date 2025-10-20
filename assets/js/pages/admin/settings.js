@@ -26,10 +26,24 @@ async function loadSettings() {
         const container = document.getElementById('settingsList');
 
         container.innerHTML = settings.map(setting => `
-            <div class="form-group" id="setting_group_${setting.key}">
-                <label>${setting.description || setting.key}</label>
-                <input type="text" value="${setting.value}" id="setting_${setting.key}">
-                <button class="btn btn-primary" onclick="updateSetting('${setting.key}')">Сохранить</button>
+            <div class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200" id="setting_group_${setting.key}">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    ${setting.description || setting.key}
+                </label>
+                <div class="flex gap-3">
+                    <input 
+                        type="text" 
+                        value="${setting.value}" 
+                        id="setting_${setting.key}"
+                        class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all"
+                    >
+                    <button 
+                        class="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors shadow-sm hover:shadow-md" 
+                        onclick="updateSetting('${setting.key}')"
+                    >
+                        <i class="fas fa-save mr-2"></i>Сохранить
+                    </button>
+                </div>
             </div>
         `).join('');
     } catch (error) {

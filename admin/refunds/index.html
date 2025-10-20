@@ -8,22 +8,34 @@
     <title>Возвраты - Admin Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .transition-transform {
+                transition-property: transform;
+                transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+                transition-duration: 150ms;
+            }
+        }
+    </style>
 </head>
 
 <body>
     <div class="min-h-screen bg-gray-50">
         <div class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
             <h1>👨‍💼 Admin Panel</h1>
-            <div class="flex items-center space-x-4">
-                <div class="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center font-semibold" id="adminAvatar">A</div>
-                <span id="adminName">Admin</span>
-                <button class="text-gray-600 hover:text-gray-900 ml-4" onclick="logout()">Выйти</button>
-            </div>
         </div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <!-- Alert Container -->
             <div id="alertContainer"></div>
+
+            <!-- Back Button -->
+            <div class="mb-6">
+                <a href="/admin/index.html" class="inline-flex items-center space-x-2 text-purple-600 hover:text-purple-700 font-medium transition-colors group" style="text-decoration: none;">
+                    <i class="fas fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
+                    <span>Вернуться на главную</span>
+                </a>
+            </div>
 
             <!-- Admin Header -->
             <div class="admin-header">
@@ -161,12 +173,6 @@
 
                 if (!response.ok) {
                     throw new Error('Not authorized');
-                }
-
-                const adminData = JSON.parse(localStorage.getItem('admin_data'));
-                if (adminData) {
-                    document.getElementById('adminName').textContent = adminData.name || 'Admin';
-                    document.getElementById('adminAvatar').textContent = (adminData.name || 'A')[0].toUpperCase();
                 }
             } catch (error) {
                 console.error('Auth check failed:', error);
@@ -501,6 +507,7 @@
             });
         });
     </script>
+    <script defer src="../../assets/js/shared/navigation.js?v=1001"></script>
 </body>
 
 </html>

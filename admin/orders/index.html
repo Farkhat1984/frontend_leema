@@ -7,6 +7,15 @@
     <title>Заказы платформы - Admin Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .transition-transform {
+                transition-property: transform;
+                transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+                transition-duration: 150ms;
+            }
+        }
+    </style>
 </head>
 
 <body class="bg-gray-50">
@@ -23,17 +32,6 @@
                         <p class="text-sm text-gray-500">Fashion AI Platform</p>
                     </div>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <div class="flex items-center space-x-3">
-                        <div id="adminAvatar" class="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-                            A
-                        </div>
-                        <span id="adminName" class="text-sm font-medium text-gray-700">Admin</span>
-                    </div>
-                    <button onclick="logout()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors">
-                        <i class="fas fa-sign-out-alt mr-2"></i>Выйти
-                    </button>
-                </div>
             </div>
         </div>
     </header>
@@ -41,6 +39,14 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Alert Container -->
         <div id="alertContainer" class="mb-6"></div>
+
+        <!-- Back Button -->
+        <div class="mb-6">
+            <a href="/admin/index.html" class="inline-flex items-center space-x-2 text-purple-600 hover:text-purple-700 font-medium transition-colors group">
+                <i class="fas fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
+                <span>Вернуться на главную</span>
+            </a>
+        </div>
 
         <!-- Page Header -->
         <div class="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl shadow-lg p-8 mb-8">
@@ -316,12 +322,6 @@
 
                 if (!response.ok) {
                     throw new Error('Not authorized');
-                }
-
-                const adminData = JSON.parse(localStorage.getItem('admin_data'));
-                if (adminData) {
-                    document.getElementById('adminName').textContent = adminData.name || 'Admin';
-                    document.getElementById('adminAvatar').textContent = (adminData.name || 'A')[0].toUpperCase();
                 }
             } catch (error) {
                 console.error('Auth check failed:', error);
@@ -791,6 +791,7 @@
             }
         });
     </script>
+    <script defer src="../../assets/js/shared/navigation.js?v=1001"></script>
 </body>
 
 </html>

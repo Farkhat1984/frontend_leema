@@ -259,50 +259,41 @@ function renderShopProductsPage() {
         });
 
         return `
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow flex flex-col">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow flex flex-col" style="max-height: 280px; max-width: 80%;">
                 <!-- Секция 1: Изображение -->
-                <div class="aspect-square bg-gray-50 flex items-center justify-center overflow-hidden">
-                    ${imageUrl ? `<img src="${imageUrl}" alt="${product.name}" loading="lazy" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<div class=&quot;text-gray-400 text-center p-4&quot;>Ошибка загрузки</div>'">` : '<div class="text-gray-400 text-center p-4">Нет изображения</div>'}
+                <div class="relative w-full bg-gray-50 overflow-hidden flex items-center justify-center" style="height: 120px;">
+                    ${imageUrl ? `<img src="${imageUrl}" alt="${product.name}" loading="lazy" class="w-full h-full object-contain" onerror="this.parentElement.innerHTML='<div class=&quot;flex items-center justify-center h-full text-gray-400&quot;><i class=&quot;fas fa-image text-2xl&quot;></i></div>'">` : '<div class="flex items-center justify-center h-full text-gray-400"><i class="fas fa-image text-2xl"></i></div>'}
                 </div>
                 
                 <!-- Секция 2: Информация о товаре -->
-                <div class="p-3 flex-1 flex flex-col space-y-2">
+                <div class="p-2 flex-1 flex flex-col space-y-1" style="min-height: 0;">
                     <div>
-                        <div class="text-xs text-gray-500 mb-1">Наименование</div>
-                        <div class="font-semibold text-sm text-gray-900 line-clamp-2">${product.name || 'Без названия'}</div>
+                        <div class="font-semibold text-xs text-gray-900 line-clamp-1">${product.name || 'Без названия'}</div>
                     </div>
                     
-                    <div>
-                        <div class="text-xs text-gray-500 mb-1">Цена</div>
-                        <div class="text-purple-600 font-bold text-base">$${product.price ? product.price.toFixed(2) : '0.00'}</div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-500">Цена</span>
+                        <div class="text-purple-600 font-bold text-sm">$${product.price ? product.price.toFixed(2) : '0.00'}</div>
                     </div>
                     
-                    <div class="flex-1">
-                        <div class="text-xs text-gray-500 mb-1">Описание</div>
-                        <div class="text-xs text-gray-700 line-clamp-3">
+                    <div class="flex-1 overflow-hidden">
+                        <div class="text-xs text-gray-700 line-clamp-1">
                             ${product.description || 'Нет описания'}
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <div class="text-xs text-gray-500 mb-1">Дата добавления</div>
-                        <div class="text-xs text-gray-600">
-                            ${createdDate}
                         </div>
                     </div>
                 </div>
                 
                 <!-- Секция 3: Статус -->
-                <div class="px-3 pb-2">
-                    <span class="inline-block px-2 py-1 text-xs font-medium rounded ${product.moderation_status === 'approved' ? 'bg-green-100 text-green-800' : product.moderation_status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}">
+                <div class="px-2 pb-1">
+                    <span class="inline-block px-1.5 py-0.5 text-xs font-medium rounded ${product.moderation_status === 'approved' ? 'bg-green-100 text-green-800' : product.moderation_status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}">
                         ${product.moderation_status === 'pending' ? 'На модерации' : product.moderation_status === 'approved' ? 'Одобрен' : 'Отклонен'}
                     </span>
                 </div>
                 
                 <!-- Секция 4: Действия -->
-                <div class="p-3 pt-0 flex gap-2">
-                    <button class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded text-xs font-medium transition-colors" onclick="openEditProduct(${product.id})">Изменить</button>
-                    <button class="flex-1 bg-red-100 hover:bg-red-200 text-red-700 px-3 py-2 rounded text-xs font-medium transition-colors" onclick="deleteProduct(${product.id})">Удалить</button>
+                <div class="px-2 pb-2 flex gap-1">
+                    <button class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-1.5 py-1 rounded text-xs font-medium transition-colors" onclick="openEditProduct(${product.id})">Изменить</button>
+                    <button class="flex-1 bg-red-100 hover:bg-red-200 text-red-700 px-1.5 py-1 rounded text-xs font-medium transition-colors" onclick="deleteProduct(${product.id})">Удалить</button>
                 </div>
             </div>
         `;

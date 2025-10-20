@@ -29,10 +29,12 @@
             <div id="alertContainer"></div>
 
             <!-- Back Button -->
-            <button onclick="window.location.href='../index.html'" 
-                    style="margin-bottom: 20px; padding: 10px 20px; border: none; background: #f3f4f6; border-radius: 8px; cursor: pointer; font-size: 14px;">
-                ← Назад к панели
-            </button>
+            <div class="mb-6">
+                <a href="/shop/index.html" class="inline-flex items-center space-x-2 text-purple-600 hover:text-purple-700 font-medium transition-colors group" style="text-decoration: none;">
+                    <i class="fas fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
+                    <span>Вернуться на главную</span>
+                </a>
+            </div>
 
             <!-- Analytics Header with Period Selector -->
             <div class="analytics-header">
@@ -263,6 +265,7 @@
     <script defer src="../../assets/js/core/config.js?v=999"></script>
     <script defer src="../../assets/js/core/auth.js?v=999"></script>
     <script defer src="../../assets/js/shared/common-utils.js?v=999"></script>
+    <script defer src="../../assets/js/shared/navigation.js?v=1001"></script>
     <script defer src="../../assets/js/pages/shop/analytics.js?v=999"></script>
 </body>
 

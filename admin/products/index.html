@@ -7,6 +7,15 @@
     <title>Товары - Панель администратора</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .transition-transform {
+                transition-property: transform;
+                transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+                transition-duration: 150ms;
+            }
+        }
+    </style>
 </head>
 
 <body class="bg-gray-50">
@@ -23,17 +32,6 @@
                         <p class="text-sm text-gray-500">Управление товарами</p>
                     </div>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <div class="flex items-center space-x-3">
-                        <div id="adminAvatar" class="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-                            А
-                        </div>
-                        <span id="adminName" class="text-sm font-medium text-gray-700">Администратор</span>
-                    </div>
-                    <button onclick="logout()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors">
-                        <i class="fas fa-sign-out-alt mr-2"></i>Выйти
-                    </button>
-                </div>
             </div>
         </div>
     </header>
@@ -44,9 +42,9 @@
 
         <!-- Back Button -->
         <div class="mb-6">
-            <a href="/admin/index.html" class="inline-flex items-center space-x-2 text-purple-600 hover:text-purple-700 font-medium transition-colors">
-                <i class="fas fa-arrow-left"></i>
-                <span>Назад к панели</span>
+            <a href="/admin/index.html" class="inline-flex items-center space-x-2 text-purple-600 hover:text-purple-700 font-medium transition-colors group">
+                <i class="fas fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
+                <span>Вернуться на главную</span>
             </a>
         </div>
 
@@ -122,7 +120,7 @@
             
             <!-- Status Filters -->
             <div class="flex flex-wrap gap-3 mb-6">
-                <button class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors active" 
+                <button class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors" 
                         onclick="filterByStatus('pending')" id="filterPending">
                     <i class="fas fa-clock mr-2"></i>На модерации
                 </button>
@@ -141,7 +139,7 @@
             </div>
             
             <!-- Products Grid -->
-            <div id="moderationQueue" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6"></div>
+            <div id="moderationQueue" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 mb-6"></div>
             
             <!-- Pagination -->
             <div id="paginationContainer" class="hidden flex items-center justify-center space-x-4 pt-6 border-t border-gray-200">
@@ -165,6 +163,7 @@
     <script defer src="../../assets/js/shared/lazy-loader.js?v=999"></script>
     <script defer src="../../assets/js/core/cache.js?v=999"></script>
     <script defer src="../../assets/js/shared/common-utils.js?v=999"></script>
+    <script defer src="../../assets/js/shared/navigation.js?v=999"></script>
     <script defer src="../../assets/js/pages/admin/products.js?v=999"></script>
 </body>
 
