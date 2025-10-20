@@ -97,7 +97,7 @@ const AuthService = {
         localStorage.removeItem('account_type');
         localStorage.removeItem('user');
         localStorage.removeItem('shop');
-        window.location.href = '/public/index.html';
+        window.location.href = '/';
     }
 };
 

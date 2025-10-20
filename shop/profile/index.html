@@ -66,24 +66,80 @@
                 Информация о магазине
             </h2>
             
+            <!-- Avatar Upload -->
+            <div class="mb-8">
+                <label class="block text-sm font-medium text-gray-700 mb-3">
+                    <i class="fas fa-image text-purple-600 mr-2"></i>Логотип магазина
+                </label>
+                <div class="flex items-center space-x-6">
+                    <div id="avatarPreviewProfile" class="w-32 h-32 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300 overflow-hidden">
+                        <i class="fas fa-store text-gray-400 text-4xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <input 
+                            type="file" 
+                            id="profileAvatar" 
+                            accept="image/jpeg,image/jpg,image/png,image/webp"
+                            onchange="previewProfileAvatar(event)"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        >
+                        <p class="text-xs text-gray-500 mt-2">JPEG, PNG, или WEBP. Максимум 5MB.</p>
+                    </div>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Название магазина</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-store text-purple-600 mr-2"></i>Название магазина
+                    </label>
                     <input type="text" id="profileShopName" 
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                            placeholder="Название вашего магазина">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-user text-purple-600 mr-2"></i>Имя владельца
+                    </label>
+                    <input type="text" id="profileOwnerName" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                           placeholder="Ваше имя">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-envelope text-purple-600 mr-2"></i>Email
+                    </label>
                     <input type="email" id="profileEmail" disabled
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed">
                 </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-phone text-purple-600 mr-2"></i>Телефон
+                    </label>
+                    <input type="tel" id="profilePhone" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                           placeholder="+7 (XXX) XXX-XX-XX">
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-map-marker-alt text-purple-600 mr-2"></i>Адрес
+                </label>
+                <textarea id="profileAddress" rows="2"
+                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                          placeholder="Адрес вашего магазина"></textarea>
             </div>
             
             <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Описание</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-align-left text-purple-600 mr-2"></i>Описание
+                </label>
                 <textarea id="profileDescription" rows="4"
-                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
                           placeholder="Расскажите о вашем магазине"></textarea>
             </div>
             
@@ -104,6 +160,20 @@
     <script defer src="../../assets/js/shared/navigation.js?v=1001"></script>
     <script defer src="../../assets/js/pages/shop/dashboard.js?v=999"></script>
     <script>
+        // Preview profile avatar
+        function previewProfileAvatar(event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById('avatarPreviewProfile');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Avatar Preview" class="w-full h-full object-cover rounded-lg">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
         // Initialize profile page on load
         async function initProfilePage() {
             const token = localStorage.getItem('token');
@@ -136,20 +206,170 @@
                 
                 // Load shop info
                 const shopInfo = await apiRequest('/api/v1/shops/me');
+                
+                // Update header
                 const shopNameEl = document.getElementById('shopName');
                 const shopAvatarEl = document.getElementById('shopAvatar');
-                const profileShopNameEl = document.getElementById('profileShopName');
-                const profileEmailEl = document.getElementById('profileEmail');
-                const profileDescriptionEl = document.getElementById('profileDescription');
                 if (shopNameEl) shopNameEl.textContent = shopInfo.shop_name;
                 if (shopAvatarEl) shopAvatarEl.textContent = shopInfo.shop_name[0].toUpperCase();
+                
+                // Update form fields
+                const profileShopNameEl = document.getElementById('profileShopName');
+                const profileOwnerNameEl = document.getElementById('profileOwnerName');
+                const profileEmailEl = document.getElementById('profileEmail');
+                const profilePhoneEl = document.getElementById('profilePhone');
+                const profileAddressEl = document.getElementById('profileAddress');
+                const profileDescriptionEl = document.getElementById('profileDescription');
+                const avatarPreview = document.getElementById('avatarPreviewProfile');
+                
                 if (profileShopNameEl) profileShopNameEl.value = shopInfo.shop_name;
+                if (profileOwnerNameEl) profileOwnerNameEl.value = shopInfo.owner_name || '';
                 if (profileEmailEl) profileEmailEl.value = shopInfo.email;
+                if (profilePhoneEl) profilePhoneEl.value = shopInfo.phone || '';
+                if (profileAddressEl) profileAddressEl.value = shopInfo.address || '';
                 if (profileDescriptionEl) profileDescriptionEl.value = shopInfo.description || '';
+                
+                // Show current avatar if exists
+                if (shopInfo.avatar_url && avatarPreview) {
+                    avatarPreview.innerHTML = `<img src="${shopInfo.avatar_url}" alt="Shop Avatar" class="w-full h-full object-cover rounded-lg">`;
+                }
             } catch (error) {
                 console.error('[SHOP] Error:', error);
                 if (typeof showAlert !== 'undefined') {
                     showAlert('Ошибка загрузки данных: ' + error.message, 'error');
+                }
+            }
+        }
+
+        // Update shop profile
+        async function updateShopProfile() {
+            try {
+                // Wait for scripts to load
+                if (typeof apiRequest === 'undefined') {
+                    console.log('[SHOP] Waiting for scripts...');
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    return updateShopProfile();
+                }
+
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = '../index.html';
+                    return;
+                }
+
+                const profileShopNameEl = document.getElementById('profileShopName');
+                const profileOwnerNameEl = document.getElementById('profileOwnerName');
+                const profilePhoneEl = document.getElementById('profilePhone');
+                const profileAddressEl = document.getElementById('profileAddress');
+                const profileDescriptionEl = document.getElementById('profileDescription');
+
+                if (!profileShopNameEl || !profileOwnerNameEl) {
+                    return;
+                }
+
+                // Upload avatar if changed
+                let avatarUrl = null;
+                const avatarFile = document.getElementById('profileAvatar').files[0];
+                if (avatarFile) {
+                    const avatarFormData = new FormData();
+                    avatarFormData.append('file', avatarFile);
+
+                    const avatarResponse = await fetch(`${API_URL}/api/v1/shops/upload-avatar`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: avatarFormData
+                    });
+
+                    if (avatarResponse.ok) {
+                        const avatarData = await avatarResponse.json();
+                        avatarUrl = avatarData.url;
+                    } else {
+                        const error = await avatarResponse.json();
+                        throw new Error(error.detail || 'Failed to upload avatar');
+                    }
+                }
+
+                // Update shop data
+                const data = {
+                    shop_name: profileShopNameEl.value,
+                    owner_name: profileOwnerNameEl.value,
+                    phone: profilePhoneEl.value || null,
+                    address: profileAddressEl.value || null,
+                    description: profileDescriptionEl.value || null
+                };
+
+                if (avatarUrl) {
+                    data.avatar_url = avatarUrl;
+                }
+
+                const response = await fetch(`${API_URL}/api/v1/shops/me`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Failed to update profile');
+                }
+
+                // Show success message
+                const alertContainer = document.getElementById('alertContainer');
+                if (alertContainer) {
+                    alertContainer.innerHTML = `
+                        <div class="bg-green-50 border border-green-200 text-green-800 rounded-lg p-4 flex items-center space-x-3">
+                            <i class="fas fa-check-circle text-xl"></i>
+                            <p class="flex-1">Профиль успешно обновлен</p>
+                            <button onclick="this.parentElement.remove()" class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                    setTimeout(() => {
+                        alertContainer.innerHTML = '';
+                    }, 5000);
+                }
+
+                // Reload shop info
+                const shopInfoResponse = await fetch(`${API_URL}/api/v1/shops/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (shopInfoResponse.ok) {
+                    const shopInfo = await shopInfoResponse.json();
+                    const shopNameEl = document.getElementById('shopName');
+                    const shopAvatarEl = document.getElementById('shopAvatar');
+                    if (shopNameEl) shopNameEl.textContent = shopInfo.shop_name;
+                    if (shopAvatarEl) shopAvatarEl.textContent = shopInfo.shop_name[0].toUpperCase();
+                    
+                    // Update avatar preview
+                    if (shopInfo.avatar_url) {
+                        const avatarPreview = document.getElementById('avatarPreviewProfile');
+                        if (avatarPreview) {
+                            avatarPreview.innerHTML = `<img src="${shopInfo.avatar_url}" alt="Shop Avatar" class="w-full h-full object-cover rounded-lg">`;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('[SHOP] Error updating profile:', error);
+                const alertContainer = document.getElementById('alertContainer');
+                if (alertContainer) {
+                    alertContainer.innerHTML = `
+                        <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 flex items-center space-x-3">
+                            <i class="fas fa-exclamation-circle text-xl"></i>
+                            <p class="flex-1">Ошибка обновления профиля: ${error.message}</p>
+                            <button onclick="this.parentElement.remove()" class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
                 }
             }
         }

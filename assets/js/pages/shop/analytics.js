@@ -1,6 +1,9 @@
 // Shop Analytics - Advanced Analytics Page
 console.log('🎨 Shop Analytics initializing...');
 
+// Use API_URL from config.js
+const API_BASE_URL = (typeof API_URL !== 'undefined' ? API_URL : 'https://api.leema.kz') + '/api/v1';
+
 let revenueChart, ordersChart, categoryChart;
 let analyticsData = {};
 let currentPeriod = 7;
@@ -10,12 +13,35 @@ let currentRevenueView = 'daily';
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('📊 Analytics page loaded');
     
-    // Check authentication
-    if (!checkAuth()) {
+    // Check authentication and account type
+    const token = getToken();
+    const accountType = localStorage.getItem('accountType');
+    const userRole = localStorage.getItem('userRole');
+    
+    console.log('🔐 Auth check:', { token: !!token, accountType, userRole });
+    
+    if (!token) {
         console.log('❌ Not authenticated, redirecting...');
-        window.location.href = '/user/signin.html';
+        window.location.href = '/';
         return;
     }
+    
+    // Check if account type is shop (either accountType or userRole)
+    const isShop = accountType === 'shop' || userRole === 'shop';
+    
+    if (!isShop) {
+        console.log('❌ Wrong account type, redirecting...');
+        if (accountType === 'admin' || userRole === 'admin') {
+            window.location.href = '/admin/index.html';
+        } else if (accountType === 'user' || userRole === 'user') {
+            window.location.href = '/user/dashboard.html';
+        } else {
+            window.location.href = '/';
+        }
+        return;
+    }
+    
+    console.log('✅ Authorization successful, loading analytics...');
 
     // Initialize
     await loadShopInfo();
@@ -886,7 +912,7 @@ function escapeHtml(text) {
 function logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('userRole');
-    window.location.href = '/user/signin.html';
+    window.location.href = '/';
 }
 
 console.log('✅ Shop Analytics initialized');

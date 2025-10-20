@@ -14,7 +14,7 @@ window.onload = async function() {
     const accountType = localStorage.getItem('accountType');
 
     if (!token || accountType !== 'shop') {
-        window.location.href = '/public/index.html';
+        window.location.href = '/';
         return;
     }
 

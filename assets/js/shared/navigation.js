@@ -16,14 +16,14 @@
         } else if (path.includes('/user/')) {
             return '/user/index.html';
         } else {
-            return '/public/index.html';
+            return '/';
         }
     }
 
     // Проверяем, не главная ли это страница
     function isHomePage() {
         const path = window.location.pathname;
-        const homePages = ['/admin/index.html', '/shop/index.html', '/user/index.html', '/public/index.html', '/index.html'];
+        const homePages = ['/admin/index.html', '/shop/index.html', '/user/index.html', '/', '/index.html'];
         
         // Проверяем точное совпадение или если путь заканчивается на '/'
         return homePages.some(page => path.endsWith(page)) || path.endsWith('/admin/') || path.endsWith('/shop/') || path.endsWith('/user/');

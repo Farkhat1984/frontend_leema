@@ -5,8 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Отзывы на товары - Fashion AI Platform</title>
+    <script src="../../assets/js/core/config.js?v=999"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
 
         .stat-card.needs-reply {
             border-left-color: #f59e0b;
@@ -436,69 +438,47 @@
             border-left: 4px solid #ef4444;
         }
 
-        /* Navigation Styles */
-        .shop-nav {
-            background: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .nav-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .nav-brand h2 {
-            margin: 15px 0 5px 0;
-            font-size: 22px;
-        }
-
-        .nav-role {
-            font-size: 12px;
-            color: #666;
-        }
-
-        .nav-menu {
-            list-style: none;
-            display: flex;
-            gap: 5px;
-            margin: 0;
-            padding: 0;
-        }
-
-        .nav-menu a {
-            padding: 10px 15px;
-            text-decoration: none;
-            color: #666;
-            border-radius: 6px;
-            transition: all 0.2s;
-            font-size: 14px;
-        }
-
-        .nav-menu a:hover {
-            background: #f3f4f6;
-            color: #667eea;
-        }
-
-        .nav-menu a.active {
-            background: #667eea;
-            color: white;
-        }
-
-        .nav-logout {
-            color: #ef4444 !important;
-        }
-
         .shop-container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 30px 20px;
+        }
+
+        .reviews-header {
+            margin-bottom: 2rem;
+        }
+
+        .reviews-header h1 {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .reviews-header p {
+            color: #666;
+        }
+
+        .reviews-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #e5e7eb;
+        }
+
+        .stat-card.excellent {
+            border-left-color: #10b981;
+        }
+
+        .stat-card.good {
+            border-left-color: #3b82f6;
         }
 
         /* Responsive */
@@ -526,43 +506,41 @@
                 gap: 10px;
                 align-items: flex-start;
             }
-
-            .nav-menu {
-                flex-wrap: wrap;
-                gap: 3px;
-            }
-
-            .nav-menu a {
-                padding: 8px 10px;
-                font-size: 13px;
-            }
         }
     </style>
 </head>
 
 <body>
     <!-- Navigation -->
-    <nav class="shop-nav">
-        <div class="nav-container">
-            <div class="nav-brand">
-                <h2>👔 Fashion AI Platform</h2>
-                <span class="nav-role">Shop Panel</span>
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-8">
+                    <div class="flex items-center">
+                        <i class="fas fa-store text-purple-600 text-2xl mr-3"></i>
+                        <span class="text-xl font-bold text-gray-900">Shop Panel</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-3">
+                        <button onclick="logout()" class="text-gray-600 hover:text-gray-900">
+                            <i class="fas fa-sign-out-alt text-xl"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
-            <ul class="nav-menu">
-                <li><a href="../index.html">📊 Дашборд</a></li>
-                <li><a href="../products/">🛍️ Товары</a></li>
-                <li><a href="../orders/">📦 Заказы</a></li>
-                <li><a href="../customers/">👥 Клиенты</a></li>
-                <li><a href="../reviews/" class="active">⭐ Отзывы</a></li>
-                <li><a href="../notifications/">🔔 Уведомления</a></li>
-                <li><a href="../billing/">💰 Баланс</a></li>
-                <li><a href="../profile/">⚙️ Профиль</a></li>
-                <li><a href="#" onclick="logout()" class="nav-logout">🚪 Выход</a></li>
-            </ul>
         </div>
     </nav>
 
     <div class="shop-container">
+        <!-- Back Button -->
+        <div class="mb-6">
+            <a href="../index.html" class="inline-flex items-center space-x-2 text-purple-600 hover:text-purple-700 font-medium transition-colors group" style="text-decoration: none;">
+                <i class="fas fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
+                <span>Вернуться на главную</span>
+            </a>
+        </div>
+
         <!-- Page Header -->
         <div class="reviews-header">
             <h1>⭐ Отзывы на товары</h1>
@@ -644,13 +622,13 @@
         <span id="notificationMessage"></span>
     </div>
 
-    <!-- Audio for notifications -->
-    <audio id="notificationSound" preload="auto">
+    <!-- Audio for notifications (commented out until sound file is added) -->
+    <!-- <audio id="notificationSound" preload="auto">
         <source src="../../assets/sounds/notification.mp3" type="audio/mpeg">
-    </audio>
+    </audio> -->
 
     <script>
-        const API_BASE = 'http://localhost:8080/api/v1';
+        const API_BASE = (typeof API_URL !== 'undefined' ? API_URL : 'https://api.leema.kz') + '/api/v1';
         let shopToken = localStorage.getItem('shop_token');
         let currentPage = 1;
         const perPage = 10;
@@ -661,7 +639,7 @@
 
         // Authentication check
         if (!shopToken) {
-            window.location.href = '/public/index.html';
+            console.warn('No shop token found');
         }
 
         // Initialize
@@ -686,8 +664,7 @@
                     const shop = await response.json();
                     document.getElementById('shopName').textContent = shop.name;
                 } else if (response.status === 401) {
-                    localStorage.removeItem('shop_token');
-                    window.location.href = '/public/index.html';
+                    console.warn('Unauthorized access');
                 }
             } catch (error) {
                 console.error('Error loading shop info:', error);
@@ -987,15 +964,16 @@
 
         // WebSocket setup
         function setupWebSocket() {
-            ws = new WebSocket('ws://localhost:8080/ws');
+            if (!shopToken) {
+                console.log('No shop token, skipping WebSocket connection');
+                return;
+            }
+
+            const wsUrl = 'wss://api.leema.kz/ws/shop';
+            ws = new WebSocket(`${wsUrl}?token=${shopToken}`);
 
             ws.onopen = () => {
                 console.log('WebSocket connected');
-                ws.send(JSON.stringify({
-                    type: 'auth',
-                    token: shopToken,
-                    role: 'shop'
-                }));
             };
 
             ws.onmessage = (event) => {
@@ -1007,9 +985,13 @@
                 }
             };
 
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+
             ws.onclose = () => {
-                console.log('WebSocket disconnected, reconnecting...');
-                setTimeout(setupWebSocket, 3000);
+                console.log('WebSocket disconnected');
+                // Don't auto-reconnect in dev mode
             };
         }
 
@@ -1026,7 +1008,9 @@
         function playNotificationSound() {
             const sound = document.getElementById('notificationSound');
             if (sound) {
-                sound.play().catch(e => console.log('Sound play failed:', e));
+                sound.play().catch(e => console.log('Sound play failed (sound file not available):', e));
+            } else {
+                console.log('Sound notification disabled (no sound file)');
             }
         }
 
@@ -1084,7 +1068,7 @@
 
         function logout() {
             localStorage.removeItem('shop_token');
-            window.location.href = '/public/index.html';
+            window.location.href = '../index.html';
         }
     </script>
     <script defer src="../../assets/js/shared/navigation.js?v=1001"></script>

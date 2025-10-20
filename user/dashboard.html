@@ -158,7 +158,7 @@ document.getElementById('productsContent').innerHTML = `
         document.addEventListener('DOMContentLoaded', function() {
             // Проверка авторизации
             if (!AuthService.isAuthenticated()) {
-                window.location.href = '/public/index.html';
+                window.location.href = '/';
                 return;
             }
             loadProducts();

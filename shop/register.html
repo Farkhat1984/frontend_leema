@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Shop Registration - Fashion AI Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-purple-50 via-white to-pink-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-8">
+                    <div class="flex items-center">
+                        <i class="fas fa-store text-purple-600 text-2xl mr-3"></i>
+                        <span class="text-xl font-bold text-gray-900">Fashion AI Platform</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="logout()" class="text-gray-600 hover:text-gray-900 transition-colors">
+                        <i class="fas fa-sign-out-alt text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Status Container - shown when pending or rejected -->
+        <div id="statusContainer" class="hidden">
+            <!-- Pending Status -->
+            <div id="pendingStatus" class="hidden bg-white rounded-2xl shadow-lg border border-gray-200 p-8 text-center">
+                <div class="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-clock text-yellow-600 text-3xl"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Application Under Review</h2>
+                <p class="text-gray-600 text-lg mb-6">
+                    Thank you for submitting your shop registration! Our team is currently reviewing your application.
+                </p>
+                <div class="bg-yellow-50 rounded-xl p-6 mb-6">
+                    <p class="text-sm text-gray-700">
+                        <i class="fas fa-info-circle text-yellow-600 mr-2"></i>
+                        This usually takes 1-2 business days. You'll receive an email notification once your shop is approved.
+                    </p>
+                </div>
+                <button onclick="checkStatus()" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg transition-colors font-medium">
+                    <i class="fas fa-sync-alt mr-2"></i>Refresh Status
+                </button>
+            </div>
+
+            <!-- Rejected Status -->
+            <div id="rejectedStatus" class="hidden bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
+                <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-times-circle text-red-600 text-3xl"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-900 mb-4 text-center">Application Not Approved</h2>
+                <p class="text-gray-600 text-lg mb-6 text-center">
+                    Unfortunately, your shop registration was not approved.
+                </p>
+                <div class="bg-red-50 rounded-xl p-6 mb-8">
+                    <p class="text-sm font-medium text-gray-900 mb-2">
+                        <i class="fas fa-exclamation-triangle text-red-600 mr-2"></i>Reason:
+                    </p>
+                    <p class="text-gray-700" id="rejectionReason">No reason provided</p>
+                </div>
+                <div class="text-center space-y-4">
+                    <button onclick="showRegistrationForm()" class="w-full bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg transition-colors font-medium">
+                        <i class="fas fa-edit mr-2"></i>Update and Resubmit
+                    </button>
+                    <button onclick="logout()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 px-8 py-3 rounded-lg transition-colors font-medium">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Registration Form -->
+        <div id="registrationForm" class="hidden">
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-store text-purple-600 text-3xl"></i>
+                </div>
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">Register Your Shop</h1>
+                <p class="text-gray-600 text-lg">
+                    Fill in the details below to start selling on Fashion AI Platform
+                </p>
+            </div>
+
+            <!-- Alert Container -->
+            <div id="alertContainer" class="mb-6"></div>
+
+            <!-- Form Card -->
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
+                <form id="shopRegistrationForm" onsubmit="handleSubmit(event)" class="space-y-6">
+                    <!-- Shop Name -->
+                    <div>
+                        <label for="shopName" class="block text-sm font-semibold text-gray-900 mb-2">
+                            <i class="fas fa-store text-purple-600 mr-2"></i>Shop Name *
+                        </label>
+                        <input 
+                            type="text" 
+                            id="shopName" 
+                            name="shopName" 
+                            required
+                            maxlength="255"
+                            placeholder="Enter your shop name"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                        >
+                        <p class="text-xs text-gray-500 mt-1">This will be displayed to customers</p>
+                    </div>
+
+                    <!-- Owner Name -->
+                    <div>
+                        <label for="ownerName" class="block text-sm font-semibold text-gray-900 mb-2">
+                            <i class="fas fa-user text-purple-600 mr-2"></i>Owner Name *
+                        </label>
+                        <input 
+                            type="text" 
+                            id="ownerName" 
+                            name="ownerName" 
+                            required
+                            maxlength="255"
+                            placeholder="Your full name"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                        >
+                    </div>
+
+                    <!-- Phone -->
+                    <div>
+                        <label for="phone" class="block text-sm font-semibold text-gray-900 mb-2">
+                            <i class="fas fa-phone text-purple-600 mr-2"></i>Phone Number *
+                        </label>
+                        <input 
+                            type="tel" 
+                            id="phone" 
+                            name="phone" 
+                            required
+                            maxlength="50"
+                            placeholder="+1 (555) 123-4567"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                        >
+                        <p class="text-xs text-gray-500 mt-1">We'll use this for important notifications</p>
+                    </div>
+
+                    <!-- Address -->
+                    <div>
+                        <label for="address" class="block text-sm font-semibold text-gray-900 mb-2">
+                            <i class="fas fa-map-marker-alt text-purple-600 mr-2"></i>Business Address *
+                        </label>
+                        <textarea 
+                            id="address" 
+                            name="address" 
+                            required
+                            maxlength="500"
+                            rows="3"
+                            placeholder="Enter your business address"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
+                        ></textarea>
+                    </div>
+
+                    <!-- Description -->
+                    <div>
+                        <label for="description" class="block text-sm font-semibold text-gray-900 mb-2">
+                            <i class="fas fa-align-left text-purple-600 mr-2"></i>Shop Description *
+                        </label>
+                        <textarea 
+                            id="description" 
+                            name="description" 
+                            required
+                            maxlength="1000"
+                            rows="5"
+                            placeholder="Tell us about your shop, what you sell, and what makes you unique"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
+                        ></textarea>
+                        <p class="text-xs text-gray-500 mt-1">
+                            <span id="descriptionCount">0</span>/1000 characters
+                        </p>
+                    </div>
+
+                    <!-- Avatar Upload (Optional) -->
+                    <div>
+                        <label for="avatar" class="block text-sm font-semibold text-gray-900 mb-2">
+                            <i class="fas fa-image text-purple-600 mr-2"></i>Shop Logo <span class="text-gray-500 font-normal">(Optional)</span>
+                        </label>
+                        <div class="flex items-center space-x-4">
+                            <div id="avatarPreview" class="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
+                                <i class="fas fa-image text-gray-400 text-2xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <input 
+                                    type="file" 
+                                    id="avatar" 
+                                    name="avatar" 
+                                    accept="image/jpeg,image/jpg,image/png,image/webp"
+                                    onchange="previewAvatar(event)"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                                >
+                                <p class="text-xs text-gray-500 mt-2">JPEG, PNG, or WEBP. Max 5MB.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info Box -->
+                    <div class="bg-purple-50 rounded-xl p-6 border border-purple-100">
+                        <div class="flex items-start space-x-3">
+                            <i class="fas fa-info-circle text-purple-600 text-xl mt-0.5"></i>
+                            <div>
+                                <h3 class="font-semibold text-gray-900 mb-2">What happens next?</h3>
+                                <ul class="text-sm text-gray-700 space-y-1">
+                                    <li><i class="fas fa-check text-green-600 mr-2"></i>Your application will be reviewed by our team</li>
+                                    <li><i class="fas fa-check text-green-600 mr-2"></i>You'll receive an email notification (1-2 business days)</li>
+                                    <li><i class="fas fa-check text-green-600 mr-2"></i>Once approved, you can start adding products</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="flex gap-4 pt-4">
+                        <button 
+                            type="submit" 
+                            id="submitBtn"
+                            class="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-lg transition-colors font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all"
+                        >
+                            <i class="fas fa-paper-plane mr-2"></i>Submit for Approval
+                        </button>
+                        <button 
+                            type="button"
+                            onclick="logout()"
+                            class="px-8 py-4 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors font-semibold"
+                        >
+                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-16 w-16 border-4 border-purple-200 border-t-purple-600 mb-4"></div>
+            <p class="text-gray-600 text-lg">Loading...</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../assets/js/core/config.js"></script>
+    <script src="../assets/js/core/auth.js"></script>
+    <script>
+        let shopData = null;
+
+        // Character counter for description
+        document.addEventListener('DOMContentLoaded', () => {
+            const descTextarea = document.getElementById('description');
+            const descCount = document.getElementById('descriptionCount');
+            
+            if (descTextarea) {
+                descTextarea.addEventListener('input', (e) => {
+                    descCount.textContent = e.target.value.length;
+                });
+            }
+
+            // Check initial status
+            checkStatus();
+        });
+
+        // Preview avatar
+        function previewAvatar(event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById('avatarPreview');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Avatar Preview" class="w-full h-full object-cover rounded-lg">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Check shop status
+        async function checkStatus() {
+            try {
+                const token = AuthService.getToken();
+                if (!token) {
+                    window.location.href = '/';
+                    return;
+                }
+
+                const response = await fetch(`${API_URL}/api/v1/shops/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    shopData = await response.json();
+                    
+                    // Hide loading
+                    document.getElementById('loadingState').classList.add('hidden');
+
+                    // For backward compatibility: if is_approved is null or undefined, treat as approved (old shops)
+                    // Only check approval status if it's explicitly set
+                    if (shopData.is_approved === true || shopData.is_approved === null || shopData.is_approved === undefined) {
+                        // Redirect to shop dashboard
+                        window.location.href = '/shop/index.html';
+                    } else if (shopData.rejection_reason) {
+                        // Show rejected status
+                        showRejectedStatus(shopData.rejection_reason);
+                    } else {
+                        // Show pending status (is_approved === false but no rejection_reason)
+                        showPendingStatus();
+                    }
+                } else if (response.status === 404) {
+                    // Shop not found - should not happen but show form
+                    showRegistrationForm();
+                    document.getElementById('loadingState').classList.add('hidden');
+                } else {
+                    throw new Error('Failed to fetch shop status');
+                }
+            } catch (error) {
+                console.error('Error checking status:', error);
+                showAlert('Error loading shop information. Please try again.', 'error');
+                document.getElementById('loadingState').classList.add('hidden');
+            }
+        }
+
+        // Show pending status
+        function showPendingStatus() {
+            document.getElementById('statusContainer').classList.remove('hidden');
+            document.getElementById('pendingStatus').classList.remove('hidden');
+            document.getElementById('rejectedStatus').classList.add('hidden');
+            document.getElementById('registrationForm').classList.add('hidden');
+        }
+
+        // Show rejected status
+        function showRejectedStatus(reason) {
+            document.getElementById('statusContainer').classList.remove('hidden');
+            document.getElementById('rejectedStatus').classList.remove('hidden');
+            document.getElementById('pendingStatus').classList.add('hidden');
+            document.getElementById('registrationForm').classList.add('hidden');
+            document.getElementById('rejectionReason').textContent = reason || 'No reason provided';
+        }
+
+        // Show registration form
+        function showRegistrationForm() {
+            document.getElementById('statusContainer').classList.add('hidden');
+            document.getElementById('registrationForm').classList.remove('hidden');
+            
+            // Pre-fill form if shop data exists
+            if (shopData) {
+                document.getElementById('shopName').value = shopData.shop_name || '';
+                document.getElementById('ownerName').value = shopData.owner_name || '';
+                document.getElementById('phone').value = shopData.phone || '';
+                document.getElementById('address').value = shopData.address || '';
+                document.getElementById('description').value = shopData.description || '';
+                
+                // Update character count
+                const descCount = document.getElementById('descriptionCount');
+                descCount.textContent = (shopData.description || '').length;
+            }
+        }
+
+        // Handle form submission
+        async function handleSubmit(event) {
+            event.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Submitting...';
+
+            try {
+                const token = AuthService.getToken();
+                const formData = {
+                    shop_name: document.getElementById('shopName').value.trim(),
+                    owner_name: document.getElementById('ownerName').value.trim(),
+                    phone: document.getElementById('phone').value.trim(),
+                    address: document.getElementById('address').value.trim(),
+                    description: document.getElementById('description').value.trim()
+                };
+
+                // Upload avatar if provided
+                const avatarFile = document.getElementById('avatar').files[0];
+                if (avatarFile) {
+                    const avatarFormData = new FormData();
+                    avatarFormData.append('file', avatarFile);
+
+                    const avatarResponse = await fetch(`${API_URL}/api/v1/shops/upload-avatar`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: avatarFormData
+                    });
+
+                    if (avatarResponse.ok) {
+                        const avatarData = await avatarResponse.json();
+                        formData.avatar_url = avatarData.url;
+                    }
+                }
+
+                // Update shop info
+                const response = await fetch(`${API_URL}/api/v1/shops/me`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    showAlert('Application submitted successfully! Please wait for approval.', 'success');
+                    setTimeout(() => {
+                        checkStatus();
+                    }, 2000);
+                } else {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Failed to submit application');
+                }
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                showAlert(error.message || 'Failed to submit application. Please try again.', 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        }
+
+        // Show alert
+        function showAlert(message, type = 'info') {
+            const alertContainer = document.getElementById('alertContainer');
+            const colors = {
+                success: 'bg-green-50 border-green-200 text-green-800',
+                error: 'bg-red-50 border-red-200 text-red-800',
+                info: 'bg-blue-50 border-blue-200 text-blue-800'
+            };
+            const icons = {
+                success: 'fa-check-circle text-green-600',
+                error: 'fa-exclamation-circle text-red-600',
+                info: 'fa-info-circle text-blue-600'
+            };
+
+            alertContainer.innerHTML = `
+                <div class="${colors[type]} border rounded-lg p-4 flex items-center space-x-3">
+                    <i class="fas ${icons[type]} text-xl"></i>
+                    <p class="flex-1">${message}</p>
+                    <button onclick="this.parentElement.remove()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+
+            if (type === 'success') {
+                setTimeout(() => {
+                    alertContainer.innerHTML = '';
+                }, 5000);
+            }
+        }
+
+        // Logout
+        function logout() {
+            AuthService.logout();
+        }
+    </script>
+</body>
+</html>

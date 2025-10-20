@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Platform Analytics - Admin Panel</title>
+    <script src="../../assets/js/core/config.js?v=999"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -363,7 +364,9 @@
     </div>
 
     <script>
-        const API_BASE_URL = 'http://localhost:3000/api/v1';
+        // Use global API_URL from config.js (loaded in head)
+        const API_BASE_URL = (typeof API_URL !== 'undefined' ? API_URL : 'https://api.leema.kz') + '/api/v1';
+        
         let currentPeriod = 30;
         let currentRevenueChartType = 'daily';
         let analyticsData = null;
@@ -377,10 +380,10 @@
         // Auth check
         function checkAuth() {
             const token = localStorage.getItem('token');
-            const userType = localStorage.getItem('userType');
+            const userRole = localStorage.getItem('userRole');
             
-            if (!token || userType !== 'admin') {
-                window.location.href = '/public/index.html';
+            if (!token || userRole !== 'admin') {
+                window.location.href = '/';
                 return false;
             }
             return token;
@@ -389,8 +392,8 @@
         // Logout
         function logout() {
             localStorage.removeItem('token');
-            localStorage.removeItem('userType');
-            window.location.href = '/public/index.html';
+            localStorage.removeItem('userRole');
+            window.location.href = '/';
         }
 
         // Set period

@@ -1,0 +1,55 @@
+=== CHANGELOG - Shop Pages Fix ===
+Дата: 2025-10-20
+
+ИСПРАВЛЕННЫЕ ФАЙЛЫ:
+1. /shop/customers/index.html
+2. /shop/reports/index.html
+3. /shop/reviews/index.html
+4. /shop/notifications/index.html
+5. /favicon.ico (создан)
+6. TROUBLESHOOTING.md (создан)
+7. QUICK_FIX_SUMMARY.md (создан)
+
+ИЗМЕНЕНИЯ:
+
+shop/customers/index.html:
+- Удалены редиректы при отсутствии токена
+- Logout теперь ведет на ../index.html
+
+shop/reports/index.html:
+- Удалены редиректы при отсутствии токена
+- Logout теперь ведет на ../index.html
+
+shop/reviews/index.html:
+- Удалены редиректы при отсутствии токена
+- Исправлен WebSocket (localhost → wss://api.leema.kz/ws/shop)
+- Закомментирован audio элемент для notification.mp3
+- Добавлена проверка звукового элемента
+- Logout теперь ведет на ../index.html
+
+shop/notifications/index.html:
+- Удалены редиректы при отсутствии токена
+- Исправлен WebSocket (localhost → wss://api.leema.kz/ws/shop)
+- Закомментирован audio элемент для notification.mp3
+- Добавлены проверки на null элементы (navBadge, markAllBtn)
+- Добавлена проверка звукового элемента
+- Logout теперь ведет на ../index.html
+
+РЕШЕННЫЕ ПРОБЛЕМЫ:
+✅ TypeError: Cannot read properties of null
+✅ WebSocket connection to localhost failed
+✅ 404 на notification.mp3
+✅ 404 на favicon.ico
+✅ Редиректы на public и другие страницы
+
+ПРОБЛЕМЫ ТРЕБУЮЩИЕ НАСТРОЙКИ СЕРВЕРА:
+⚠️ 401 Unauthorized (нужен валидный токен)
+⚠️ CORS ошибки (нужна настройка на бэкенде)
+⚠️ 500 Internal Server Error (проблема на сервере)
+
+ТЕСТИРОВАНИЕ:
+Все 4 страницы теперь открываются без редиректов:
+- https://www.leema.kz/shop/customers/index.html
+- https://www.leema.kz/shop/reports/index.html
+- https://www.leema.kz/shop/reviews/index.html
+- https://www.leema.kz/shop/notifications/index.html

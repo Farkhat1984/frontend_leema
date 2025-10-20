@@ -105,6 +105,15 @@ async function loadShopDashboard() {
         
 
         const shopInfo = await apiRequest('/api/v1/shops/me');
+        
+        // Check if shop is approved (for old shops, is_approved might be null - treat as approved)
+        if (shopInfo.is_approved === false) {
+            window.location.href = '/shop/register.html';
+            return;
+        }
+        
+        // For old shops without is_approved field or is_approved=null, treat as approved (backward compatibility)
+        // Only redirect if explicitly set to false
         const shopNameEl = document.getElementById('shopName');
         const shopAvatarEl = document.getElementById('shopAvatar');
         if (shopNameEl) shopNameEl.textContent = shopInfo.shop_name;
@@ -330,16 +339,24 @@ function changeShopPage(direction) {
 async function updateShopProfile() {
     try {
         const profileShopNameEl = document.getElementById('profileShopName');
+        const profileOwnerNameEl = document.getElementById('profileOwnerName');
+        const profilePhoneEl = document.getElementById('profilePhone');
+        const profileAddressEl = document.getElementById('profileAddress');
         const profileDescriptionEl = document.getElementById('profileDescription');
 
-        if (!profileShopNameEl || !profileDescriptionEl) {
+        if (!profileShopNameEl) {
             return;
         }
 
         const data = {
-            shop_name: profileShopNameEl.value,
-            description: profileDescriptionEl.value
+            shop_name: profileShopNameEl.value
         };
+
+        // Add optional fields only if elements exist
+        if (profileOwnerNameEl) data.owner_name = profileOwnerNameEl.value;
+        if (profilePhoneEl) data.phone = profilePhoneEl.value || null;
+        if (profileAddressEl) data.address = profileAddressEl.value || null;
+        if (profileDescriptionEl) data.description = profileDescriptionEl.value || null;
 
         await apiRequest('/api/v1/shops/me', 'PUT', data);
         showAlert('Профиль успешно обновлен', 'success');
