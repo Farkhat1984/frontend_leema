@@ -6,20 +6,31 @@ class NotificationManager {
         this.container = null;
         this.badge = null;
         this.unreadCount = 0;
+        this.shownEvents = new Set(); // Track shown events to prevent duplicates
 
         this.init();
     }
 
     init() {
         this.createToastContainer();
-
         this.createNotificationBadge();
     }
 
     createToastContainer() {
+        // Don't create container if unified alert system exists
+        if (window.alertSystem) {
+            this.container = window.alertSystem.container;
+            return;
+        }
+        
+        const existing = document.getElementById('toastContainer');
+        if (existing) {
+            existing.remove();
+        }
+        
         this.container = document.createElement('div');
         this.container.id = 'toastContainer';
-        this.container.className = 'toast-container';
+        this.container.className = 'fixed top-20 right-4 z-50 flex flex-col gap-3 max-w-md pointer-events-none';
         document.body.appendChild(this.container);
     }
 
@@ -35,22 +46,72 @@ class NotificationManager {
         }
     }
 
-    showToast(message, type = 'info', duration = 5000) {
-        const toast = document.createElement('div');
-        toast.className = `toast toast-${type}`;
+    showToast(message, type = 'info', duration = 3000) {
+        // Use unified alert system if available
+        if (window.alertSystem) {
+            return window.alertSystem.show(message, type, duration);
+        }
+        
+        // Fallback to old system
+        return this._showToastFallback(message, type, duration);
+    }
 
-        const icon = this.getIcon(type);
+    _showToastFallback(message, type = 'info', duration = 3000) {
+        const toast = document.createElement('div');
+        
+        // Tailwind classes based on type
+        let bgClass, borderClass, iconBg, iconClass, iconColor;
+        
+        switch(type) {
+            case 'success':
+                bgClass = 'bg-white';
+                borderClass = 'border-l-4 border-green-500';
+                iconBg = 'bg-green-100';
+                iconClass = 'fa-check-circle';
+                iconColor = 'text-green-600';
+                break;
+            case 'error':
+                bgClass = 'bg-white';
+                borderClass = 'border-l-4 border-red-500';
+                iconBg = 'bg-red-100';
+                iconClass = 'fa-times-circle';
+                iconColor = 'text-red-600';
+                break;
+            case 'warning':
+                bgClass = 'bg-white';
+                borderClass = 'border-l-4 border-orange-500';
+                iconBg = 'bg-orange-100';
+                iconClass = 'fa-exclamation-triangle';
+                iconColor = 'text-orange-600';
+                break;
+            default: // info
+                bgClass = 'bg-white';
+                borderClass = 'border-l-4 border-blue-500';
+                iconBg = 'bg-blue-100';
+                iconClass = 'fa-info-circle';
+                iconColor = 'text-blue-600';
+        }
+
+        toast.className = `${bgClass} ${borderClass} rounded-lg shadow-lg p-4 flex items-start gap-3 min-w-[320px] max-w-md opacity-0 translate-x-full transition-all duration-300 pointer-events-auto`;
 
         toast.innerHTML = `
-            <div class="toast-icon">${icon}</div>
-            <div class="toast-message">${message}</div>
-            <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+            <div class="${iconBg} rounded-lg p-2 flex-shrink-0">
+                <i class="fas ${iconClass} ${iconColor} text-lg"></i>
+            </div>
+            <div class="flex-1 pt-0.5">
+                <p class="text-sm font-medium text-gray-900">${message}</p>
+            </div>
+            <button class="text-gray-400 hover:text-gray-600 transition-colors p-1 flex-shrink-0" onclick="this.closest('div[class*=\\'translate-x\\']').remove()">
+                <i class="fas fa-times text-sm"></i>
+            </button>
         `;
 
         this.container.appendChild(toast);
 
+        // Trigger animation
         setTimeout(() => {
-            toast.classList.add('show');
+            toast.classList.remove('opacity-0', 'translate-x-full');
+            toast.classList.add('opacity-100', 'translate-x-0');
         }, 10);
 
         if (duration > 0) {
@@ -63,7 +124,7 @@ class NotificationManager {
     }
 
     removeToast(toast) {
-        toast.classList.remove('show');
+        toast.classList.add('opacity-0', 'translate-x-full');
         setTimeout(() => {
             if (toast.parentElement) {
                 toast.parentElement.removeChild(toast);
@@ -84,6 +145,28 @@ class NotificationManager {
     handleWebSocketEvent(eventData) {
         const eventType = eventData.event;
         const data = eventData.data;
+        
+        // Create unique event ID to prevent duplicates
+        const eventId = `${eventType}-${data.product_id || data.order_id || data.transaction_id || ''}-${eventData.timestamp || Date.now()}`;
+        
+        // Use unified alert system for duplicate prevention if available
+        if (window.alertSystem && !window.alertSystem.handleWebSocketEvent(eventData, eventId)) {
+            return;
+        }
+        
+        // Fallback to local duplicate prevention
+        if (this.shownEvents.has(eventId)) {
+            return;
+        }
+        
+        // Mark this event as shown
+        this.shownEvents.add(eventId);
+        
+        // Clean up old event IDs (keep only last 100)
+        if (this.shownEvents.size > 100) {
+            const arr = Array.from(this.shownEvents);
+            this.shownEvents = new Set(arr.slice(-100));
+        }
 
         this.addToHistory(eventData);
 
@@ -165,13 +248,15 @@ class NotificationManager {
                 break;
 
             default:
-                message = `Событие: ${eventType}`;
-                type = 'info';
+                // Не показываем уведомление для необработанных событий
+                return;
         }
 
-        this.showToast(message, type);
-
-        this.incrementUnreadCount();
+        // Показываем уведомление только если сообщение определено
+        if (message) {
+            this.showToast(message, type);
+            this.incrementUnreadCount();
+        }
     }
 
     getTransactionTypeName(type) {

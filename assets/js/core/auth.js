@@ -43,9 +43,7 @@ const AuthService = {
         localStorage.setItem('userData', JSON.stringify(userData));
         localStorage.setItem('userRole', userRole);
         localStorage.setItem('platform', platform);
-        // Устанавливаем оба варианта для совместимости
         localStorage.setItem('accountType', accountType);
-        localStorage.setItem('account_type', accountType);
     },
 
     // Обновить только токены
@@ -87,17 +85,43 @@ const AuthService = {
     },
 
     // Выйти
-    logout() {
+    async logout() {
+        const refreshToken = this.getRefreshToken();
+        
+        // Отправить refresh token на blacklist
+        if (refreshToken) {
+            try {
+                await fetch(`${API_URL}/api/v1/auth/logout`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        refresh_token: refreshToken
+                    })
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+                // Продолжаем выход даже если запрос не удался
+            }
+        }
+        
+        // Очистить storage
         localStorage.removeItem('token');
         localStorage.removeItem('refresh_token');
         localStorage.removeItem('userData');
         localStorage.removeItem('userRole');
         localStorage.removeItem('platform');
         localStorage.removeItem('accountType');
-        localStorage.removeItem('account_type');
         localStorage.removeItem('user');
         localStorage.removeItem('shop');
-        window.location.href = '/';
+        
+        // Use Router if available, otherwise fallback
+        if (window.Router) {
+            window.Router.redirectToAuth();
+        } else {
+            window.location.href = '/public';
+        }
     }
 };
 

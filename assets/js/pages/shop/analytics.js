@@ -1,5 +1,4 @@
 // Shop Analytics - Advanced Analytics Page
-console.log('🎨 Shop Analytics initializing...');
 
 // Use API_URL from config.js
 const API_BASE_URL = (typeof API_URL !== 'undefined' ? API_URL : 'https://api.leema.kz') + '/api/v1';
@@ -9,46 +8,35 @@ let analyticsData = {};
 let currentPeriod = 7;
 let currentRevenueView = 'daily';
 
-// Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log('📊 Analytics page loaded');
-    
-    // Check authentication and account type
+    // Fast auth check to prevent visible page load before redirect
     const token = getToken();
-    const accountType = localStorage.getItem('accountType');
-    const userRole = localStorage.getItem('userRole');
-    
-    console.log('🔐 Auth check:', { token: !!token, accountType, userRole });
-    
     if (!token) {
-        console.log('❌ Not authenticated, redirecting...');
-        window.location.href = '/';
+        Router.redirectToAuth();
         return;
     }
     
-    // Check if account type is shop (either accountType or userRole)
+    const accountType = localStorage.getItem('accountType');
+    const userRole = localStorage.getItem('userRole');
     const isShop = accountType === 'shop' || userRole === 'shop';
     
     if (!isShop) {
-        console.log('❌ Wrong account type, redirecting...');
+        // Immediate redirect without showing content
         if (accountType === 'admin' || userRole === 'admin') {
-            window.location.href = '/admin/index.html';
+            Router.navigate(Router.paths.admin.dashboard, true);
         } else if (accountType === 'user' || userRole === 'user') {
-            window.location.href = '/user/dashboard.html';
+            Router.navigate(Router.paths.user.dashboard, true);
         } else {
-            window.location.href = '/';
+            Router.redirectToAuth();
         }
         return;
     }
-    
-    console.log('✅ Authorization successful, loading analytics...');
 
-    // Initialize
-    await loadShopInfo();
+    // Only now load data - user has access
+    loadShopInfo(); // Don't await - load in parallel
     await loadAnalytics();
 });
 
-// Load shop information
 async function loadShopInfo() {
     try {
         const response = await fetch(`${API_BASE_URL}/shops/me`, {
@@ -61,33 +49,29 @@ async function loadShopInfo() {
 
         const shop = await response.json();
         
-        // Update UI
-        document.getElementById('shopName').textContent = shop.name || 'Мой магазин';
+        const shopNameEl = document.getElementById('shopName');
+        if (shopNameEl) {
+            shopNameEl.textContent = shop.name || 'Мой магазин';
+        }
         
         const avatar = document.getElementById('shopAvatar');
         if (avatar) {
             avatar.textContent = (shop.name || 'М').charAt(0).toUpperCase();
         }
         
-        console.log('✅ Shop info loaded:', shop.name);
     } catch (error) {
         console.error('❌ Failed to load shop info:', error);
     }
 }
 
-// Load analytics data
 async function loadAnalytics() {
     showLoading();
     
     try {
-        // Calculate date range
         const dateTo = new Date();
         const dateFrom = new Date();
         dateFrom.setDate(dateFrom.getDate() - currentPeriod);
 
-        console.log(`📊 Loading analytics for ${currentPeriod} days`);
-
-        // Load data in parallel
         const [orders, products, customers] = await Promise.all([
             fetchOrders(dateFrom, dateTo),
             fetchProducts(),
@@ -103,16 +87,12 @@ async function loadAnalytics() {
             dateTo
         };
 
-        // Calculate metrics
         calculateMetrics();
         
-        // Render charts
-        renderCharts();
+        await renderCharts();
         
-        // Update UI
         updateUI();
         
-        console.log('✅ Analytics loaded successfully');
     } catch (error) {
         console.error('❌ Failed to load analytics:', error);
         showAlert('Ошибка загрузки аналитики', 'error');
@@ -144,7 +124,6 @@ async function fetchOrders(dateFrom, dateTo) {
             return orderDate >= dateFrom && orderDate <= dateTo;
         });
 
-        console.log(`📦 Loaded ${filtered.length} orders`);
         return filtered;
     } catch (error) {
         console.error('Failed to fetch orders:', error);
@@ -166,7 +145,6 @@ async function fetchProducts() {
         const data = await response.json();
         const products = data.products || data.data || [];
         
-        console.log(`📦 Loaded ${products.length} products`);
         return products;
     } catch (error) {
         console.error('Failed to fetch products:', error);
@@ -177,7 +155,6 @@ async function fetchProducts() {
 // Fetch customers
 async function fetchCustomers() {
     try {
-        // Get unique customers from orders
         const customers = new Map();
         
         analyticsData.orders?.forEach(order => {
@@ -198,7 +175,6 @@ async function fetchCustomers() {
         });
         
         const customersArray = Array.from(customers.values());
-        console.log(`👥 Processed ${customersArray.length} customers`);
         return customersArray;
     } catch (error) {
         console.error('Failed to process customers:', error);
@@ -206,7 +182,6 @@ async function fetchCustomers() {
     }
 }
 
-// Calculate metrics
 function calculateMetrics() {
     const { orders, products, customers } = analyticsData;
     
@@ -242,7 +217,6 @@ function calculateMetrics() {
     const productSales = totalOrders;
     const conversionRate = productViews > 0 ? (productSales / productViews) * 100 : 0;
     
-    // Calculate previous period for comparison
     const previousPeriodOrders = []; // Would need to fetch previous period data
     const previousRevenue = 0;
     const revenueChange = previousRevenue > 0 ? ((totalRevenue - previousRevenue) / previousRevenue) * 100 : 0;
@@ -272,10 +246,8 @@ function calculateMetrics() {
         previousRevenue
     };
     
-    console.log('📊 Metrics calculated:', analyticsData.metrics);
 }
 
-// Update UI with metrics
 function updateUI() {
     const { metrics } = analyticsData;
     
@@ -319,38 +291,34 @@ function updateUI() {
     document.getElementById('cancelledOrders').textContent = metrics.cancelledOrders;
     document.getElementById('refundedOrders').textContent = metrics.refundedOrders;
     
-    // Update top products
     updateTopProducts();
     
     // Generate insights
     generateInsights();
 }
 
-// Update trend indicator
 function updateTrend(elementId, value) {
     const element = document.getElementById(elementId);
     if (!element) return;
     
-    let trendClass = 'neutral';
+    let colorClass = 'opacity-75';
     let arrow = '→';
     
     if (value > 0) {
-        trendClass = 'up';
+        colorClass = 'text-green-300';
         arrow = '↑';
     } else if (value < 0) {
-        trendClass = 'down';
+        colorClass = 'text-red-300';
         arrow = '↓';
     }
     
-    element.className = `trend ${trendClass}`;
+    element.className = `inline-flex items-center gap-1 text-sm font-semibold ${colorClass}`;
     element.innerHTML = `<span>${arrow}</span> ${Math.abs(value).toFixed(1)}%`;
 }
 
-// Update top products table
 function updateTopProducts() {
     const { orders, products } = analyticsData;
     
-    // Calculate product sales
     const productSales = {};
     
     orders.forEach(order => {
@@ -374,13 +342,12 @@ function updateTopProducts() {
         .sort((a, b) => b.revenue - a.revenue)
         .slice(0, 10);
     
-    // Render table
     const tbody = document.getElementById('topProductsBody');
     
     if (topProducts.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="5" style="text-align: center; padding: 40px; color: #9ca3af;">
+                <td colspan="5" class="text-center py-10 text-gray-400">
                     Нет данных о продажах
                 </td>
             </tr>
@@ -389,24 +356,34 @@ function updateTopProducts() {
     }
     
     tbody.innerHTML = topProducts.map((product, index) => `
-        <tr>
-            <td style="font-weight: 600; color: #667eea;">${index + 1}</td>
-            <td class="product-name">${escapeHtml(product.name)}</td>
-            <td class="product-sales">${product.quantity}</td>
-            <td class="product-revenue">${formatCurrency(product.revenue)}</td>
-            <td>${formatCurrency(product.revenue / product.quantity)}</td>
+        <tr class="border-b border-gray-100 hover:bg-gray-50">
+            <td class="py-3 px-4 font-semibold text-purple-600">${index + 1}</td>
+            <td class="py-3 px-4 text-gray-900">${escapeHtml(product.name)}</td>
+            <td class="py-3 px-4 text-gray-700">${product.quantity}</td>
+            <td class="py-3 px-4 font-semibold text-gray-900">${formatCurrency(product.revenue)}</td>
+            <td class="py-3 px-4 text-gray-700">${formatCurrency(product.revenue / product.quantity)}</td>
         </tr>
     `).join('');
 }
 
-// Render charts
-function renderCharts() {
+async function renderCharts() {
+    // Wait for Chart.js to be loaded (since it's deferred)
+    if (typeof Chart === 'undefined') {
+        await new Promise(resolve => {
+            const checkChart = setInterval(() => {
+                if (typeof Chart !== 'undefined') {
+                    clearInterval(checkChart);
+                    resolve();
+                }
+            }, 50);
+        });
+    }
+    
     renderRevenueChart();
     renderOrdersChart();
     renderCategoryChart();
 }
 
-// Render revenue chart
 function renderRevenueChart() {
     const ctx = document.getElementById('revenueChart');
     if (!ctx) return;
@@ -524,7 +501,6 @@ function formatChartLabel(key) {
     }
 }
 
-// Render orders chart
 function renderOrdersChart() {
     const ctx = document.getElementById('ordersChart');
     if (!ctx) return;
@@ -606,7 +582,6 @@ function prepareOrdersChartData() {
     return { labels, data };
 }
 
-// Render category chart
 function renderCategoryChart() {
     const ctx = document.getElementById('categoryChart');
     if (!ctx) return;
@@ -712,9 +687,10 @@ function generateInsights() {
         insights.push(`💰 Высокий средний чек ($${metrics.averageOrder.toFixed(2)}). Рассмотрите возможность upsell стратегий.`);
     }
     
-    if (insights.length > 0) {
-        document.getElementById('insightCard').style.display = 'block';
-        document.getElementById('insightText').innerHTML = insights.join('<br>');
+    const insightCard = document.getElementById('insightCard');
+    if (insights.length > 0 && insightCard) {
+        insightCard.style.display = 'block';
+        document.getElementById('insightText').innerHTML = insights.join('<br><br>');
     }
 }
 
@@ -722,11 +698,12 @@ function generateInsights() {
 function changePeriod(days) {
     currentPeriod = days;
     
-    // Update button states
     document.querySelectorAll('.period-btn').forEach(btn => {
-        btn.classList.remove('active');
+        btn.classList.remove('active', 'bg-purple-600', 'text-white', 'border-purple-600');
+        btn.classList.add('bg-white', 'border-gray-200');
         if (btn.dataset.period == days) {
-            btn.classList.add('active');
+            btn.classList.add('active', 'bg-purple-600', 'text-white', 'border-purple-600');
+            btn.classList.remove('bg-white', 'border-gray-200');
         }
     });
     
@@ -745,7 +722,6 @@ function applyCustomDateRange() {
     
     if (!dateFrom || !dateTo) return;
     
-    // Calculate days
     const from = new Date(dateFrom);
     const to = new Date(dateTo);
     currentPeriod = Math.ceil((to - from) / (1000 * 60 * 60 * 24));
@@ -763,11 +739,16 @@ function applyCustomDateRange() {
 function changeRevenueView(view) {
     currentRevenueView = view;
     
-    // Update button states
-    document.querySelectorAll('.chart-controls button').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    event.target.classList.add('active');
+    // Get parent container and find all buttons
+    const container = event.target.closest('.flex');
+    if (container) {
+        container.querySelectorAll('button').forEach(btn => {
+            btn.classList.remove('bg-purple-600', 'text-white');
+            btn.classList.add('bg-gray-100', 'text-gray-700');
+        });
+        event.target.classList.remove('bg-gray-100', 'text-gray-700');
+        event.target.classList.add('bg-purple-600', 'text-white');
+    }
     
     // Re-render chart
     renderRevenueChart();
@@ -847,56 +828,32 @@ function formatPercent(value) {
 // Show loading
 function showLoading() {
     const overlay = document.getElementById('loadingOverlay');
-    if (overlay) overlay.style.display = 'flex';
+    if (overlay) {
+        overlay.classList.remove('hidden');
+        overlay.classList.add('flex');
+    }
 }
 
 // Hide loading
 function hideLoading() {
     const overlay = document.getElementById('loadingOverlay');
-    if (overlay) overlay.style.display = 'none';
-}
-
-// Show alert
-function showAlert(message, type = 'info') {
-    const container = document.getElementById('alertContainer');
-    if (!container) return;
-    
-    const alert = document.createElement('div');
-    alert.className = `alert alert-${type}`;
-    alert.textContent = message;
-    alert.style.cssText = `
-        padding: 12px 20px;
-        margin-bottom: 15px;
-        border-radius: 8px;
-        font-size: 14px;
-        animation: slideIn 0.3s ease-out;
-    `;
-    
-    if (type === 'success') {
-        alert.style.background = '#d1fae5';
-        alert.style.color = '#065f46';
-    } else if (type === 'error') {
-        alert.style.background = '#fee2e2';
-        alert.style.color = '#991b1b';
-    } else {
-        alert.style.background = '#dbeafe';
-        alert.style.color = '#1e40af';
+    if (overlay) {
+        overlay.classList.add('hidden');
+        overlay.classList.remove('flex');
     }
-    
-    container.appendChild(alert);
-    
-    setTimeout(() => {
-        alert.style.animation = 'slideOut 0.3s ease-out';
-        setTimeout(() => alert.remove(), 300);
-    }, 3000);
 }
 
-// Check authentication
+// Show alert - использует notificationManager
+function showAlert(message, type = 'info') {
+    if (window.notificationManager) {
+        window.notificationManager.showToast(message, type);
+    }
+}
+
 function checkAuth() {
     return !!getToken();
 }
 
-// Get token
 function getToken() {
     return localStorage.getItem('token');
 }
@@ -912,7 +869,6 @@ function escapeHtml(text) {
 function logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('userRole');
-    window.location.href = '/';
+    Router.redirectToAuth();
 }
 
-console.log('✅ Shop Analytics initialized');

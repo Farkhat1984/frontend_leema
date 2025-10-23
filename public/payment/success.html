@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Обработка платежа...</title>
+    <script src="/assets/js/tailwind-config.js?v=999.1"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @keyframes spin {
@@ -48,7 +49,7 @@ if (!token) {
                 if (!authToken) {
                     showError('Вы не авторизованы. Перенаправление на страницу входа...');
                     setTimeout(() => {
-                        window.location.href = '/index.html';
+                        window.location.href = '/public';
                     }, 2000);
                     return;
                 }
@@ -109,11 +110,11 @@ showError(error.message);
             const accountType = localStorage.getItem('accountType') || 'user';
 
             // Determine redirect URL based on account type
-            let redirectUrl = '/index.html';
+            let redirectUrl = '/user';
             if (accountType === 'admin') {
-                redirectUrl = '/admin.html';
+                redirectUrl = '/admin';
             } else if (accountType === 'shop') {
-                redirectUrl = '/index.html';
+                redirectUrl = '/shop';
             }
 
             container.innerHTML = `
@@ -150,11 +151,11 @@ showError(error.message);
             const container = document.querySelector('body > div');
             const accountType = localStorage.getItem('accountType') || 'user';
 
-            let redirectUrl = '/index.html';
+            let redirectUrl = '/user';
             if (accountType === 'admin') {
-                redirectUrl = '/admin.html';
+                redirectUrl = '/admin';
             } else if (accountType === 'shop') {
-                redirectUrl = '/index.html';
+                redirectUrl = '/shop';
             }
 
             container.innerHTML = `

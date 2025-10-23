@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Настройки - Панель администратора</title>
+    <!-- Version: 1003 - Fixed redirects and layout shifts -->
+    <script src="/assets/js/tailwind-config.js?v=1002.1"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style type="text/tailwindcss">
@@ -15,6 +17,12 @@
                 transition-duration: 150ms;
             }
         }
+        
+        /* Fixed width for save buttons to prevent layout shift */
+        #settingsList button {
+            min-width: 140px;
+            text-align: center;
+        }
     </style>
 </head>
 
@@ -23,14 +31,14 @@
     <header class="bg-white shadow-sm sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-user-shield text-white text-lg"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-xl font-bold text-gray-900">Admin Panel</h1>
-                        <p class="text-sm text-gray-500">Настройки платформы</p>
-                    </div>
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-xl font-bold text-gray-900">Настройки платформы</h1>
+                </div>
+                <div>
+                    <a href="/admin" class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors">
+                        <i class="fas fa-home mr-2"></i>
+                        Вернуться на главную
+                    </a>
                 </div>
             </div>
         </div>
@@ -39,22 +47,6 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Alert Container -->
         <div id="adminAlertContainer" class="mb-6"></div>
-
-        <!-- Back Button -->
-        <div class="mb-6">
-            <a href="/admin/index.html" class="inline-flex items-center space-x-2 text-purple-600 hover:text-purple-700 font-medium transition-colors group">
-                <i class="fas fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
-                <span>Вернуться на главную</span>
-            </a>
-        </div>
-
-        <!-- Page Header -->
-        <div class="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl shadow-lg p-8 mb-8">
-            <div class="flex items-center space-x-3">
-                <i class="fas fa-cog text-white text-3xl"></i>
-                <h1 class="text-3xl font-bold text-white">Настройки платформы</h1>
-            </div>
-        </div>
 
         <!-- Settings Content -->
         <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
@@ -66,14 +58,15 @@
         </div>
     </div>
 
-    <script defer src="../../assets/js/core/auth.js?v=999"></script>
-    <script defer src="../../assets/js/core/config.js?v=999"></script>
-    <script defer src="../../assets/js/core/websocket.js?v=999"></script>
-    <script defer src="../../assets/js/core/notifications.js?v=999"></script>
-    <script defer src="../../assets/js/shared/lazy-loader.js?v=999"></script>
-    <script defer src="../../assets/js/core/cache.js?v=999"></script>
-    <script defer src="../../assets/js/shared/common-utils.js?v=999"></script>
-    <script defer src="../../assets/js/pages/admin/settings.js?v=999"></script>
+    <script defer src="../../assets/js/core/auth.js?v=1002"></script>
+    <script src="../../assets/js/core/router.js"></script>
+    <script src="../../assets/js/core/config.js?v=1002"></script>
+    <script defer src="../../assets/js/core/websocket.js?v=1002"></script>
+    <script defer src="../../assets/js/core/notifications.js?v=1002"></script>
+    <script defer src="../../assets/js/shared/lazy-loader.js?v=1002"></script>
+    <script defer src="../../assets/js/core/cache.js?v=1002"></script>
+    <script defer src="../../assets/js/shared/common-utils.js?v=1002"></script>
+    <script defer src="../../assets/js/pages/admin/settings.js?v=1003"></script>
 </body>
 
 </html>

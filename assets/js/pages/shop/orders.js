@@ -1,4 +1,6 @@
 // Shop Orders Page JavaScript
+const API_BASE_URL = (typeof API_URL !== 'undefined' ? API_URL : 'https://api.leema.kz') + '/api/v1';
+
 let currentPage = 1;
 const ordersPerPage = 50;
 let allOrders = [];
@@ -14,18 +16,15 @@ window.onload = async function() {
     const accountType = localStorage.getItem('accountType');
 
     if (!token || accountType !== 'shop') {
-        window.location.href = '/';
+        Router.redirectToAuth();
         return;
     }
 
     try {
-        // Load shop info
         currentShop = await loadShopInfo();
         
-        // Initialize WebSocket with event handlers
         initializeWebSocket();
         
-        // Load orders
         await loadOrders();
         
     } catch (error) {
@@ -34,18 +33,33 @@ window.onload = async function() {
     }
 };
 
-// Load shop information
 async function loadShopInfo() {
     try {
-        const shop = await apiRequest('/api/v1/shops/me', 'GET');
-        document.getElementById('shopName').textContent = shop.name;
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_BASE_URL}/shops/me`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
         
-        // Set avatar
+        if (!response.ok) {
+            throw new Error('Failed to load shop info');
+        }
+        
+        const shop = await response.json();
+        
+        const shopNameEl = document.getElementById('shopName');
+        if (shopNameEl) {
+            shopNameEl.textContent = shop.name;
+        }
+        
         const avatar = document.getElementById('shopAvatar');
-        if (shop.logo_url) {
-            avatar.innerHTML = `<img src="${shop.logo_url}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
-        } else {
-            avatar.textContent = shop.name.charAt(0).toUpperCase();
+        if (avatar) {
+            if (shop.logo_url) {
+                avatar.innerHTML = `<img src="${shop.logo_url}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+            } else {
+                avatar.textContent = shop.name.charAt(0).toUpperCase();
+            }
         }
         
         return shop;
@@ -55,7 +69,6 @@ async function loadShopInfo() {
     }
 }
 
-// Initialize WebSocket
 function initializeWebSocket() {
     if (typeof CommonUtils !== 'undefined' && CommonUtils.initWebSocket) {
         CommonUtils.initWebSocket('shop', {
@@ -65,26 +78,15 @@ function initializeWebSocket() {
             'order.refunded': onOrderRefunded,
         });
     } else {
-        console.warn('WebSocket utilities not available');
     }
 }
 
 // WebSocket event handlers
 function onNewOrder(data) {
-    console.log('[WebSocket] New order:', data);
     
     if (data.data && data.data.shop_id === currentShop?.id) {
         // Play notification sound
         playNotificationSound();
-        
-        // Show notification
-        if (typeof notificationManager !== 'undefined') {
-            notificationManager.showToast(
-                `🛍️ Новый заказ #${data.data.order_number || ''} на $${data.data.shop_amount || data.data.amount || '0'}`,
-                'success',
-                0 // Don't auto-dismiss
-            );
-        }
         
         // Desktop notification
         showDesktopNotification('Новый заказ!', `Заказ #${data.data.order_number || ''} на $${data.data.shop_amount || data.data.amount || '0'}`);
@@ -95,34 +97,16 @@ function onNewOrder(data) {
 }
 
 function onOrderCompleted(data) {
-    console.log('[WebSocket] Order completed:', data);
-    
-    if (typeof notificationManager !== 'undefined') {
-        notificationManager.showToast('✅ Заказ выполнен!', 'success');
-    }
-    
     // Reload orders
     loadOrders();
 }
 
 function onOrderCancelled(data) {
-    console.log('[WebSocket] Order cancelled:', data);
-    
-    if (typeof notificationManager !== 'undefined') {
-        notificationManager.showToast('❌ Заказ отменён', 'warning');
-    }
-    
     // Reload orders
     loadOrders();
 }
 
 function onOrderRefunded(data) {
-    console.log('[WebSocket] Order refunded:', data);
-    
-    if (typeof notificationManager !== 'undefined') {
-        notificationManager.showToast('💰 Заказ возвращён', 'info');
-    }
-    
     // Reload orders
     loadOrders();
 }
@@ -130,9 +114,11 @@ function onOrderRefunded(data) {
 // Play notification sound
 function playNotificationSound() {
     try {
-        notificationSound.play().catch(e => console.log('Sound play failed:', e));
+        notificationSound.play().catch(e => {
+            // Ignore audio play errors
+        });
     } catch (error) {
-        console.log('Sound not available:', error);
+        // Ignore errors
     }
 }
 
@@ -153,17 +139,26 @@ function showDesktopNotification(title, body) {
     }
 }
 
-// Load orders
 async function loadOrders() {
     try {
-        const response = await apiRequest('/api/v1/shops/me/orders', 'GET', {
-            skip: 0,
-            limit: 1000 // Load all for now, we'll paginate on client side
+        const token = localStorage.getItem('token');
+        const url = new URL(`${API_BASE_URL}/shops/me/orders`);
+        url.searchParams.set('skip', '0');
+        url.searchParams.set('limit', '1000'); // Load all for now, we'll paginate on client side
+        
+        const response = await fetch(url, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
         });
         
-        allOrders = Array.isArray(response) ? response : (response.items || []);
+        if (!response.ok) {
+            throw new Error('Failed to load orders');
+        }
         
-        // Calculate statistics
+        const data = await response.json();
+        allOrders = data.orders || data.data || data.items || [];
+        
         calculateStatistics(allOrders);
         
         // Apply filters and render
@@ -174,12 +169,13 @@ async function loadOrders() {
         showAlert('Ошибка загрузки заказов', 'error');
         
         // Show empty state
-        document.getElementById('emptyState').style.display = 'block';
-        document.getElementById('ordersTableContainer').style.display = 'none';
+        const emptyState = document.getElementById('emptyState');
+        const ordersContainer = document.getElementById('ordersTableContainer');
+        if (emptyState) emptyState.style.display = 'block';
+        if (ordersContainer) ordersContainer.style.display = 'none';
     }
 }
 
-// Calculate statistics
 function calculateStatistics(orders) {
     const now = new Date();
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -215,7 +211,6 @@ function calculateStatistics(orders) {
         }
     });
     
-    // Update UI
     document.getElementById('todayOrders').textContent = todayCount;
     document.getElementById('todayRevenue').textContent = '$' + todayRevenue.toFixed(2);
     
@@ -229,7 +224,6 @@ function calculateStatistics(orders) {
     document.getElementById('totalRevenue').textContent = '$' + totalRevenue.toFixed(2);
 }
 
-// Calculate shop amount from order
 function calculateShopAmount(order) {
     if (!order.items) return 0;
     
@@ -310,7 +304,6 @@ function applyFiltersAndSort() {
     renderOrders();
 }
 
-// Render orders
 function renderOrders() {
     const tbody = document.getElementById('ordersTableBody');
     const emptyState = document.getElementById('emptyState');
@@ -326,12 +319,10 @@ function renderOrders() {
     emptyState.style.display = 'none';
     tableContainer.style.display = 'block';
     
-    // Calculate pagination
     const startIndex = (currentPage - 1) * ordersPerPage;
     const endIndex = startIndex + ordersPerPage;
     const pageOrders = filteredOrders.slice(startIndex, endIndex);
     
-    // Render table rows
     tbody.innerHTML = pageOrders.map(order => {
         const shopAmount = calculateShopAmount(order);
         const shopItems = order.items?.filter(item => item.product?.shop_id === currentShop?.id) || [];
@@ -358,11 +349,9 @@ function renderOrders() {
         `;
     }).join('');
     
-    // Update pagination
     updatePagination();
 }
 
-// Update pagination
 function updatePagination() {
     const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
     const paginationContainer = document.getElementById('paginationContainer');
@@ -397,22 +386,42 @@ function changePage(direction) {
 // View order detail
 async function viewOrderDetail(orderId) {
     try {
-        const order = await apiRequest(`/api/v1/shops/me/orders/${orderId}`, 'GET');
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_BASE_URL}/shops/me/orders/${orderId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
         
-        // Set modal data
-        document.getElementById('modalOrderNumber').textContent = `Заказ #${order.order_number || order.id}`;
-        document.getElementById('modalStatus').innerHTML = `<span class="status-badge status-${order.status}">${formatStatus(order.status)}</span>`;
-        document.getElementById('modalDate').textContent = formatDateTime(order.created_at);
-        document.getElementById('modalPayment').textContent = formatPaymentMethod(order.payment_method);
-        document.getElementById('modalTotal').innerHTML = `<strong>$${order.total_amount?.toFixed(2) || '0.00'}</strong>`;
+        if (!response.ok) {
+            throw new Error('Failed to load order details');
+        }
+        
+        const order = await response.json();
+        
+        const modalOrderNumber = document.getElementById('modalOrderNumber');
+        const modalStatus = document.getElementById('modalStatus');
+        const modalDate = document.getElementById('modalDate');
+        const modalPayment = document.getElementById('modalPayment');
+        const modalTotal = document.getElementById('modalTotal');
+        const modalCustomer = document.getElementById('modalCustomer');
+        const modalItems = document.getElementById('modalItems');
+        const modalShopTotal = document.getElementById('modalShopTotal');
+        
+        if (modalOrderNumber) modalOrderNumber.textContent = `Заказ #${order.order_number || order.id}`;
+        if (modalStatus) modalStatus.innerHTML = `<span class="status-badge status-${order.status}">${formatStatus(order.status)}</span>`;
+        if (modalDate) modalDate.textContent = formatDateTime(order.created_at);
+        if (modalPayment) modalPayment.textContent = formatPaymentMethod(order.payment_method);
+        if (modalTotal) modalTotal.innerHTML = `<strong>$${order.total_amount?.toFixed(2) || '0.00'}</strong>`;
         
         // Customer info
-        document.getElementById('modalCustomer').innerHTML = `
-            <strong>${order.user?.full_name || 'Неизвестно'}</strong><br>
-            <span style="color: #666;">${order.user?.email || ''}</span>
-        `;
+        if (modalCustomer) {
+            modalCustomer.innerHTML = `
+                <strong>${order.user?.full_name || 'Неизвестно'}</strong><br>
+                <span style="color: #666;">${order.user?.email || ''}</span>
+            `;
+        }
         
-        // Render shop items only
         const shopItems = order.items?.filter(item => item.product?.shop_id === currentShop?.id) || [];
         const itemsHtml = shopItems.map(item => `
             <div class="order-item">
@@ -429,14 +438,14 @@ async function viewOrderDetail(orderId) {
             </div>
         `).join('');
         
-        document.getElementById('modalItems').innerHTML = itemsHtml || '<p>Нет товаров</p>';
+        if (modalItems) modalItems.innerHTML = itemsHtml || '<p>Нет товаров</p>';
         
-        // Calculate shop total
         const shopTotal = calculateShopAmount(order);
-        document.getElementById('modalShopTotal').textContent = '$' + shopTotal.toFixed(2);
+        if (modalShopTotal) modalShopTotal.textContent = '$' + shopTotal.toFixed(2);
         
         // Show modal
-        document.getElementById('orderDetailModal').classList.add('show');
+        const modal = document.getElementById('orderDetailModal');
+        if (modal) modal.classList.add('show');
         
     } catch (error) {
         console.error('Error loading order details:', error);
@@ -523,18 +532,10 @@ function pluralize(count, one, few, many) {
 }
 
 function showAlert(message, type = 'info') {
-    const alertContainer = document.getElementById('alertContainer');
-    const alertClass = type === 'error' ? 'alert-error' : type === 'success' ? 'alert-success' : 'alert-info';
-    
-    alertContainer.innerHTML = `
-        <div class="alert ${alertClass}" style="margin-bottom: 20px;">
-            ${message}
-        </div>
-    `;
-    
-    setTimeout(() => {
-        alertContainer.innerHTML = '';
-    }, 5000);
+    // Используем notificationManager вместо старой системы алертов
+    if (window.notificationManager) {
+        window.notificationManager.showToast(message, type);
+    }
 }
 
 // Request desktop notification permission on load

@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Авторизация...</title>
+    <script src="/assets/js/tailwind-config.js?v=999.1"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @keyframes spin {
@@ -23,6 +24,7 @@
         <p class="text-lg">Завершаем авторизацию...</p>
     </div>
 
+    <script src="../../assets/js/core/router.js"></script>
     <script src="../../assets/js/core/config.js"></script>
     <script>
 
@@ -101,21 +103,20 @@
                 localStorage.removeItem('requestedAccountType');
 
                 // Redirect based on requested type and actual role
-                const baseUrl = window.location.origin;
                 
                 if (requestedType === 'admin') {
                     // Проверяем что у пользователя действительно есть роль admin
                     if (data.user && data.user.role === 'admin') {
-                        window.location.href = `${baseUrl}/admin/index.html`;
+                        Router.navigate(Router.paths.admin.dashboard, true);
                     } else {
                         showError('У вас нет прав администратора. Попробуйте войти как пользователь.');
                         return;
                     }
                 } else if (requestedType === 'shop') {
-                    window.location.href = `${baseUrl}/shop/index.html`;
+                    Router.navigate(Router.paths.shop.dashboard, true);
                 } else {
                     // user
-                    window.location.href = `${baseUrl}/user/dashboard.html`;
+                    Router.navigate(Router.paths.user.dashboard, true);
                 }
             } catch (error) {
 showError(error.message);
@@ -128,7 +129,7 @@ showError(error.message);
                     <div class="bg-white p-8 rounded-2xl text-red-600 max-w-lg">
                         <h2 class="text-2xl font-bold mb-4">Ошибка авторизации</h2>
                         <p class="text-gray-700 mb-6">${message}</p>
-                        <button onclick="window.location.href='${window.location.origin}/public/index.html'" 
+                        <button onclick="window.location.href='/public'" 
                             class="mt-5 px-5 py-2.5 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors cursor-pointer text-base">
                             Вернуться
                         </button>

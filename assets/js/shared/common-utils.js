@@ -16,7 +16,7 @@ const CommonUtils = {
             window.AuthService.logout();
         } else {
             localStorage.clear();
-            window.location.href = `${window.location.origin}/public/index.html`;
+            window.location.href = `${window.location.origin}/public`;
         }
     },
 
@@ -51,7 +51,6 @@ const CommonUtils = {
         // Если 401 и разрешен retry - пробуем обновить токен
         if (response.status === 401 && retryOnAuth && window.AuthService) {
             try {
-                console.log('[API] Token expired, refreshing...');
                 await window.AuthService.refreshAccessToken();
                 
                 // Обновляем токен в headers и повторяем запрос
@@ -95,12 +94,6 @@ const CommonUtils = {
     },
 
     showAlert(message, type = 'success', container = 'alertContainer') {
-        const alertContainer = document.getElementById(container);
-        if (!alertContainer) {
-            console.log('[Alert] Container not found:', container, message);
-            return;
-        }
-
         // Фильтруем технические ошибки, которые не должны показываться пользователю
         if (type === 'error' && message && (
             message.includes('Cannot set properties of null') ||
@@ -112,35 +105,33 @@ const CommonUtils = {
             return;
         }
 
-        const alertDiv = document.createElement('div');
-        alertDiv.className = `alert alert-${type}`;
-        alertDiv.textContent = message;
-
-        alertContainer.innerHTML = '';
-        alertContainer.appendChild(alertDiv);
-
-        setTimeout(() => {
-            alertDiv.remove();
-        }, 5000);
+        // Используем notificationManager вместо старой системы алертов
+        if (window.notificationManager) {
+            window.notificationManager.showToast(message, type);
+        }
     },
 
     initWebSocket(accountType, eventHandlers = {}) {
         const token = localStorage.getItem('token');
         if (!window.wsManager || !token) return;
 
-        console.log(`[CommonUtils] initWebSocket called: accountType=${accountType}, current state=${window.wsManager.getConnectionState()}`);
-
         const setupHandlers = () => {
-            // Don't clear existing handlers, just add new ones
-            if (!window.wsManager.eventHandlers) {
-                window.wsManager.eventHandlers = {};
-            }
+            // Clear existing handlers for events we're about to register
+            Object.keys(eventHandlers).forEach(eventName => {
+                if (window.wsManager.eventHandlers && window.wsManager.eventHandlers[eventName]) {
+                    // Clear all handlers for this event
+                    window.wsManager.eventHandlers[eventName] = [];
+                }
+            });
 
+            // Register new handlers
             Object.keys(eventHandlers).forEach(eventName => {
                 window.wsManager.on(eventName, (data) => {
+                    // Only call notificationManager once per event
                     if (window.notificationManager) {
                         window.notificationManager.handleWebSocketEvent(data);
                     }
+                    // Call custom handler
                     if (eventHandlers[eventName]) {
                         eventHandlers[eventName](data);
                     }
@@ -154,19 +145,16 @@ const CommonUtils = {
             this.addConnectionStatusIndicator();
         };
 
-        // Check if already connected with same token and type
         if (window.wsManager.ws && 
             window.wsManager.ws.readyState === WebSocket.OPEN &&
             window.wsManager.token === token &&
             window.wsManager.clientType === accountType) {
-            console.log('[CommonUtils] Already connected with same credentials, skipping reconnect');
             setupHandlers();
             return;
         }
 
         // If connecting, just wait and setup handlers
         if (window.wsManager.ws && window.wsManager.ws.readyState === WebSocket.CONNECTING) {
-            console.log('[CommonUtils] WebSocket is connecting, will setup handlers once connected');
             // Wait for connection to complete
             const checkConnection = setInterval(() => {
                 if (window.wsManager.ws.readyState === WebSocket.OPEN) {
@@ -184,7 +172,6 @@ const CommonUtils = {
 
         // If open with different credentials, disconnect first
         if (window.wsManager.ws && window.wsManager.ws.readyState === WebSocket.OPEN) {
-            console.log('[CommonUtils] Disconnecting existing connection before reconnecting');
             window.wsManager.disconnect();
             // Wait for clean disconnect
             setTimeout(() => {

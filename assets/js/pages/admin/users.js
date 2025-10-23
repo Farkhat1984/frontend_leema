@@ -7,7 +7,6 @@ if (!localStorage.getItem('platform')) {
 
 async function loadPageData() {
     try {
-        // Initialize WebSocket for admin
         if (typeof CommonUtils !== 'undefined' && CommonUtils.initWebSocket) {
             CommonUtils.initWebSocket('admin', {
                 'balance.updated': () => { loadUsersStats(); loadUsersList(); }

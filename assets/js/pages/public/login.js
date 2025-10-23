@@ -6,11 +6,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const role = AuthService.getUserRole();
         
         if (accountType === 'shop') {
-            window.location.href = '/shop/index.html';
+            Router.navigate(Router.paths.shop.dashboard);
         } else if (role === 'admin') {
-            window.location.href = '/admin/index.html';
+            Router.navigate(Router.paths.admin.dashboard);
         } else {
-            window.location.href = '/user/dashboard.html';
+            Router.navigate(Router.paths.user.dashboard);
         }
         return;
     }
@@ -44,5 +44,4 @@ function loginWithGoogle(accountType) {
     
     window.location.href = googleAuthUrl;
 }
-
 

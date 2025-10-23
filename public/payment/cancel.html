@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Платеж отменен</title>
+    <script src="/assets/js/tailwind-config.js?v=999.1"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
@@ -15,7 +16,7 @@
             <h1 class="text-3xl font-bold mb-4 text-gray-800">Платеж отменен</h1>
             <p class="text-base text-gray-600 mb-5">Вы отменили платеж. Ваш баланс не был изменен.</p>
             <button class="px-8 py-3 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors mx-2.5 my-2" 
-                onclick="window.location.href='/topup.html'">Попробовать снова</button>
+                onclick="window.location.href = '/shop/billing/topup'">Попробовать снова</button>
             <button class="px-8 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors mx-2.5 my-2" 
                 onclick="goBack()">Вернуться в панель</button>
         </div>
@@ -26,9 +27,9 @@
             const accountType = localStorage.getItem('accountType') || 'user';
 
             if (accountType === 'admin') {
-                window.location.href = '/admin.html';
+                window.location.href = '/admin';
             } else {
-                window.location.href = '/index.html';
+                window.location.href = '/public';
             }
         }
     </script>

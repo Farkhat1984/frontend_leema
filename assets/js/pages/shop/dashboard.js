@@ -6,7 +6,6 @@ if (!localStorage.getItem('platform')) {
 let token = localStorage.getItem('token');
 let accountType = localStorage.getItem('accountType');
 
-
 let shopCurrentPage = 1;
 const shopItemsPerPage = 12;
 let shopAllProducts = [];
@@ -14,24 +13,22 @@ let shopSearchQuery = '';
 let shopSortBy = 'newest';
 let shopStatusFilter = 'all';
 
-
 window.onload = async function () {
 
     if (token && accountType) {
         if (accountType === 'shop') {
             await loadShopDashboard();
         } else if (accountType === 'admin') {
-            window.location.href = `${window.location.origin}/admin/index.html`;
+            Router.navigate(Router.paths.admin.dashboard, true);
         } else if (accountType === 'user') {
-            window.location.href = `${window.location.origin}/user/dashboard.html`;
+            Router.navigate(Router.paths.user.dashboard, true);
         } else {
-            window.location.href = `${window.location.origin}/public/index.html`;
+            Router.redirectToAuth();
         }
     } else {
-        window.location.href = `${window.location.origin}/public/index.html`;
+        Router.redirectToAuth();
     }
 };
-
 
 async function loginWithGoogle(accountType = 'user') {
     try {
@@ -43,7 +40,6 @@ async function loginWithGoogle(accountType = 'user') {
 
         const response = await fetch(`${API_URL}/api/v1/auth/google/url?${params.toString()}`);
         const data = await response.json();
-
 
         localStorage.setItem('requestedAccountType', accountType);
         window.location.href = data.authorization_url;
@@ -68,13 +64,10 @@ function formatImageUrl(imageUrl) {
     return fullUrl;
 }
 
-
-
-
 async function loadShopDashboard() {
 
     if (window.location.pathname.includes('/admin/')) {
-        window.location.href = `${window.location.origin}/public/index.html`;
+        Router.redirectToAuth();
         return;
     }
     
@@ -106,19 +99,20 @@ async function loadShopDashboard() {
 
         const shopInfo = await apiRequest('/api/v1/shops/me');
         
-        // Check if shop is approved (for old shops, is_approved might be null - treat as approved)
-        if (shopInfo.is_approved === false) {
+        // Check shop approval status
+        // If not approved, redirect to registration page to complete/check status
+        if (shopInfo.is_approved !== true) {
+            // Shop is not approved - could be pending or rejected
+            // Redirect to /shop/register to show appropriate status
             window.location.href = '/shop/register.html';
             return;
         }
         
-        // For old shops without is_approved field or is_approved=null, treat as approved (backward compatibility)
-        // Only redirect if explicitly set to false
+        // Shop is approved - continue loading dashboard
         const shopNameEl = document.getElementById('shopName');
         const shopAvatarEl = document.getElementById('shopAvatar');
         if (shopNameEl) shopNameEl.textContent = shopInfo.shop_name;
         if (shopAvatarEl) shopAvatarEl.textContent = shopInfo.shop_name[0].toUpperCase();
-
 
         const profileShopNameEl = document.getElementById('profileShopName');
         const profileEmailEl = document.getElementById('profileEmail');
@@ -126,7 +120,6 @@ async function loadShopDashboard() {
         if (profileShopNameEl) profileShopNameEl.value = shopInfo.shop_name;
         if (profileEmailEl) profileEmailEl.value = shopInfo.email;
         if (profileDescriptionEl) profileDescriptionEl.value = shopInfo.description || '';
-
 
         const analytics = await apiRequest('/api/v1/shops/me/analytics');
         const totalProductsEl = document.getElementById('totalProducts');
@@ -138,18 +131,14 @@ async function loadShopDashboard() {
         if (totalViewsEl) totalViewsEl.textContent = analytics.total_views;
         if (totalTryOnsEl) totalTryOnsEl.textContent = analytics.total_try_ons;
 
-
         const shopBalanceEl = document.getElementById('shopBalance');
         const shopTotalEarningsEl = document.getElementById('shopTotalEarnings');
         if (shopBalanceEl) shopBalanceEl.textContent = `$${shopInfo.balance.toFixed(2)}`;
         if (shopTotalEarningsEl) shopTotalEarningsEl.textContent = `$${analytics.total_revenue || 0}`;
 
-
         await loadShopTransactions();
 
-
         await loadActiveRents();
-
 
         await loadShopProducts();
     } catch (error) {
@@ -158,7 +147,6 @@ async function loadShopDashboard() {
 }
 
 async function loadShopProducts() {
-
 
     const container = document.getElementById('productsList');
     if (!container) {
@@ -193,12 +181,9 @@ async function loadShopProducts() {
 function renderShopProductsPage() {
     const container = document.getElementById('productsList');
 
-
     if (!container) {
         return;
     }
-
-
 
     let filteredProducts = [...shopAllProducts];
     
@@ -261,48 +246,40 @@ function renderShopProductsPage() {
             imageUrl = formatImageUrl(product.images[0]);
         }
         
-        const createdDate = new Date(product.created_at).toLocaleDateString('ru-RU', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
+        const statusClass = product.moderation_status === 'approved' ? 'product-status-approved' : 
+                           product.moderation_status === 'rejected' ? 'product-status-rejected' : 
+                           'product-status-pending';
+        const statusText = product.moderation_status === 'pending' ? 'На модерации' : 
+                          product.moderation_status === 'approved' ? 'Одобрен' : 'Отклонен';
 
         return `
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow flex flex-col" style="max-height: 280px; max-width: 80%;">
-                <!-- Секция 1: Изображение -->
-                <div class="relative w-full bg-gray-50 overflow-hidden flex items-center justify-center" style="height: 120px;">
-                    ${imageUrl ? `<img src="${imageUrl}" alt="${product.name}" loading="lazy" class="w-full h-full object-contain" onerror="this.parentElement.innerHTML='<div class=&quot;flex items-center justify-center h-full text-gray-400&quot;><i class=&quot;fas fa-image text-2xl&quot;></i></div>'">` : '<div class="flex items-center justify-center h-full text-gray-400"><i class="fas fa-image text-2xl"></i></div>'}
+            <div class="product-card">
+                <!-- Product Image with 4:5 Aspect Ratio -->
+                <div class="product-image-container">
+                    ${product.moderation_status ? `<div class="product-status ${statusClass}">${statusText}</div>` : ''}
+                    ${imageUrl ? 
+                        `<img src="${imageUrl}" alt="${product.name}" class="product-image" loading="lazy" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=&quot;product-image-placeholder&quot;><i class=&quot;fas fa-image&quot;></i></div>'">` : 
+                        '<div class="product-image-placeholder"><i class="fas fa-image"></i></div>'
+                    }
                 </div>
                 
-                <!-- Секция 2: Информация о товаре -->
-                <div class="p-2 flex-1 flex flex-col space-y-1" style="min-height: 0;">
-                    <div>
-                        <div class="font-semibold text-xs text-gray-900 line-clamp-1">${product.name || 'Без названия'}</div>
-                    </div>
-                    
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs text-gray-500">Цена</span>
-                        <div class="text-purple-600 font-bold text-sm">$${product.price ? product.price.toFixed(2) : '0.00'}</div>
-                    </div>
-                    
-                    <div class="flex-1 overflow-hidden">
-                        <div class="text-xs text-gray-700 line-clamp-1">
-                            ${product.description || 'Нет описания'}
-                        </div>
+                <!-- Product Info -->
+                <div class="product-info">
+                    <h3 class="product-title">${product.name || 'Без названия'}</h3>
+                    <p class="product-description">${product.description || 'Нет описания'}</p>
+                    <div class="mt-auto">
+                        <div class="product-price">$${product.price ? product.price.toFixed(2) : '0.00'}</div>
                     </div>
                 </div>
                 
-                <!-- Секция 3: Статус -->
-                <div class="px-2 pb-1">
-                    <span class="inline-block px-1.5 py-0.5 text-xs font-medium rounded ${product.moderation_status === 'approved' ? 'bg-green-100 text-green-800' : product.moderation_status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}">
-                        ${product.moderation_status === 'pending' ? 'На модерации' : product.moderation_status === 'approved' ? 'Одобрен' : 'Отклонен'}
-                    </span>
-                </div>
-                
-                <!-- Секция 4: Действия -->
-                <div class="px-2 pb-2 flex gap-1">
-                    <button class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-1.5 py-1 rounded text-xs font-medium transition-colors" onclick="openEditProduct(${product.id})">Изменить</button>
-                    <button class="flex-1 bg-red-100 hover:bg-red-200 text-red-700 px-1.5 py-1 rounded text-xs font-medium transition-colors" onclick="deleteProduct(${product.id})">Удалить</button>
+                <!-- Product Actions -->
+                <div class="product-actions">
+                    <button class="product-action-btn product-action-btn-secondary" onclick="openEditProduct(${product.id})">
+                        <i class="fas fa-edit mr-1"></i>Изменить
+                    </button>
+                    <button class="product-action-btn product-action-btn-danger" onclick="deleteProduct(${product.id})">
+                        <i class="fas fa-trash mr-1"></i>Удалить
+                    </button>
                 </div>
             </div>
         `;
@@ -361,7 +338,6 @@ async function updateShopProfile() {
         await apiRequest('/api/v1/shops/me', 'PUT', data);
         showAlert('Профиль успешно обновлен', 'success');
 
-
         const shopInfo = await apiRequest('/api/v1/shops/me');
         const shopNameEl = document.getElementById('shopName');
         const shopAvatarEl = document.getElementById('shopAvatar');
@@ -394,7 +370,6 @@ async function createProduct() {
             return;
         }
 
-
         let imageUrls = null;
         const fileInput = document.getElementById('productImages');
 
@@ -413,7 +388,6 @@ async function createProduct() {
                 body: formData
             });
 
-
             if (!uploadResponse.ok) {
                 const errorText = await uploadResponse.text();
                 throw new Error('Ошибка загрузки изображений: ' + errorText);
@@ -422,7 +396,6 @@ async function createProduct() {
             const uploadData = await uploadResponse.json();
             imageUrls = uploadData.urls.join(',');
         }
-
 
         const formData = new FormData();
         formData.append('name', name);
@@ -435,7 +408,6 @@ async function createProduct() {
             formData.append('image_urls', imageUrls);
         }
 
-
         const response = await fetch(`${API_URL}/api/v1/products/`, {
             method: 'POST',
             headers: {
@@ -445,7 +417,6 @@ async function createProduct() {
             body: formData
         });
 
-
         if (!response.ok) {
             const errorText = await response.text();
             throw new Error('Ошибка создания товара: ' + errorText);
@@ -453,7 +424,7 @@ async function createProduct() {
 
         const createdProduct = await response.json();
 
-        showAlert('Товар успешно создан и отправлен на модерацию', 'success');
+        // Не показываем уведомление здесь - WebSocket отправит событие product.created
         closeAddProductModal();
         await loadShopProducts();
     } catch (error) {
@@ -469,7 +440,6 @@ async function openEditProduct(productId) {
         document.getElementById('editProductName').value = product.name;
         document.getElementById('editProductDescription').value = product.description || '';
         document.getElementById('editProductPrice').value = product.price;
-
 
         window.currentProductImages = product.images || [];
         updateCurrentImagesDisplay();
@@ -487,7 +457,6 @@ function closeEditProductModal() {
 async function updateProduct() {
     try {
         const productId = document.getElementById('editProductId').value;
-
 
         let newImageUrls = [];
         const fileInput = document.getElementById('editProductImages');
@@ -514,10 +483,7 @@ async function updateProduct() {
             newImageUrls = uploadData.urls;
         }
 
-
         const allImages = [...(window.currentProductImages || []), ...newImageUrls];
-
-
 
         const data = {
             name: document.getElementById('editProductName').value,
@@ -526,9 +492,8 @@ async function updateProduct() {
             images: allImages
         };
 
-
         await apiRequest(`/api/v1/products/${productId}`, 'PUT', data);
-        showAlert('Товар успешно обновлен', 'success');
+        // Не показываем уведомление здесь - WebSocket отправит событие product.updated
         closeEditProductModal();
         await loadShopProducts();
     } catch (error) {
@@ -541,11 +506,7 @@ function removeProductImage(index) {
         return;
     }
 
-
-
     window.currentProductImages.splice(index, 1);
-
-
 
     updateCurrentImagesDisplay();
 
@@ -560,7 +521,6 @@ function updateCurrentImagesDisplay() {
         currentImagesDiv.innerHTML = '<p style="color: #999; font-size: 14px;">Изображений нет</p>';
         return;
     }
-
 
     const imagesHTML = window.currentProductImages.map((img, idx) => {
         const imageUrl = formatImageUrl(img);
@@ -606,10 +566,11 @@ window.deleteProduct = async function(productId) {
     }
 
     try {
-        await apiRequest(`/api/v1/products/${productId}`, 'DELETE');
-        showAlert('Товар успешно удален', 'success');
+        const response = await apiRequest(`/api/v1/products/${productId}`, 'DELETE');
+        // Не показываем уведомление здесь - WebSocket отправит событие product.deleted
         await loadShopProducts();
     } catch (error) {
+        console.error('[DELETE] Error deleting product:', error);
         showAlert('Ошибка удаления товара: ' + error.message, 'error');
     }
 };
@@ -759,13 +720,10 @@ async function topUpShopBalance() {
     }
 }
 
-
-
 let wsInitialized = false;
 
 function initShopWebSocket() {
     if (wsInitialized) {
-        console.log('[SHOP] WebSocket already initialized');
         return;
     }
 
@@ -775,12 +733,10 @@ function initShopWebSocket() {
             const state = window.wsManager.ws.readyState;
             // CONNECTING = 0, OPEN = 1, CLOSING = 2, CLOSED = 3
             if (state === WebSocket.OPEN || state === WebSocket.CONNECTING) {
-                console.log('[SHOP] WebSocket already active, skipping init');
                 return;
             }
         }
 
-        console.log('[SHOP] Initializing WebSocket connection');
         window.wsManager.connect(token, 'shop');
 
         // WebSocket handlers are set up in CommonUtils.initWebSocket above
@@ -797,7 +753,6 @@ function initShopWebSocket() {
 
         wsInitialized = true;
     } else {
-        console.log('[SHOP] WebSocket manager or token not available');
     }
 }
 
@@ -805,9 +760,7 @@ function updateConnectionStatus(state) {
     const indicator = document.getElementById('wsConnectionStatus');
     if (!indicator) return;
 
-
     indicator.className = 'ws-status';
-
 
     switch (state) {
         case 'connected':
@@ -827,7 +780,6 @@ function updateConnectionStatus(state) {
     }
 }
 
-
 const originalLogout = logout;
 logout = function() {
     if (window.wsManager) {
@@ -835,7 +787,6 @@ logout = function() {
     }
     originalLogout();
 };
-
 
 function handleShopSearch() {
     const input = document.getElementById('shopSearchInput');
@@ -863,7 +814,6 @@ function handleShopStatusFilter() {
         renderShopProductsPage();
     }
 }
-
 
 window.loginWithGoogle = loginWithGoogle;
 window.logout = logout;

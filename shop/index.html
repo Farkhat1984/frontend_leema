@@ -7,12 +7,11 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Shop Dashboard - Fashion AI Platform</title>
+    <script src="/assets/js/tailwind-config.js?v=999.1"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css?v=999.0">
-    <!-- Redesigned with Tailwind CSS v2.0 -->
 </head>
 <body class="bg-gray-50">
-    <!-- Navigation -->
     <nav class="bg-white shadow-sm border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
@@ -30,7 +29,7 @@
                         </button>
                     </div>
                     <div class="flex items-center space-x-3">
-                        <div class="text-right">
+                        <div class="text-right hidden sm:block">
                             <p class="text-sm font-medium text-gray-900" id="shopName">My Shop</p>
                             <p class="text-xs text-gray-500">Shop Owner</p>
                         </div>
@@ -43,19 +42,8 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Header -->
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">
-                <i class="fas fa-tachometer-alt text-purple-600 mr-3"></i>Shop Dashboard
-            </h1>
-            <p class="text-gray-600">Welcome back! Here's an overview of your shop performance.</p>
-        </div>
-
-        <!-- Statistics Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- Total Products -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <div class="flex items-center justify-between">
                     <div>
@@ -68,7 +56,6 @@
                 </div>
             </div>
 
-            <!-- Active Products -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <div class="flex items-center justify-between">
                     <div>
@@ -81,7 +68,6 @@
                 </div>
             </div>
 
-            <!-- Total Views -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <div class="flex items-center justify-between">
                     <div>
@@ -94,7 +80,6 @@
                 </div>
             </div>
 
-            <!-- Try-ons -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <div class="flex items-center justify-between">
                     <div>
@@ -108,56 +93,40 @@
             </div>
         </div>
 
-        <!-- Quick Actions -->
-        <div class="mb-8">
-            <h2 class="text-lg font-semibold text-gray-900 mb-4">
-                <i class="fas fa-bolt text-purple-600 mr-2"></i>Quick Actions
-            </h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <a href="./products/index.html" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-                    <div class="flex items-center space-x-4">
-                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-box text-purple-600 text-xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-semibold text-gray-900">Products</h3>
-                            <p class="text-sm text-gray-500">Manage your products</p>
-                        </div>
-                    </div>
-                </a>
-                <a href="./orders/index.html" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-                    <div class="flex items-center space-x-4">
-                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-shopping-cart text-blue-600 text-xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-semibold text-gray-900">Orders</h3>
-                            <p class="text-sm text-gray-500">View customer orders</p>
-                        </div>
-                    </div>
-                </a>
-                <a href="./profile/index.html" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-                    <div class="flex items-center space-x-4">
-                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-user-cog text-green-600 text-xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-semibold text-gray-900">Profile</h3>
-                            <p class="text-sm text-gray-500">Shop settings</p>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </div>
-
-        <!-- Shop Management -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
             <h2 class="text-lg font-semibold text-gray-900 mb-4">
                 <i class="fas fa-tools text-purple-600 mr-2"></i>Shop Management
             </h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <a href="./analytics/index.html" class="flex items-center p-4 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200">
-                    <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center mr-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <a href="/shop/products" class="flex items-center p-4 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200">
+                    <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                        <i class="fas fa-box text-purple-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-gray-900">Products</h3>
+                        <p class="text-sm text-gray-500">Manage your products</p>
+                    </div>
+                </a>
+                <a href="/shop/orders" class="flex items-center p-4 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200">
+                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                        <i class="fas fa-shopping-cart text-blue-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-gray-900">Orders</h3>
+                        <p class="text-sm text-gray-500">View customer orders</p>
+                    </div>
+                </a>
+                <a href="/shop/profile" class="flex items-center p-4 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200">
+                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                        <i class="fas fa-user-cog text-green-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-gray-900">Profile</h3>
+                        <p class="text-sm text-gray-500">Shop settings</p>
+                    </div>
+                </a>
+                <a href="/shop/analytics" class="flex items-center p-4 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200">
+                    <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
                         <i class="fas fa-chart-line text-indigo-600"></i>
                     </div>
                     <div>
@@ -165,8 +134,8 @@
                         <p class="text-sm text-gray-500">Performance insights</p>
                     </div>
                 </a>
-                <a href="./reports/index.html" class="flex items-center p-4 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200">
-                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                <a href="/shop/reports" class="flex items-center p-4 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200">
+                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
                         <i class="fas fa-file-invoice-dollar text-green-600"></i>
                     </div>
                     <div>
@@ -174,7 +143,7 @@
                         <p class="text-sm text-gray-500">Sales & commissions</p>
                     </div>
                 </a>
-                <a href="./billing/index.html" class="flex items-center p-4 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200">
+                <a href="/shop/billing" class="flex items-center p-4 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200">
                     <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
                         <i class="fas fa-credit-card text-purple-600"></i>
                     </div>
@@ -183,8 +152,8 @@
                         <p class="text-sm text-gray-500">Payments & balance</p>
                     </div>
                 </a>
-                <a href="./customers/index.html" class="flex items-center p-4 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200">
-                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                <a href="/shop/customers" class="flex items-center p-4 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200">
+                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
                         <i class="fas fa-users text-blue-600"></i>
                     </div>
                     <div>
@@ -192,8 +161,8 @@
                         <p class="text-sm text-gray-500">Customer list</p>
                     </div>
                 </a>
-                <a href="./reviews/index.html" class="flex items-center p-4 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200">
-                    <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center mr-4">
+                <a href="/shop/reviews" class="flex items-center p-4 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200">
+                    <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
                         <i class="fas fa-star text-yellow-600"></i>
                     </div>
                     <div>
@@ -201,8 +170,8 @@
                         <p class="text-sm text-gray-500">Customer feedback</p>
                     </div>
                 </a>
-                <a href="./notifications/index.html" class="flex items-center p-4 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200">
-                    <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mr-4">
+                <a href="/shop/notifications" class="flex items-center p-4 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200">
+                    <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
                         <i class="fas fa-bell text-red-600"></i>
                     </div>
                     <div>
@@ -214,8 +183,10 @@
         </div>
     </div>
 
+    <script defer src="../assets/js/core/router.js?v=999"></script>
     <script defer src="../assets/js/core/config.js?v=999"></script>
     <script defer src="../assets/js/core/auth.js?v=999"></script>
+    <script defer src="../assets/js/core/unified-alerts.js?v=1000"></script>
     <script defer src="../assets/js/core/websocket.js?v=999"></script>
     <script defer src="../assets/js/core/notifications.js?v=999"></script>
     <script defer src="../assets/js/shared/lazy-loader.js?v=999"></script>
@@ -228,18 +199,8 @@
         function logout() {
             localStorage.removeItem('token');
             localStorage.removeItem('userRole');
-            window.location.href = '../index.html';
+            window.location.href = '/shop';
         }
-
-        // Set mock data if scripts don't load
-        setTimeout(() => {
-            if (document.getElementById('totalProducts').textContent === '0') {
-                document.getElementById('totalProducts').textContent = '45';
-                document.getElementById('activeProducts').textContent = '38';
-                document.getElementById('totalViews').textContent = '1,234';
-                document.getElementById('totalTryOns').textContent = '567';
-            }
-        }, 1000);
     </script>
 </body>
 </html>

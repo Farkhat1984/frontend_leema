@@ -6,112 +6,60 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Центр уведомлений - Fashion AI Platform</title>
-    <script src="../../assets/js/core/config.js?v=999"></script>
+    <!-- Version: 1003 - Fixed navigation and redirects -->
+    <script src="/assets/js/tailwind-config.js?v=999.1"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../../assets/js/core/router.js"></script>
+    <script src="../../assets/js/core/config.js?v=999"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .shop-container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 2rem 1rem;
-        }
-        .notifications-header {
-            margin-bottom: 2rem;
-        }
-        .notifications-header h1 {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
-        .notifications-header p {
-            color: #666;
-        }
-        .notification-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        .notification-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            margin-bottom: 1rem;
-            transition: all 0.2s;
-            border-left: 4px solid #e5e7eb;
-        }
-        .notification-card:hover {
-            transform: translateX(4px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        .notification-card.unread {
-            background: #faf5ff;
-            border-left-color: #7c3aed;
-        }
-        .notification-card.priority {
-            border-left-color: #ef4444;
-        }
-        .notification-card.order {
-            border-left-color: #3b82f6;
-        }
-        .notification-card.review {
-            border-left-color: #f59e0b;
-        }
-        .notification-card.system {
-            border-left-color: #10b981;
-        }
-        .filter-container {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-        }
-        .filter-btn {
-            padding: 0.5rem 1rem;
-            background: white;
-            border: 2px solid #e5e7eb;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .filter-btn:hover, .filter-btn.active {
-            background: #7c3aed;
-            color: white;
-            border-color: #7c3aed;
-        }
-        .action-btn {
-            padding: 0.5rem 1rem;
-            background: #7c3aed;
-            color: white;
-            border-radius: 0.5rem;
-            border: none;
-            cursor: pointer;
-            font-size: 0.875rem;
-        }
-        .action-btn:hover {
-            background: #6d28d9;
-        }
-        .action-btn.secondary {
-            background: #e5e7eb;
-            color: #374151;
-        }
-        .action-btn.secondary:hover {
-            background: #d1d5db;
-        }
-        #notificationsContainer {
-            min-height: 200px;
-        }
-        .loading {
-            text-align: center;
-            padding: 3rem;
-            color: #666;
-        }
-        .empty-state {
-            text-align: center;
-            padding: 3rem;
-            color: #666;
-        }
+        /* Minimal custom styles - rest is Tailwind */
+        .shop-container { max-width: 1280px; margin: 0 auto; padding: 2rem 1rem; }
+        .notification-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        
+        .settings-panel { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+        .settings-panel h3 { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; }
+        .setting-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid #e5e7eb; }
+        .setting-item:last-child { border-bottom: none; }
+        .setting-info h4 { font-weight: 600; margin-bottom: 0.25rem; }
+        .setting-info p { font-size: 0.875rem; color: #6b7280; }
+        
+        .toggle-switch { position: relative; display: inline-block; width: 48px; height: 24px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #d1d5db; transition: .3s; border-radius: 24px; }
+        .toggle-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+        .toggle-switch input:checked + .toggle-slider { background-color: #7c3aed; }
+        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(24px); }
+        
+        .notification-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 1rem; transition: all 0.2s; border-left: 4px solid #e5e7eb; cursor: pointer; position: relative; }
+        .notification-card:hover { transform: translateX(4px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .notification-card.unread { background: #faf5ff; border-left-color: #7c3aed; }
+        .notification-card.unread .unread-indicator { position: absolute; top: 1rem; right: 1rem; width: 10px; height: 10px; background: #7c3aed; border-radius: 50%; }
+        .notification-card.priority { border-left-color: #ef4444; }
+        .notification-card.order { border-left-color: #3b82f6; }
+        .notification-card.review { border-left-color: #f59e0b; }
+        .notification-card.balance { border-left-color: #10b981; }
+        .notification-icon { font-size: 1.5rem; margin-right: 1rem; }
+        .notification-title { font-weight: 600; margin-bottom: 0.5rem; }
+        .notification-message { color: #6b7280; margin-bottom: 0.5rem; }
+        .notification-meta { display: flex; gap: 0.5rem; flex-wrap: wrap; font-size: 0.875rem; }
+        .notification-time { color: #9ca3af; }
+        .notification-badge { padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 600; }
+        .badge-priority { background: #fee2e2; color: #dc2626; }
+        .badge-new { background: #ddd6fe; color: #7c3aed; }
+        
+        .filter-btn { padding: 0.5rem 1rem; background: white; border: 2px solid #e5e7eb; border-radius: 0.5rem; cursor: pointer; transition: all 0.2s; font-size: 0.875rem; }
+        .filter-btn:hover, .filter-btn.active { background: #7c3aed; color: white; border-color: #7c3aed; }
+        
+        .mark-all-read { padding: 0.5rem 1rem; background: #7c3aed; color: white; border-radius: 0.5rem; border: none; cursor: pointer; font-size: 0.875rem; transition: background 0.2s; }
+        .mark-all-read:hover { background: #6d28d9; }
+        .mark-all-read:disabled { background: #d1d5db; cursor: not-allowed; }
+        
+        .spinner { border: 3px solid #f3f4f6; border-top: 3px solid #7c3aed; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 1rem; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .toast-notification { position: fixed; bottom: 2rem; right: 2rem; background: #1f2937; color: white; padding: 1rem 1.5rem; border-radius: 0.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transform: translateY(200%); transition: transform 0.3s; z-index: 1000; }
+        .toast-notification.show { transform: translateY(0); }
     </style>
 </head>
 
@@ -120,53 +68,35 @@
     <nav class="bg-white shadow-sm border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
-                <div class="flex items-center space-x-8">
-                    <div class="flex items-center">
-                        <i class="fas fa-store text-purple-600 text-2xl mr-3"></i>
-                        <span class="text-xl font-bold text-gray-900">Shop Panel</span>
-                    </div>
-                </div>
                 <div class="flex items-center space-x-4">
-                    <div class="flex items-center space-x-3">
-                        <button onclick="logout()" class="text-gray-600 hover:text-gray-900">
-                            <i class="fas fa-sign-out-alt text-xl"></i>
-                        </button>
-                    </div>
+                    <h1 class="text-xl font-bold text-gray-900">Центр уведомлений</h1>
+                </div>
+                <div>
+                    <a href="/shop" class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors">
+                        <i class="fas fa-home mr-2"></i>
+                        Вернуться на главную
+                    </a>
                 </div>
             </div>
         </div>
     </nav>
 
     <div class="shop-container">
-        <!-- Back Button -->
-        <div class="mb-6">
-            <a href="../index.html" class="inline-flex items-center space-x-2 text-purple-600 hover:text-purple-700 font-medium transition-colors group" style="text-decoration: none;">
-                <i class="fas fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
-                <span>Вернуться на главную</span>
-            </a>
-        </div>
-
-        <!-- Page Header -->
-        <div class="notifications-header">
-            <h1>🔔 Центр уведомлений</h1>
-            <p>Все важные события вашего магазина в одном месте</p>
-        </div>
-
         <!-- Statistics -->
         <div class="notification-stats">
             <div class="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl p-6 text-white shadow-lg">
                 <h3>Всего уведомлений</h3>
                 <div class="text-3xl font-bold mb-2" id="totalNotifications">0</div>
             </div>
-            <div class="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl p-6 text-white shadow-lg" style="border-left-color: #667eea;">
+            <div class="bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl p-6 text-white shadow-lg">
                 <h3>Непрочитанные</h3>
                 <div class="text-3xl font-bold mb-2" id="unreadCount">0</div>
             </div>
-            <div class="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl p-6 text-white shadow-lg" style="border-left-color: #10b981;">
+            <div class="bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl p-6 text-white shadow-lg">
                 <h3>Сегодня</h3>
                 <div class="text-3xl font-bold mb-2" id="todayCount">0</div>
             </div>
-            <div class="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl p-6 text-white shadow-lg" style="border-left-color: #ef4444;">
+            <div class="bg-gradient-to-br from-red-600 to-rose-600 rounded-xl p-6 text-white shadow-lg">
                 <h3>Высокий приоритет</h3>
                 <div class="text-3xl font-bold mb-2" id="priorityCount">0</div>
             </div>
@@ -249,12 +179,12 @@
         </div>
 
         <!-- Pagination -->
-        <div class="flex justify-center items-center space-x-2 mt-6" id="pagination" style="display: none;">
-            <button id="prevPage" onclick="changePage(-1)">← Назад</button>
-            <span class="page-info">
+        <div class="hidden justify-center items-center space-x-2 mt-6" id="pagination">
+            <button id="prevPage" onclick="changePage(-1)" class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50">← Назад</button>
+            <span class="page-info text-gray-600">
                 Страница <span id="currentPage">1</span> из <span id="totalPages">1</span>
             </span>
-            <button id="nextPage" onclick="changePage(1)">Вперёд →</button>
+            <button id="nextPage" onclick="changePage(1)" class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50">Вперёд →</button>
         </div>
     </div>
 
@@ -289,8 +219,7 @@
 
         // Authentication check
         if (!shopToken) {
-            console.warn('No shop token found');
-        }
+            }
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
@@ -326,12 +255,13 @@
             if (filteredNotifications.length === 0) {
                 container.innerHTML = `
                     <div class="text-center py-16 px-8">
-                        <div style="font-size: 64px;">🔔</div>
-                        <h3>Нет уведомлений</h3>
-                        <p>${currentFilter === 'unread' ? 'Все уведомления прочитаны' : 'У вас пока нет уведомлений'}</p>
+                        <div class="text-6xl">🔔</div>
+                        <h3 class="text-xl font-semibold mt-4 mb-2">Нет уведомлений</h3>
+                        <p class="text-gray-600">${currentFilter === 'unread' ? 'Все уведомления прочитаны' : 'У вас пока нет уведомлений'}</p>
                     </div>
                 `;
-                document.getElementById('pagination').style.display = 'none';
+                document.getElementById('pagination').classList.add('hidden');
+                document.getElementById('pagination').classList.remove('flex');
                 return;
             }
 
@@ -350,7 +280,8 @@
             document.getElementById('totalPages').textContent = totalPages;
             document.getElementById('prevPage').disabled = currentPage === 1;
             document.getElementById('nextPage').disabled = currentPage === totalPages;
-            document.getElementById('pagination').style.display = 'flex';
+            document.getElementById('pagination').classList.remove('hidden');
+            document.getElementById('pagination').classList.add('flex');
         }
 
         // Create notification card HTML
@@ -374,7 +305,7 @@
                      onclick="markAsRead('${notif.id}')">
                     ${isUnread ? '<div class="unread-indicator"></div>' : ''}
                     <div class="notification-header">
-                        <div style="display: flex; align-items: flex-start; flex: 1;">
+                        <div class="flex items-start flex-1">
                             <span class="notification-icon">${icon}</span>
                             <div class="notification-content">
                                 <h4 class="notification-title">${escapeHtml(notif.title)}</h4>
@@ -410,9 +341,9 @@
             if (navBadge) {
                 if (unread > 0) {
                     navBadge.textContent = unread > 99 ? '99+' : unread;
-                    navBadge.style.display = 'inline-block';
+                    navBadge.classList.remove('hidden');
                 } else {
-                    navBadge.style.display = 'none';
+                    navBadge.classList.add('hidden');
                 }
             }
 
@@ -513,7 +444,6 @@
         // WebSocket setup
         function setupWebSocket() {
             if (!shopToken) {
-                console.log('No shop token, skipping WebSocket connection');
                 return;
             }
 
@@ -521,8 +451,7 @@
             ws = new WebSocket(`${wsUrl}?token=${shopToken}`);
 
             ws.onopen = () => {
-                console.log('WebSocket connected');
-            };
+                };
 
             ws.onmessage = (event) => {
                 try {
@@ -538,7 +467,6 @@
             };
 
             ws.onclose = () => {
-                console.log('WebSocket disconnected');
                 // Don't auto-reconnect in dev mode
             };
         }
@@ -636,9 +564,9 @@
         function playNotificationSound() {
             const sound = document.getElementById('notificationSound');
             if (sound) {
-                sound.play().catch(e => console.log('Sound play failed (sound file not available):', e));
+                sound.play().catch(e => console.error('Ошибка воспроизведения звука:', e));
             } else {
-                console.log('Sound notification disabled (no sound file)');
+                console.warn('Элемент звука уведомления не найден');
             }
         }
 
@@ -697,10 +625,9 @@
 
         function logout() {
             localStorage.removeItem('shop_token');
-            window.location.href = '../index.html';
+            window.location.href = '/shop';
         }
     </script>
-    <script defer src="../../assets/js/shared/navigation.js?v=1001"></script>
 </body>
 
 </html>

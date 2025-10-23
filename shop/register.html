@@ -7,7 +7,9 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Shop Registration - Fashion AI Platform</title>
+    <script src="/assets/js/tailwind-config.js?v=999.1"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="../assets/js/core/unified-alerts.js?v=1000"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gradient-to-br from-purple-50 via-white to-pink-50 min-h-screen">
@@ -289,7 +291,7 @@
             try {
                 const token = AuthService.getToken();
                 if (!token) {
-                    window.location.href = '/';
+                    window.location.href = '/public';
                     return;
                 }
 
@@ -305,21 +307,29 @@
                     // Hide loading
                     document.getElementById('loadingState').classList.add('hidden');
 
-                    // For backward compatibility: if is_approved is null or undefined, treat as approved (old shops)
-                    // Only check approval status if it's explicitly set
-                    if (shopData.is_approved === true || shopData.is_approved === null || shopData.is_approved === undefined) {
-                        // Redirect to shop dashboard
-                        window.location.href = '/shop/index.html';
+                    // Check if shop is approved
+                    if (shopData.is_approved === true) {
+                        // Approved - redirect to shop dashboard
+                        window.location.href = '/shop';
+                        return;
+                    }
+
+                    // Check if required fields are filled
+                    const hasRequiredData = shopData.phone && shopData.address && shopData.description;
+
+                    if (!hasRequiredData) {
+                        // Required data missing - show registration form to fill
+                        showRegistrationForm();
                     } else if (shopData.rejection_reason) {
-                        // Show rejected status
+                        // Application was rejected - show rejection status
                         showRejectedStatus(shopData.rejection_reason);
                     } else {
-                        // Show pending status (is_approved === false but no rejection_reason)
+                        // Application submitted and pending review
                         showPendingStatus();
                     }
                 } else if (response.status === 404) {
-                    // Shop not found - should not happen but show form
-                    showRegistrationForm();
+                    // Shop not found - should not happen with shop token
+                    showAlert('Shop account not found. Please contact support.', 'error');
                     document.getElementById('loadingState').classList.add('hidden');
                 } else {
                     throw new Error('Failed to fetch shop status');
@@ -378,15 +388,9 @@
 
             try {
                 const token = AuthService.getToken();
-                const formData = {
-                    shop_name: document.getElementById('shopName').value.trim(),
-                    owner_name: document.getElementById('ownerName').value.trim(),
-                    phone: document.getElementById('phone').value.trim(),
-                    address: document.getElementById('address').value.trim(),
-                    description: document.getElementById('description').value.trim()
-                };
-
-                // Upload avatar if provided
+                
+                // Upload avatar first if provided
+                let avatarUrl = null;
                 const avatarFile = document.getElementById('avatar').files[0];
                 if (avatarFile) {
                     const avatarFormData = new FormData();
@@ -402,11 +406,25 @@
 
                     if (avatarResponse.ok) {
                         const avatarData = await avatarResponse.json();
-                        formData.avatar_url = avatarData.url;
+                        avatarUrl = avatarData.url;
                     }
                 }
 
-                // Update shop info
+                // Prepare update data
+                const formData = {
+                    shop_name: document.getElementById('shopName').value.trim(),
+                    owner_name: document.getElementById('ownerName').value.trim(),
+                    phone: document.getElementById('phone').value.trim(),
+                    address: document.getElementById('address').value.trim(),
+                    description: document.getElementById('description').value.trim()
+                };
+
+                // Add avatar URL if uploaded
+                if (avatarUrl) {
+                    formData.avatar_url = avatarUrl;
+                }
+
+                // Update shop info - this submits for approval
                 const response = await fetch(`${API_URL}/api/v1/shops/me`, {
                     method: 'PUT',
                     headers: {
@@ -417,7 +435,7 @@
                 });
 
                 if (response.ok) {
-                    showAlert('Application submitted successfully! Please wait for approval.', 'success');
+                    showAlert('Application submitted successfully! Our team will review it within 1-2 business days.', 'success');
                     setTimeout(() => {
                         checkStatus();
                     }, 2000);
@@ -435,6 +453,13 @@
 
         // Show alert
         function showAlert(message, type = 'info') {
+            // Use unified alert system
+            if (window.showAlert) {
+                window.showAlert(message, type);
+                return;
+            }
+            
+            // Fallback for compatibility
             const alertContainer = document.getElementById('alertContainer');
             const colors = {
                 success: 'bg-green-50 border-green-200 text-green-800',

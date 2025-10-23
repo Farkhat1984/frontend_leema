@@ -5,8 +5,13 @@
     <!-- Redesigned with Tailwind CSS -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Возвраты - Admin Panel</title>
+    <script src="/assets/js/tailwind-config.js?v=999.1"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="../../assets/js/core/unified-alerts.js?v=1000"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../../assets/css/alerts.css?v=1">
     <style type="text/tailwindcss">
@@ -23,55 +28,51 @@
 <body>
     <div class="min-h-screen bg-gray-50">
         <div class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
-            <h1>👨‍💼 Admin Panel</h1>
+            <div class="flex items-center justify-between max-w-7xl mx-auto">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-xl font-bold text-gray-900">Управление возвратами</h1>
+                </div>
+                <div>
+                    <a href="/admin" class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors">
+                        <i class="fas fa-home mr-2"></i>
+                        Вернуться на главную
+                    </a>
+                </div>
+            </div>
         </div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <!-- Alert Container -->
             <div id="alertContainer"></div>
 
-            <!-- Back Button -->
-            <div class="mb-6">
-                <a href="/admin/index.html" class="inline-flex items-center space-x-2 text-purple-600 hover:text-purple-700 font-medium transition-colors group" style="text-decoration: none;">
-                    <i class="fas fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
-                    <span>Вернуться на главную</span>
-                </a>
-            </div>
-
-            <!-- Admin Header -->
-            <div class="admin-header">
-                <h1>💰 Управление возвратами</h1>
-                <p>Обработка запросов на возврат средств</p>
-            </div>
-
             <!-- Statistics -->
-            <div class="stats-grid">
-                <div class="stat-card warning">
-                    <h3>⏳ Ожидают обработки</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl p-6 text-white shadow-lg">
+                    <h3 class="text-lg font-semibold mb-2">⏳ Ожидают обработки</h3>
                     <div class="text-3xl font-bold mb-2" id="statRequested">0</div>
                     <div class="text-sm opacity-90">Требуют внимания</div>
                 </div>
-                <div class="stat-card success">
-                    <h3>✅ Одобрено</h3>
+                <div class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl p-6 text-white shadow-lg">
+                    <h3 class="text-lg font-semibold mb-2">✅ Одобрено</h3>
                     <div class="text-3xl font-bold mb-2" id="statApproved">0</div>
                     <div class="text-sm opacity-90">Успешных возвратов</div>
                 </div>
-                <div class="stat-card danger">
-                    <h3>❌ Отклонено</h3>
+                <div class="bg-gradient-to-br from-red-500 to-pink-600 rounded-xl p-6 text-white shadow-lg">
+                    <h3 class="text-lg font-semibold mb-2">❌ Отклонено</h3>
                     <div class="text-3xl font-bold mb-2" id="statRejected">0</div>
                     <div class="text-sm opacity-90">Отказов</div>
                 </div>
                 <div class="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl p-6 text-white shadow-lg">
-                    <h3>💵 Общая сумма</h3>
+                    <h3 class="text-lg font-semibold mb-2">💵 Общая сумма</h3>
                     <div class="text-3xl font-bold mb-2" id="statTotal">$0</div>
                     <div class="text-sm opacity-90">Возвращено клиентам</div>
                 </div>
             </div>
 
             <!-- Filters -->
-            <div class="filters-section">
-                <div class="flex flex-wrap gap-4 mb-6">
-                    <label style="font-weight: 500;">Фильтр по статусу:</label>
+            <div class="bg-white rounded-xl shadow-sm p-6 mb-8 border border-gray-100">
+                <div class="flex flex-wrap gap-4 items-center">
+                    <label class="text-sm font-medium text-gray-700">Фильтр по статусу:</label>
                     <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white" onchange="loadRefunds()">
                         <option value="">Все запросы</option>
                         <option value="requested" selected>⏳ Ожидают обработки</option>
@@ -83,69 +84,77 @@
             </div>
 
             <!-- Loading State -->
-            <div id="loadingState" class="loading" style="display: none;">
-                <p>Загрузка запросов...</p>
+            <div id="loadingState" class="text-center py-12" style="display: none;">
+                <i class="fas fa-spinner fa-spin text-4xl text-purple-600 mb-4"></i>
+                <p class="text-gray-500">Загрузка запросов...</p>
             </div>
 
             <!-- Empty State -->
             <div id="emptyState" class="text-center py-16 px-8" style="display: none;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg class="w-24 h-24 mx-auto mb-4 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="12" r="10"></circle>
                     <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
                     <line x1="9" y1="9" x2="9.01" y2="9"></line>
                     <line x1="15" y1="9" x2="15.01" y2="9"></line>
                 </svg>
-                <h3>Запросов не найдено</h3>
-                <p>На данный момент нет запросов на возврат</p>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Запросов не найдено</h3>
+                <p class="text-gray-500">На данный момент нет запросов на возврат</p>
             </div>
 
             <!-- Refunds Container -->
-            <div class="refunds-container" id="refundsContainer">
+            <div class="grid grid-cols-1 gap-6" id="refundsContainer">
             </div>
         </div>
     </div>
 
     <!-- Approve Modal -->
     <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="approveModal">
-        <div class="modal-content">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4">
             <div class="border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-                <h2>✅ Одобрить возврат</h2>
-                <button class="modal-close" onclick="closeModal('approveModal')">&times;</button>
+                <h2 class="text-xl font-bold text-gray-900">✅ Одобрить возврат</h2>
+                <button class="text-gray-400 hover:text-gray-600 text-2xl w-8 h-8 flex items-center justify-center" onclick="closeModal('approveModal')">&times;</button>
             </div>
             <div class="px-6 py-4">
-                <div class="form-group">
-                    <label>Комментарий администратора (необязательно)</label>
-                    <textarea id="approveNotes" placeholder="Дополнительная информация для пользователя..."></textarea>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Комментарий администратора (необязательно)</label>
+                    <textarea id="approveNotes" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 min-h-[100px]" placeholder="Дополнительная информация для пользователя..."></textarea>
                 </div>
             </div>
-            <div class="modal-actions">
-                <button class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors" onclick="closeModal('approveModal')">Отмена</button>
-                <button class="btn btn-approve" onclick="confirmApprove()">Одобрить возврат</button>
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
+                <button class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors" onclick="closeModal('approveModal')">Отмена</button>
+                <button class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors" onclick="confirmApprove()">Одобрить возврат</button>
             </div>
         </div>
     </div>
 
     <!-- Reject Modal -->
     <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="rejectModal">
-        <div class="modal-content">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4">
             <div class="border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-                <h2>❌ Отклонить возврат</h2>
-                <button class="modal-close" onclick="closeModal('rejectModal')">&times;</button>
+                <h2 class="text-xl font-bold text-gray-900">❌ Отклонить возврат</h2>
+                <button class="text-gray-400 hover:text-gray-600 text-2xl w-8 h-8 flex items-center justify-center" onclick="closeModal('rejectModal')">&times;</button>
             </div>
             <div class="px-6 py-4">
-                <div class="form-group">
-                    <label>Причина отклонения *</label>
-                    <textarea id="rejectNotes" placeholder="Укажите причину отклонения..." required></textarea>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Причина отклонения *</label>
+                    <textarea id="rejectNotes" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 min-h-[100px]" placeholder="Укажите причину отклонения..." required></textarea>
                 </div>
             </div>
-            <div class="modal-actions">
-                <button class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors" onclick="closeModal('rejectModal')">Отмена</button>
-                <button class="btn btn-reject" onclick="confirmReject()">Отклонить запрос</button>
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
+                <button class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors" onclick="closeModal('rejectModal')">Отмена</button>
+                <button class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors" onclick="confirmReject()">Отклонить запрос</button>
             </div>
         </div>
     </div>
 
-    <script src="../../assets/js/config.js"></script>
+    <script defer src="../../assets/js/core/auth.js?v=999"></script>
+    <script src="../../assets/js/core/router.js"></script>
+    <script src="../../assets/js/core/config.js?v=999"></script>
+    <script defer src="../../assets/js/core/websocket.js?v=999"></script>
+    <script defer src="../../assets/js/core/notifications.js?v=999"></script>
+    <script defer src="../../assets/js/shared/lazy-loader.js?v=999"></script>
+    <script defer src="../../assets/js/core/cache.js?v=999"></script>
+    <script defer src="../../assets/js/shared/common-utils.js?v=999"></script>
     <script>
         let refunds = [];
         let currentRefundId = null;
@@ -153,38 +162,12 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', async () => {
-            await checkAuth();
             await loadRefunds();
             connectWebSocket();
         });
 
-        async function checkAuth() {
-            const token = localStorage.getItem('admin_token');
-            if (!token) {
-                window.location.href = '../index.html';
-                return;
-            }
-
-            try {
-                const response = await fetch(`${API_URL}/admin/dashboard`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Not authorized');
-                }
-            } catch (error) {
-                console.error('Auth check failed:', error);
-                localStorage.removeItem('admin_token');
-                localStorage.removeItem('admin_data');
-                window.location.href = '../index.html';
-            }
-        }
-
         async function loadRefunds() {
-            const token = localStorage.getItem('admin_token');
+            const token = localStorage.getItem('token');
             const status = document.getElementById('statusFilter').value;
 
             showLoading();
@@ -193,7 +176,7 @@
                 const params = new URLSearchParams();
                 if (status) params.append('status', status);
 
-                const response = await fetch(`${API_URL}/admin/refunds?${params}`, {
+                const response = await fetch(`${API_URL}/api/v1/admin/refunds?${params}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
@@ -230,57 +213,62 @@
 
         function createRefundCard(refund) {
             const card = document.createElement('div');
-            card.className = 'refund-card';
+            card.className = 'bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow';
 
             const showActions = refund.status === 'requested';
-            const statusClass = `status-${refund.status}`;
-            const statusText = getStatusText(refund.status);
+            const statusConfig = {
+                'requested': { text: '⏳ Ожидает обработки', class: 'bg-yellow-100 text-yellow-800' },
+                'approved': { text: '✅ Одобрено', class: 'bg-green-100 text-green-800' },
+                'rejected': { text: '❌ Отклонено', class: 'bg-red-100 text-red-800' },
+                'completed': { text: '🎉 Завершено', class: 'bg-blue-100 text-blue-800' }
+            };
+            const status = statusConfig[refund.status] || statusConfig['requested'];
 
             card.innerHTML = `
-                <div class="refund-header">
-                    <span class="refund-id">Возврат #${refund.id}</span>
-                    <span class="refund-status ${statusClass}">${statusText}</span>
+                <div class="flex justify-between items-start mb-6">
+                    <span class="text-lg font-semibold text-gray-900">Возврат #${refund.id}</span>
+                    <span class="${status.class} px-3 py-1 rounded-full text-sm font-medium">${status.text}</span>
                 </div>
-                <div class="refund-body">
-                    <div class="refund-info">
-                        <div class="mb-4">
-                            <span class="info-label">Заказ</span>
-                            <span class="info-value">#${refund.order_number || refund.order_id}</span>
+                <div class="space-y-4 mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <span class="text-sm text-gray-500 block mb-1">Заказ</span>
+                            <span class="text-base font-medium text-gray-900">#${refund.order_number || refund.order_id}</span>
                         </div>
-                        <div class="mb-4">
-                            <span class="info-label">Сумма возврата</span>
-                            <span class="info-value refund-amount">$${parseFloat(refund.amount).toFixed(2)}</span>
+                        <div>
+                            <span class="text-sm text-gray-500 block mb-1">Сумма возврата</span>
+                            <span class="text-base font-bold text-green-600">$${parseFloat(refund.amount).toFixed(2)}</span>
                         </div>
-                        <div class="mb-4">
-                            <span class="info-label">Дата запроса</span>
-                            <span class="info-value">${formatDate(refund.created_at)}</span>
+                        <div>
+                            <span class="text-sm text-gray-500 block mb-1">Дата запроса</span>
+                            <span class="text-base font-medium text-gray-900">${formatDate(refund.created_at)}</span>
                         </div>
                         ${refund.processed_at ? `
-                            <div class="mb-4">
-                                <span class="info-label">Дата обработки</span>
-                                <span class="info-value">${formatDate(refund.processed_at)}</span>
+                            <div>
+                                <span class="text-sm text-gray-500 block mb-1">Дата обработки</span>
+                                <span class="text-base font-medium text-gray-900">${formatDate(refund.processed_at)}</span>
                             </div>
                         ` : ''}
                     </div>
                     ${refund.reason ? `
-                        <div class="refund-reason">
-                            <h4>Причина возврата:</h4>
-                            <p>${refund.reason}</p>
+                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                            <h4 class="text-sm font-semibold text-gray-700 mb-2">Причина возврата:</h4>
+                            <p class="text-sm text-gray-600">${refund.reason}</p>
                         </div>
                     ` : ''}
                     ${refund.admin_notes ? `
-                        <div class="refund-reason">
-                            <h4>Комментарий администратора:</h4>
-                            <p>${refund.admin_notes}</p>
+                        <div class="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                            <h4 class="text-sm font-semibold text-purple-700 mb-2">Комментарий администратора:</h4>
+                            <p class="text-sm text-purple-600">${refund.admin_notes}</p>
                         </div>
                     ` : ''}
                 </div>
                 ${showActions ? `
-                    <div class="refund-actions">
-                        <button class="btn btn-approve" onclick="approveRefund(${refund.id})">
+                    <div class="flex gap-3 pt-4 border-t border-gray-200">
+                        <button class="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors" onclick="approveRefund(${refund.id})">
                             ✅ Одобрить
                         </button>
-                        <button class="btn btn-reject" onclick="rejectRefund(${refund.id})">
+                        <button class="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors" onclick="rejectRefund(${refund.id})">
                             ❌ Отклонить
                         </button>
                     </div>
@@ -288,16 +276,6 @@
             `;
 
             return card;
-        }
-
-        function getStatusText(status) {
-            const statusMap = {
-                'requested': '⏳ Ожидает обработки',
-                'approved': '✅ Одобрено',
-                'rejected': '❌ Отклонено',
-                'completed': '🎉 Завершено'
-            };
-            return statusMap[status] || status;
         }
 
         function formatDate(dateString) {
@@ -340,10 +318,10 @@
         }
 
         async function processRefund(action, adminNotes) {
-            const token = localStorage.getItem('admin_token');
+            const token = localStorage.getItem('token');
 
             try {
-                const response = await fetch(`${API_URL}/admin/refunds/${currentRefundId}/process`, {
+                const response = await fetch(`${API_URL}/api/v1/admin/refunds/${currentRefundId}/process`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -434,14 +412,13 @@
         }
 
         function connectWebSocket() {
-            const token = localStorage.getItem('admin_token');
-            const wsUrl = `${WS_URL}/ws?token=${token}&client_type=admin`;
+            const token = localStorage.getItem('token');
+            const wsUrl = `${WS_URL}?token=${token}&client_type=admin`;
 
             ws = new WebSocket(wsUrl);
 
             ws.onopen = () => {
-                console.log('✅ WebSocket connected');
-            };
+                };
 
             ws.onmessage = (event) => {
                 try {
@@ -457,14 +434,11 @@
             };
 
             ws.onclose = () => {
-                console.log('WebSocket disconnected. Reconnecting...');
                 setTimeout(connectWebSocket, 5000);
             };
         }
 
         function handleWebSocketMessage(data) {
-            console.log('WebSocket message:', data);
-
             if (data.event === 'refund.requested') {
                 showSuccess(`🔔 Новый запрос на возврат: заказ #${data.order_number}`);
                 playNotificationSound();
@@ -481,14 +455,7 @@
                 const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVKzn77BdGAg+ltryxnMlBSuBzvLZiTYIG2m98KKbMAcsPJ/Z');
                 audio.play().catch(() => {});
             } catch (error) {
-                console.log('Could not play sound:', error);
-            }
-        }
-
-        function logout() {
-            localStorage.removeItem('admin_token');
-            localStorage.removeItem('admin_data');
-            window.location.href = '../index.html';
+                }
         }
 
         // Close modals on Escape key

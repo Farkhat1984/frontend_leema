@@ -5,8 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Отзывы на товары - Fashion AI Platform</title>
-    <script src="../../assets/js/core/config.js?v=999"></script>
+    <!-- Version: 1003 - Fixed navigation and redirects -->
+    <script src="/assets/js/tailwind-config.js?v=999.1"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../../assets/js/core/router.js"></script>
+    <script src="../../assets/js/core/config.js?v=999"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
 
@@ -515,38 +518,20 @@
     <nav class="bg-white shadow-sm border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
-                <div class="flex items-center space-x-8">
-                    <div class="flex items-center">
-                        <i class="fas fa-store text-purple-600 text-2xl mr-3"></i>
-                        <span class="text-xl font-bold text-gray-900">Shop Panel</span>
-                    </div>
-                </div>
                 <div class="flex items-center space-x-4">
-                    <div class="flex items-center space-x-3">
-                        <button onclick="logout()" class="text-gray-600 hover:text-gray-900">
-                            <i class="fas fa-sign-out-alt text-xl"></i>
-                        </button>
-                    </div>
+                    <h1 class="text-xl font-bold text-gray-900">Отзывы на товары</h1>
+                </div>
+                <div>
+                    <a href="/shop" class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors">
+                        <i class="fas fa-home mr-2"></i>
+                        Вернуться на главную
+                    </a>
                 </div>
             </div>
         </div>
     </nav>
 
     <div class="shop-container">
-        <!-- Back Button -->
-        <div class="mb-6">
-            <a href="../index.html" class="inline-flex items-center space-x-2 text-purple-600 hover:text-purple-700 font-medium transition-colors group" style="text-decoration: none;">
-                <i class="fas fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
-                <span>Вернуться на главную</span>
-            </a>
-        </div>
-
-        <!-- Page Header -->
-        <div class="reviews-header">
-            <h1>⭐ Отзывы на товары</h1>
-            <p>Управляйте отзывами клиентов и отвечайте на них</p>
-        </div>
-
         <!-- Statistics -->
         <div class="reviews-stats">
             <div class="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl p-6 text-white shadow-lg">
@@ -629,7 +614,7 @@
 
     <script>
         const API_BASE = (typeof API_URL !== 'undefined' ? API_URL : 'https://api.leema.kz') + '/api/v1';
-        let shopToken = localStorage.getItem('shop_token');
+        let shopToken = localStorage.getItem('token');
         let currentPage = 1;
         const perPage = 10;
         let allReviews = [];
@@ -639,14 +624,26 @@
 
         // Authentication check
         if (!shopToken) {
-            console.warn('No shop token found');
+            const accountType = localStorage.getItem('accountType');
+            const userRole = localStorage.getItem('userRole');
+            const isShop = accountType === 'shop' || userRole === 'shop';
+            
+            if (!isShop) {
+                if (typeof Router !== 'undefined') {
+                    Router.redirectToAuth();
+                } else {
+                    window.location.href = '/auth.html';
+                }
+            }
         }
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!shopToken) return;
+            
             loadShopInfo();
-            loadProducts();
-            loadReviews();
+            await loadProducts(); // Wait for products to load first
+            await loadReviews();  // Then load reviews
             setupFilters();
             setupWebSocket();
         });
@@ -662,9 +659,20 @@
 
                 if (response.ok) {
                     const shop = await response.json();
-                    document.getElementById('shopName').textContent = shop.name;
+                    const shopNameEl = document.getElementById('shopName');
+                    if (shopNameEl) {
+                        shopNameEl.textContent = shop.name;
+                    }
                 } else if (response.status === 401) {
-                    console.warn('Unauthorized access');
+                    console.error('Unauthorized - token may be expired');
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('userRole');
+                    localStorage.removeItem('accountType');
+                    if (typeof Router !== 'undefined') {
+                        Router.redirectToAuth();
+                    } else {
+                        window.location.href = '/auth.html';
+                    }
                 }
             } catch (error) {
                 console.error('Error loading shop info:', error);
@@ -681,8 +689,12 @@
                 });
 
                 if (response.ok) {
-                    products = await response.json();
+                    const data = await response.json();
+                    products = data.products || data.data || data;
                     populateProductFilter();
+                } else if (response.status === 401) {
+                    console.error('Unauthorized');
+                    logout();
                 }
             } catch (error) {
                 console.error('Error loading products:', error);
@@ -703,20 +715,44 @@
         // Load reviews
         async function loadReviews() {
             try {
-                const response = await fetch(`${API_BASE}/shops/me/reviews`, {
-                    headers: {
-                        'Authorization': `Bearer ${shopToken}`
-                    }
-                });
-
-                if (response.ok) {
-                    allReviews = await response.json();
-                    filteredReviews = [...allReviews];
-                    displayReviews();
-                    updateStatistics();
-                } else {
-                    showError('Failed to load reviews');
+                // First, ensure we have products loaded
+                if (products.length === 0) {
+                    await loadProducts();
                 }
+
+                // Load reviews for all products
+                allReviews = [];
+                
+                for (const product of products) {
+                    try {
+                        const response = await fetch(`${API_BASE}/products/${product.id}/reviews`, {
+                            headers: {
+                                'Authorization': `Bearer ${shopToken}`
+                            }
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            const productReviews = Array.isArray(data) ? data : (data.reviews || data.data || []);
+                            
+                            // Add product info to each review
+                            productReviews.forEach(review => {
+                                review.product_id = product.id;
+                                review.product_name = product.name;
+                                review.product_image = product.images?.[0] || product.image_url;
+                            });
+                            
+                            allReviews.push(...productReviews);
+                        }
+                    } catch (error) {
+                        console.error(`Error loading reviews for product ${product.id}:`, error);
+                    }
+                }
+
+                filteredReviews = [...allReviews];
+                displayReviews();
+                updateStatistics();
+                
             } catch (error) {
                 console.error('Error loading reviews:', error);
                 showError('Error loading reviews');
@@ -927,6 +963,11 @@
                 return;
             }
 
+            // NOTE: Reply functionality not yet implemented on backend
+            showNotification('Reply functionality is coming soon!', 'info');
+            return;
+
+            /* TODO: Uncomment when backend implements reply endpoint
             try {
                 const response = await fetch(`${API_BASE}/reviews/${reviewId}/reply`, {
                     method: 'POST',
@@ -940,6 +981,9 @@
                 if (response.ok) {
                     showNotification('Reply sent successfully!', 'success');
                     loadReviews(); // Reload to show updated data
+                } else if (response.status === 401) {
+                    console.error('Unauthorized');
+                    logout();
                 } else {
                     const error = await response.json();
                     showNotification(error.message || 'Failed to send reply', 'error');
@@ -948,6 +992,7 @@
                 console.error('Error submitting reply:', error);
                 showNotification('Error submitting reply', 'error');
             }
+            */
         }
 
         // Pagination
@@ -965,7 +1010,6 @@
         // WebSocket setup
         function setupWebSocket() {
             if (!shopToken) {
-                console.log('No shop token, skipping WebSocket connection');
                 return;
             }
 
@@ -973,8 +1017,7 @@
             ws = new WebSocket(`${wsUrl}?token=${shopToken}`);
 
             ws.onopen = () => {
-                console.log('WebSocket connected');
-            };
+                };
 
             ws.onmessage = (event) => {
                 try {
@@ -990,7 +1033,6 @@
             };
 
             ws.onclose = () => {
-                console.log('WebSocket disconnected');
                 // Don't auto-reconnect in dev mode
             };
         }
@@ -1008,9 +1050,7 @@
         function playNotificationSound() {
             const sound = document.getElementById('notificationSound');
             if (sound) {
-                sound.play().catch(e => console.log('Sound play failed (sound file not available):', e));
-            } else {
-                console.log('Sound notification disabled (no sound file)');
+                sound.play().catch(e => console.error('Sound play error:', e));
             }
         }
 
@@ -1067,11 +1107,16 @@
         }
 
         function logout() {
-            localStorage.removeItem('shop_token');
-            window.location.href = '../index.html';
+            localStorage.removeItem('token');
+            localStorage.removeItem('userRole');
+            localStorage.removeItem('accountType');
+            if (typeof Router !== 'undefined') {
+                Router.redirectToAuth();
+            } else {
+                window.location.href = '/auth.html';
+            }
         }
     </script>
-    <script defer src="../../assets/js/shared/navigation.js?v=1001"></script>
 </body>
 
 </html>

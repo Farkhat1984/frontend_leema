@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Руководство по изображениям товаров</title>
+    <script src="/assets/js/tailwind-config.js?v=999.1"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl p-8 mb-8 shadow-lg">
+            <h1 class="text-3xl font-bold mb-2">📸 Руководство по изображениям товаров</h1>
+            <p class="text-purple-100">Как создать идеальные фото для вашего магазина</p>
+        </div>
+
+        <!-- Quick Guide -->
+        <div class="grid md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-xl p-6 shadow-sm border-2 border-green-500">
+                <div class="text-green-600 text-4xl mb-3">✅</div>
+                <h3 class="font-bold text-lg mb-2">Идеальный размер</h3>
+                <p class="text-gray-600 text-sm mb-2">1080 × 1350 пикселей</p>
+                <p class="text-gray-500 text-xs">Соотношение 4:5 (вертикальное)</p>
+            </div>
+            
+            <div class="bg-white rounded-xl p-6 shadow-sm border-2 border-yellow-500">
+                <div class="text-yellow-600 text-4xl mb-3">⚠️</div>
+                <h3 class="font-bold text-lg mb-2">Минимальный размер</h3>
+                <p class="text-gray-600 text-sm mb-2">540 × 675 пикселей</p>
+                <p class="text-gray-500 text-xs">Приемлемо, но не идеально</p>
+            </div>
+            
+            <div class="bg-white rounded-xl p-6 shadow-sm border-2 border-red-500">
+                <div class="text-red-600 text-4xl mb-3">❌</div>
+                <h3 class="font-bold text-lg mb-2">Слишком маленькое</h3>
+                <p class="text-gray-600 text-sm mb-2">Меньше 540 × 675</p>
+                <p class="text-gray-500 text-xs">Будет отклонено</p>
+            </div>
+        </div>
+
+        <!-- Visual Guide -->
+        <div class="bg-white rounded-xl p-8 shadow-sm mb-8">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fas fa-image mr-3 text-purple-600"></i>
+                Визуальное руководство
+            </h2>
+            
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- 4:5 Example -->
+                <div>
+                    <h3 class="font-bold mb-4 text-green-600">✅ Правильно - 4:5</h3>
+                    <div class="bg-gray-100 rounded-lg p-4">
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden mx-auto" style="width: 200px;">
+                            <div class="bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-bold" style="height: 250px;">
+                                <div class="text-center">
+                                    <div class="text-4xl mb-2">4:5</div>
+                                    <div class="text-sm">1080×1350</div>
+                                </div>
+                            </div>
+                            <div class="p-3">
+                                <div class="font-semibold text-sm">Красное платье</div>
+                                <div class="text-purple-600 font-bold">$99.99</div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-3">
+                        <i class="fas fa-check-circle text-green-600 mr-1"></i>
+                        Отлично подходит для мобильных устройств
+                    </p>
+                </div>
+                
+                <!-- Wrong Examples -->
+                <div>
+                    <h3 class="font-bold mb-4 text-red-600">❌ Неправильно</h3>
+                    <div class="space-y-4">
+                        <!-- Square -->
+                        <div class="bg-gray-100 rounded-lg p-3 flex items-center">
+                            <div class="bg-gradient-to-br from-red-400 to-red-600 rounded flex-shrink-0 flex items-center justify-center text-white font-bold" style="width: 80px; height: 80px;">
+                                <div class="text-center text-xs">
+                                    <div>1:1</div>
+                                    <div class="text-[10px]">Квадрат</div>
+                                </div>
+                            </div>
+                            <div class="ml-3 text-sm text-gray-600">
+                                Будет обрезано сверху/снизу
+                            </div>
+                        </div>
+                        
+                        <!-- Landscape -->
+                        <div class="bg-gray-100 rounded-lg p-3 flex items-center">
+                            <div class="bg-gradient-to-br from-red-400 to-red-600 rounded flex-shrink-0 flex items-center justify-center text-white font-bold" style="width: 120px; height: 60px;">
+                                <div class="text-center text-xs">
+                                    <div>16:9</div>
+                                    <div class="text-[10px]">Пейзаж</div>
+                                </div>
+                            </div>
+                            <div class="ml-3 text-sm text-gray-600">
+                                Будет обрезано по бокам
+                            </div>
+                        </div>
+                        
+                        <!-- Too tall -->
+                        <div class="bg-gray-100 rounded-lg p-3 flex items-center">
+                            <div class="bg-gradient-to-br from-red-400 to-red-600 rounded flex-shrink-0 flex items-center justify-center text-white font-bold" style="width: 50px; height: 100px;">
+                                <div class="text-center text-xs">
+                                    <div>9:16</div>
+                                    <div class="text-[10px]">Узкое</div>
+                                </div>
+                            </div>
+                            <div class="ml-3 text-sm text-gray-600">
+                                Будет обрезана нижняя часть
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="bg-white rounded-xl p-8 shadow-sm mb-8">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fas fa-lightbulb mr-3 text-yellow-500"></i>
+                Советы по созданию фото
+            </h2>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="flex items-start">
+                    <div class="bg-purple-100 rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0 mr-3">
+                        <i class="fas fa-camera text-purple-600"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold mb-1">Используйте хорошую камеру</h4>
+                        <p class="text-sm text-gray-600">Современный смартфон или фотоаппарат с разрешением минимум 8 Мп</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start">
+                    <div class="bg-purple-100 rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0 mr-3">
+                        <i class="fas fa-sun text-purple-600"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold mb-1">Хорошее освещение</h4>
+                        <p class="text-sm text-gray-600">Естественный свет или профессиональный софтбокс. Избегайте теней</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start">
+                    <div class="bg-purple-100 rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0 mr-3">
+                        <i class="fas fa-square text-purple-600"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold mb-1">Чистый фон</h4>
+                        <p class="text-sm text-gray-600">Белый или нейтральный фон. Товар должен быть в фокусе</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start">
+                    <div class="bg-purple-100 rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0 mr-3">
+                        <i class="fas fa-expand-arrows-alt text-purple-600"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold mb-1">Оставьте отступы</h4>
+                        <p class="text-sm text-gray-600">Не размещайте товар вплотную к краям - оставьте 5-10% запас</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start">
+                    <div class="bg-purple-100 rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0 mr-3">
+                        <i class="fas fa-mobile-alt text-purple-600"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold mb-1">Вертикальная ориентация</h4>
+                        <p class="text-sm text-gray-600">Снимайте в портретной ориентации (вертикально), а не в пейзажной</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start">
+                    <div class="bg-purple-100 rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0 mr-3">
+                        <i class="fas fa-crosshairs text-purple-600"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold mb-1">Центрируйте товар</h4>
+                        <p class="text-sm text-gray-600">Размещайте товар в центре кадра для лучшего результата</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formats -->
+        <div class="bg-white rounded-xl p-8 shadow-sm mb-8">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fas fa-file-image mr-3 text-blue-600"></i>
+                Поддерживаемые форматы
+            </h2>
+            
+            <div class="grid md:grid-cols-3 gap-4">
+                <div class="border-2 border-green-500 rounded-lg p-4 text-center">
+                    <div class="text-3xl mb-2">📷</div>
+                    <div class="font-bold text-green-600">JPEG / JPG</div>
+                    <div class="text-xs text-gray-500 mt-1">Рекомендуется</div>
+                </div>
+                
+                <div class="border-2 border-green-500 rounded-lg p-4 text-center">
+                    <div class="text-3xl mb-2">🖼️</div>
+                    <div class="font-bold text-green-600">PNG</div>
+                    <div class="text-xs text-gray-500 mt-1">Для прозрачности</div>
+                </div>
+                
+                <div class="border-2 border-green-500 rounded-lg p-4 text-center">
+                    <div class="text-3xl mb-2">✨</div>
+                    <div class="font-bold text-green-600">WebP</div>
+                    <div class="text-xs text-gray-500 mt-1">Современный формат</div>
+                </div>
+            </div>
+            
+            <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p class="text-sm text-yellow-800">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    <strong>Максимальный размер файла:</strong> 5 МБ. Если файл больше, система автоматически оптимизирует его.
+                </p>
+            </div>
+        </div>
+
+        <!-- What happens -->
+        <div class="bg-white rounded-xl p-8 shadow-sm mb-8">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fas fa-magic mr-3 text-pink-600"></i>
+                Что происходит с вашим изображением?
+            </h2>
+            
+            <div class="space-y-4">
+                <div class="flex items-start">
+                    <div class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 mr-4 font-bold">1</div>
+                    <div>
+                        <h4 class="font-semibold mb-1">Анализ</h4>
+                        <p class="text-sm text-gray-600">Система проверяет размер, формат и качество изображения</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start">
+                    <div class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 mr-4 font-bold">2</div>
+                    <div>
+                        <h4 class="font-semibold mb-1">Умная обрезка</h4>
+                        <p class="text-sm text-gray-600">Если формат не 4:5, изображение автоматически обрезается с сохранением важных частей</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start">
+                    <div class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 mr-4 font-bold">3</div>
+                    <div>
+                        <h4 class="font-semibold mb-1">Изменение размера</h4>
+                        <p class="text-sm text-gray-600">Изображение масштабируется до идеального размера 1080×1350 пикселей</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start">
+                    <div class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 mr-4 font-bold">4</div>
+                    <div>
+                        <h4 class="font-semibold mb-1">Оптимизация</h4>
+                        <p class="text-sm text-gray-600">Файл сжимается с сохранением качества для быстрой загрузки</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start">
+                    <div class="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 mr-4 font-bold">✓</div>
+                    <div>
+                        <h4 class="font-semibold mb-1">Готово!</h4>
+                        <p class="text-sm text-gray-600">Вы видите превью и можете загрузить изображение</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quality indicators -->
+        <div class="bg-white rounded-xl p-8 shadow-sm mb-8">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fas fa-award mr-3 text-purple-600"></i>
+                Индикаторы качества
+            </h2>
+            
+            <div class="space-y-4">
+                <div class="flex items-center p-4 bg-green-50 border-2 border-green-500 rounded-lg">
+                    <div class="bg-green-500 text-white px-3 py-1 rounded text-sm font-bold mr-4">HD</div>
+                    <div class="flex-1">
+                        <div class="font-semibold text-green-800">Высокое качество</div>
+                        <div class="text-sm text-green-700">Изображение ≥ 1080×1350 пикселей. Идеально!</div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center p-4 bg-yellow-50 border-2 border-yellow-500 rounded-lg">
+                    <div class="bg-yellow-500 text-gray-800 px-3 py-1 rounded text-sm font-bold mr-4">SD</div>
+                    <div class="flex-1">
+                        <div class="font-semibold text-yellow-800">Среднее качество</div>
+                        <div class="text-sm text-yellow-700">Изображение 540×675 - 1080×1350 пикселей. Приемлемо, но лучше загрузить больше</div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center p-4 bg-red-50 border-2 border-red-500 rounded-lg">
+                    <div class="bg-red-500 text-white px-3 py-1 rounded text-sm font-bold mr-4">!</div>
+                    <div class="flex-1">
+                        <div class="font-semibold text-red-800">Низкое качество</div>
+                        <div class="text-sm text-red-700">Изображение < 540×675 пикселей. Будет отклонено</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl p-8 text-center">
+            <h2 class="text-2xl font-bold mb-4">Готовы начать?</h2>
+            <p class="mb-6 text-purple-100">Загружайте красивые фотографии и увеличивайте продажи!</p>
+            <a href="/shop/products/index.html" class="inline-block bg-white text-purple-600 px-8 py-3 rounded-lg font-bold hover:bg-purple-50 transition-colors">
+                <i class="fas fa-upload mr-2"></i>Загрузить товар
+            </a>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-8 text-center text-gray-500 text-sm">
+            <p>Нужна помощь? <a href="#" class="text-purple-600 hover:underline">Свяжитесь с поддержкой</a></p>
+        </div>
+    </div>
+</body>
+</html>

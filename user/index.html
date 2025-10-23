@@ -2,13 +2,169 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0;url=dashboard.html">
-    <title>Redirecting...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Каталог товаров - Leema</title>
+    <script src="/assets/js/tailwind-config.js?v=999.1"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-gray-50">
+    <div class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-8 py-4 flex justify-between items-center">
+        <div class="text-2xl font-bold">👗 Leema</div>
+        <div>
+            <button onclick="logout()" class="bg-white/20 text-white border border-white px-6 py-2 rounded hover:bg-white/30 transition-colors">Выйти</button>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-8 py-8">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Каталог товаров</h1>
+            <p class="text-gray-600 text-lg">Откройте для себя уникальные предложения от лучших магазинов</p>
+        </div>
+
+        <div id="productsContent">
+            <div class="text-center py-16 text-xl text-indigo-500">Загрузка товаров...</div>
+        </div>
+
+        <div id="paginationContainer" class="flex justify-center items-center gap-4 mt-8 hidden">
+            <button id="prevBtn" onclick="changePage(-1)" class="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">← Назад</button>
+            <span id="pageInfo" class="text-gray-700">Страница 1</span>
+            <button id="nextBtn" onclick="changePage(1)" class="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">Вперед →</button>
+        </div>
+    </div>
+
+    <script src="../assets/js/core/router.js"></script>
+    <script src="../assets/js/core/config.js"></script>
+    <script defer src="../assets/js/core/auth.js"></script>
     <script>
-        window.location.href = 'dashboard.html';
+        let currentPage = 1;
+        const itemsPerPage = 12;
+        let allProducts = [];
+
+        // Проверка авторизации
+        const token = localStorage.getItem('token');
+        const accountType = localStorage.getItem('accountType');
+
+        if (!token) {
+            window.location.href = '/public';
+        } else if (accountType === 'admin') {
+            window.location.href = '/admin';
+        } else if (accountType === 'shop') {
+            window.location.href = '/public';
+        }
+
+        async function loadProducts() {
+            try {
+                const response = await fetch(`${API_URL}/api/v1/products/?skip=0&limit=100`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Ошибка загрузки товаров');
+                }
+
+                const data = await response.json();
+                allProducts = data.products || [];
+                
+                renderProducts();
+            } catch (error) {
+document.getElementById('productsContent').innerHTML = `
+                    <div class="text-center py-16 px-8">
+                        <h3 class="text-gray-600 text-xl mb-2">Ошибка загрузки</h3>
+                        <p class="text-gray-400">${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderProducts() {
+            const container = document.getElementById('productsContent');
+            
+            if (allProducts.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-16 px-8">
+                        <svg class="mx-auto mb-4 text-gray-300" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                        <h3 class="text-gray-600 text-xl mb-2">Товары скоро появятся</h3>
+                        <p class="text-gray-400">Мы работаем над наполнением каталога</p>
+                    </div>
+                `;
+                document.getElementById('paginationContainer').classList.add('hidden');
+                return;
+            }
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const productsToShow = allProducts.slice(startIndex, endIndex);
+            const totalPages = Math.ceil(allProducts.length / itemsPerPage);
+
+            container.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-12">
+                    ${productsToShow.map(product => {
+                        const imageUrl = product.images && product.images.length > 0
+                            ? (product.images[0].startsWith('http') ? product.images[0] : `${API_URL}${product.images[0]}`)
+                            : null;
+
+                        return `
+                            <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+                                <div class="w-full h-72 overflow-hidden bg-gray-100 flex items-center justify-center">
+                                    ${imageUrl
+                                        ? `<img data-src="${imageUrl}" alt="${product.name}" loading="lazy" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<div class=\\'text-gray-400 p-10 text-center\\'>Нет изображения</div>'">`
+                                        : '<div class="text-gray-400 p-10 text-center">Нет изображения</div>'}
+                                </div>
+                                <div class="p-6">
+                                    <div class="text-xl font-semibold text-gray-800 mb-2">${product.name || 'Без названия'}</div>
+                                    <div class="text-gray-600 text-sm mb-4 line-clamp-2">${product.description || ''}</div>
+                                    <div class="text-2xl font-bold text-indigo-500 mb-2">$${product.price ? product.price.toFixed(2) : '0.00'}</div>
+                                    <div class="text-gray-400 text-sm">Магазин: ${product.shop_name || 'Неизвестно'}</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+
+            if (typeof window.lazyLoader !== 'undefined') {
+                setTimeout(() => window.lazyLoader.observeAll('img[data-src]'), 0);
+            }
+
+            // Пагинация
+            if (totalPages > 1) {
+                document.getElementById('paginationContainer').classList.remove('hidden');
+                const pageInfoEl = document.getElementById('pageInfo');
+                if (pageInfoEl) pageInfoEl.textContent = `Страница ${currentPage} из ${totalPages}`;
+                document.getElementById('prevBtn').disabled = currentPage === 1;
+                document.getElementById('nextBtn').disabled = currentPage === totalPages;
+            } else {
+                document.getElementById('paginationContainer').classList.add('hidden');
+            }
+        }
+
+        function changePage(direction) {
+            currentPage += direction;
+            renderProducts();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('accountType');
+            localStorage.removeItem('refresh_token');
+            window.location.href = '/public';
+        }
+
+        // Загрузка при старте
+        document.addEventListener('DOMContentLoaded', function() {
+            // Проверка авторизации
+            if (!AuthService.isAuthenticated()) {
+                window.location.href = '/public';
+                return;
+            }
+            loadProducts();
+        });
     </script>
-    <script defer src="../../assets/js/shared/navigation.js?v=1001"></script>
 </body>
 </html>

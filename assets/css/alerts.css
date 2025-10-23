@@ -1,83 +1,42 @@
-/* Alert styles for Fashion AI Platform */
+/* Modern Unified Alert System for Fashion AI Platform */
+/* This file is now DEPRECATED - using unified-alerts.js with Tailwind classes */
 
+/* Legacy support for old alert containers - hide them */
 .alert {
-    padding: 1rem 1.5rem;
-    border-radius: 0.5rem;
-    margin-bottom: 1rem;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    animation: slideIn 0.3s ease-out;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    display: none !important;
 }
 
-.alert::before {
-    font-family: "Font Awesome 6 Free";
-    font-weight: 900;
-    font-size: 1.25rem;
+#alertContainer:not(#unifiedAlertContainer) {
+    display: none !important;
 }
 
-.alert-success {
-    background-color: #d1fae5;
-    color: #065f46;
-    border: 1px solid #6ee7b7;
+.alert-container:not(#unifiedAlertContainer) {
+    display: none !important;
 }
 
-.alert-success::before {
-    content: "\f058"; /* fa-check-circle */
-    color: #059669;
+/* Ensure unified alert container is always visible and properly positioned */
+#unifiedAlertContainer {
+    display: flex !important;
+    position: fixed !important;
+    top: 80px !important;
+    right: 1rem !important;
+    z-index: 9999 !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    max-width: 28rem !important;
+    pointer-events: none !important;
 }
 
-.alert-error {
-    background-color: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fca5a5;
-}
-
-.alert-error::before {
-    content: "\f06a"; /* fa-exclamation-circle */
-    color: #dc2626;
-}
-
-.alert-info {
-    background-color: #dbeafe;
-    color: #1e40af;
-    border: 1px solid #93c5fd;
-}
-
-.alert-info::before {
-    content: "\f05a"; /* fa-info-circle */
-    color: #3b82f6;
-}
-
-.alert-warning {
-    background-color: #fef3c7;
-    color: #92400e;
-    border: 1px solid #fcd34d;
-}
-
-.alert-warning::before {
-    content: "\f071"; /* fa-exclamation-triangle */
-    color: #f59e0b;
-}
-
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-1rem);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    #unifiedAlertContainer {
+        top: 70px !important;
+        right: 0.5rem !important;
+        max-width: calc(100% - 1rem) !important;
     }
 }
 
-/* Fixed position for alert container (optional) */
-#alertContainer.fixed-alerts {
-    position: fixed;
-    top: 5rem;
-    right: 1rem;
-    z-index: 9999;
-    max-width: 28rem;
+/* Ensure alerts within the unified container are visible */
+#unifiedAlertContainer > * {
+    pointer-events: auto !important;
 }

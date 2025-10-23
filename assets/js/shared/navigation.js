@@ -23,10 +23,10 @@
     // Проверяем, не главная ли это страница
     function isHomePage() {
         const path = window.location.pathname;
-        const homePages = ['/admin/index.html', '/shop/index.html', '/user/index.html', '/', '/index.html'];
+        const homePages = ['/admin/index.html', '/shop/index.html', '/user/index.html', '/', '/index.html', '/admin', '/shop', '/user'];
         
         // Проверяем точное совпадение или если путь заканчивается на '/'
-        return homePages.some(page => path.endsWith(page)) || path.endsWith('/admin/') || path.endsWith('/shop/') || path.endsWith('/user/');
+        return homePages.some(page => path === page || path.endsWith(page)) || path.endsWith('/admin/') || path.endsWith('/shop/') || path.endsWith('/user/');
     }
 
     // Создаём кнопку "Вернуться на главную"
@@ -66,21 +66,38 @@
         }
         
         if (!mainContainer) {
-            console.warn('[Navigation] Main container not found');
             return;
         }
 
-        // Проверяем, нет ли уже кнопки "Назад" или "Вернуться"
-        const existingBackButton = Array.from(document.querySelectorAll('a')).find(a => 
-            a.textContent.includes('Назад') || a.textContent.includes('Вернуться')
+        // Проверяем, нет ли уже кнопки "Назад" или "Вернуться" в header или на странице
+        const existingBackButtons = Array.from(document.querySelectorAll('a')).filter(a => 
+            (a.textContent.includes('Назад') || a.textContent.includes('Вернуться')) &&
+            (a.href.includes('index.html') || a.href.includes('/admin') || a.href.includes('/shop') || a.href.includes('/user'))
         );
         
-        if (existingBackButton && existingBackButton.href.includes('index.html')) {
-            // Обновляем стиль существующей кнопки
-            const parent = existingBackButton.parentElement;
+        // Если кнопка уже есть в header или где-то на странице, не добавляем новую
+        if (existingBackButtons.length > 0) {
+            // Проверяем, есть ли кнопка в header
+            const headerButtons = existingBackButtons.filter(btn => {
+                let parent = btn.parentElement;
+                while (parent) {
+                    if (parent.tagName === 'HEADER') return true;
+                    parent = parent.parentElement;
+                }
+                return false;
+            });
+            
+            // Если кнопка уже есть в header, не добавляем
+            if (headerButtons.length > 0) {
+                return;
+            }
+            
+            // Если кнопка где-то есть (но не в header), обновляем её стиль
+            const firstButton = existingBackButtons[0];
+            const parent = firstButton.parentElement;
             parent.className = 'mb-6';
-            existingBackButton.className = 'inline-flex items-center space-x-2 text-purple-600 hover:text-purple-700 font-medium transition-colors group';
-            existingBackButton.innerHTML = `
+            firstButton.className = 'inline-flex items-center space-x-2 text-purple-600 hover:text-purple-700 font-medium transition-colors group';
+            firstButton.innerHTML = `
                 <i class="fas fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
                 <span>Вернуться на главную</span>
             `;

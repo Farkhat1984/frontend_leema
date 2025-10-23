@@ -5,64 +5,43 @@
 </head>
 <body>
     <h1>WebSocket Connection Test</h1>
-    <button onclick="testConnection()">Test WebSocket</button>
-    <button onclick="disconnect()">Disconnect</button>
-    <pre id="log"></pre>
-
+    <div id="status">Connecting...</div>
+    <div id="log"></div>
+    
     <script>
-        let ws = null;
         const log = document.getElementById('log');
+        const status = document.getElementById('status');
         
-        function logMessage(msg) {
-            console.log(msg);
-            log.textContent += msg + '\n';
-        }
+        // Test token (you need a valid JWT token)
+        const token = 'test_token';
+        const wsUrl = `wss://api.leema.kz/ws?token=${token}&client_type=admin&platform=web`;
         
-        function testConnection() {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                logMessage('❌ No token found in localStorage');
-                return;
-            }
-            
-            if (ws && (ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.OPEN)) {
-                logMessage('⚠️ WebSocket already connecting or connected');
-                return;
-            }
-            
-            const wsUrl = 'wss://api.leema.kz/ws/shop';
-            logMessage(`🔄 Connecting to: ${wsUrl}`);
-            
-            try {
-                ws = new WebSocket(`${wsUrl}?token=${token}`);
-                
-                ws.onopen = (event) => {
-                    logMessage(`✅ Connected! ReadyState: ${ws.readyState}`);
-                };
-                
-                ws.onmessage = (event) => {
-                    logMessage(`📨 Message: ${event.data}`);
-                };
-                
-                ws.onerror = (event) => {
-                    logMessage(`❌ Error: ${JSON.stringify(event)}`);
-                };
-                
-                ws.onclose = (event) => {
-                    logMessage(`🔌 Closed - Code: ${event.code}, Reason: ${event.reason || 'No reason'}, Clean: ${event.wasClean}`);
-                };
-                
-            } catch (error) {
-                logMessage(`❌ Exception: ${error.message}`);
-            }
-        }
+        log.innerHTML += `<p>Connecting to: ${wsUrl}</p>`;
         
-        function disconnect() {
-            if (ws) {
-                logMessage('🛑 Disconnecting...');
-                ws.close();
-                ws = null;
-            }
+        try {
+            const ws = new WebSocket(wsUrl);
+            
+            ws.onopen = () => {
+                status.innerHTML = '<span style="color: green">✓ Connected!</span>';
+                log.innerHTML += '<p style="color: green">WebSocket connection opened!</p>';
+            };
+            
+            ws.onmessage = (event) => {
+                log.innerHTML += `<p>Message: ${event.data}</p>`;
+            };
+            
+            ws.onerror = (error) => {
+                status.innerHTML = '<span style="color: red">✗ Error</span>';
+                log.innerHTML += `<p style="color: red">Error: ${error}</p>`;
+            };
+            
+            ws.onclose = (event) => {
+                status.innerHTML = '<span style="color: orange">Connection closed</span>';
+                log.innerHTML += `<p>Closed with code: ${event.code}, reason: ${event.reason}</p>`;
+            };
+        } catch (error) {
+            status.innerHTML = '<span style="color: red">✗ Failed</span>';
+            log.innerHTML += `<p style="color: red">Exception: ${error.message}</p>`;
         }
     </script>
 </body>

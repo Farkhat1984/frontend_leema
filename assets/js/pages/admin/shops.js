@@ -9,17 +9,14 @@ let currentFilter = 'all';
 
 async function loadPageData() {
     try {
-        // Initialize WebSocket for admin
         if (typeof CommonUtils !== 'undefined' && CommonUtils.initWebSocket) {
             CommonUtils.initWebSocket('admin', {
                 'balance.updated': (data) => {
-                    console.log('[Admin Shops] Received balance.updated event:', data);
                     // Reload shop stats and list when balance is updated
                     loadShopsStats();
                     loadShopsList();
                 },
                 'transaction.completed': (data) => {
-                    console.log('[Admin Shops] Received transaction.completed event:', data);
                     // Reload when transaction is completed
                     loadShopsStats();
                     loadShopsList();
@@ -45,7 +42,6 @@ async function loadShopsStats() {
         if (totalShopsEl) totalShopsEl.textContent = dashboard.total_shops;
         if (totalShopBalanceEl) totalShopBalanceEl.textContent = `$${dashboard.total_shop_balances.toFixed(2)}`;
         
-        // Get actual stats from shops list
         const response = await apiRequest('/api/v1/admin/shops/all');
         const shops = response.shops || [];
         const activeCount = shops.filter(s => s.is_active && s.is_approved).length;
@@ -60,7 +56,6 @@ async function loadShopsStats() {
 function filterShops(filter) {
     currentFilter = filter;
     
-    // Update button states
     const buttons = ['filterAll', 'filterPending', 'filterApproved', 'filterActive'];
     buttons.forEach(btnId => {
         const btn = document.getElementById(btnId);
@@ -173,7 +168,7 @@ async function approveShop(shopId) {
     
     try {
         await apiRequest(`/api/v1/admin/shops/${shopId}/approve`, 'POST', 
-            JSON.stringify({ notes: 'Одобрено администратором' })
+            { notes: 'Одобрено администратором' }
         );
         
         showAlert('Магазин успешно одобрен', 'success');

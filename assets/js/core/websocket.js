@@ -7,14 +7,16 @@ class WebSocketManager {
         this.ws = null;
         this.token = null;
         this.clientType = null;
-        this.reconnectDelay = 1000;
-        this.maxReconnectDelay = 30000;
+        this.reconnectDelay = 5000;
+        this.maxReconnectDelay = 60000;
         this.heartbeatInterval = null;
         this.reconnectTimeout = null;
         this.isConnecting = false;
         this.isManualClose = false;
         this.eventHandlers = {};
         this.connectionStateCallbacks = [];
+        this.reconnectAttempts = 0;
+        this.maxReconnectAttempts = 5;
 
         this.handleOpen = this.handleOpen.bind(this);
         this.handleMessage = this.handleMessage.bind(this);
@@ -28,17 +30,14 @@ class WebSocketManager {
      */
     connect(token, clientType) {
         if (this.isConnecting) {
-            console.log('[WebSocket] Already connecting, skipping...');
             return;
         }
         
         if (this.ws && (this.ws.readyState === WebSocket.CONNECTING || this.ws.readyState === WebSocket.OPEN)) {
-            console.log('[WebSocket] Already connecting or connected');
             return;
         }
 
         if (!token || !clientType) {
-            console.log('[WebSocket] Missing token or clientType');
             return;
         }
 
@@ -48,10 +47,10 @@ class WebSocketManager {
         this.isConnecting = true;
 
         const wsUrl = this.getWebSocketUrl();
-        console.log(`[WebSocket] Connecting to: ${wsUrl}/${clientType}`);
+        const platform = localStorage.getItem('platform') || 'web';
 
         try {
-            this.ws = new WebSocket(`${wsUrl}/${clientType}?token=${token}`);
+            this.ws = new WebSocket(`${wsUrl}?token=${token}&client_type=${clientType}&platform=${platform}`);
 
             this.ws.onopen = this.handleOpen;
             this.ws.onmessage = this.handleMessage;
@@ -82,9 +81,9 @@ class WebSocketManager {
 
     handleOpen() {
         this.isConnecting = false;
-        this.reconnectDelay = 1000;
+        this.reconnectDelay = 5000;
+        this.reconnectAttempts = 0;
 
-        console.log('[WebSocket] Connection opened successfully');
         this.notifyConnectionState('connected');
 
         this.startHeartbeat();
@@ -116,9 +115,6 @@ class WebSocketManager {
     handleClose(event) {
         this.isConnecting = false;
 
-        console.log(`[WebSocket] Connection closed. Code: ${event.code}, Reason: ${event.reason || 'No reason'}`);
-        console.log(`[WebSocket] Was clean: ${event.wasClean}, Client type: ${this.clientType}`);
-
         this.stopHeartbeat();
 
         this.notifyConnectionState('disconnected');
@@ -127,17 +123,17 @@ class WebSocketManager {
         // 1. Закрытие вручную
         // 2. Код ошибки указывает на проблему авторизации или конфигурации (1008, 1002, 1003)
         if (!this.isManualClose && ![1008, 1002, 1003].includes(event.code)) {
-            console.log('[WebSocket] Scheduling reconnect...');
             this.scheduleReconnect();
         } else if ([1008, 1002, 1003].includes(event.code)) {
-            console.log('[WebSocket] Not reconnecting due to auth/config error. Check nginx WebSocket proxy configuration.');
         } else if (this.isManualClose) {
-            console.log('[WebSocket] Connection closed manually, not reconnecting.');
         }
     }
 
     handleError(error) {
-        console.error('[WebSocket] Connection error:', error);
+        // Suppress console error spam for connection issues
+        if (this.reconnectAttempts < this.maxReconnectAttempts) {
+            console.warn('[WebSocket] Connection error, will retry');
+        }
         this.notifyConnectionState('error');
     }
 
@@ -146,13 +142,21 @@ class WebSocketManager {
             return;
         }
 
+        // Stop reconnecting after max attempts
+        if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+            console.warn('[WebSocket] Max reconnection attempts reached. Stopping reconnect.');
+            this.notifyConnectionState('disconnected');
+            return;
+        }
+
+        this.reconnectAttempts++;
         this.notifyConnectionState('reconnecting');
 
         this.reconnectTimeout = setTimeout(() => {
             this.reconnectTimeout = null;
             this.connect(this.token, this.clientType);
 
-            this.reconnectDelay = Math.min(this.reconnectDelay * 2, this.maxReconnectDelay);
+            this.reconnectDelay = Math.min(this.reconnectDelay * 1.5, this.maxReconnectDelay);
         }, this.reconnectDelay);
     }
 
@@ -292,6 +296,8 @@ class WebSocketManager {
     reconnect() {
         this.disconnect();
         this.isManualClose = false;
+        this.reconnectAttempts = 0;
+        this.reconnectDelay = 5000;
 
         setTimeout(() => {
             if (this.token && this.clientType) {

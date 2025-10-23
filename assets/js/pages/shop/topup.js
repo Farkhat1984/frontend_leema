@@ -1,18 +1,12 @@
 let selectedAmount = 0;
 let currentBalanceValue = 0;
 
-
-
-
-
 window.onload = async function () {
 
-
     if (!token) {
-        window.location.href = `${window.location.origin}/index.html`;
+        Router.redirectToAuth();
         return;
     }
-
 
     try {
         if (accountType === 'shop') {
@@ -28,7 +22,7 @@ window.onload = async function () {
             const accountInfoEl = document.getElementById('accountInfo');
             if (accountInfoEl) accountInfoEl.textContent = `Пользователь: ${userInfo.email}`;
         } else {
-            window.location.href = `${window.location.origin}/index.html`;
+            Router.redirectToAuth();
             return;
         }
 
@@ -42,14 +36,11 @@ window.onload = async function () {
 function selectAmount(amount, element) {
     selectedAmount = amount;
 
-
     document.querySelectorAll('.amount-option').forEach(opt => opt.classList.remove('selected'));
-
 
     if (element) {
         element.classList.add('selected');
     }
-
 
     document.getElementById('customAmount').value = '';
 
@@ -60,7 +51,6 @@ function selectCustomAmount() {
     const customValue = parseFloat(document.getElementById('customAmount').value);
     if (!isNaN(customValue) && customValue > 0) {
         selectedAmount = customValue;
-
 
         document.querySelectorAll('.amount-option').forEach(opt => opt.classList.remove('selected'));
 
@@ -103,7 +93,6 @@ async function processPayment() {
             amount: selectedAmount
         });
 
-
         if (payment.approval_url) {
 
             window.location.href = payment.approval_url;
@@ -116,10 +105,5 @@ async function processPayment() {
 }
 
 function goBack() {
-    const baseUrl = window.location.origin;
-    if (accountType === 'admin') {
-        window.location.href = `${baseUrl}/admin/index.html`;
-    } else {
-        window.location.href = `${baseUrl}/index.html`;
-    }
+    Router.goBack();
 }

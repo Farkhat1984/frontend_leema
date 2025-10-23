@@ -6,7 +6,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мои клиенты - Fashion AI Platform</title>
+    <!-- Version: 1003 - Fixed navigation and redirects -->
+    <script src="/assets/js/tailwind-config.js?v=999.1"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="../../assets/js/core/unified-alerts.js?v=1000"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .shop-container {
@@ -91,38 +94,20 @@
     <nav class="bg-white shadow-sm border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
-                <div class="flex items-center space-x-8">
-                    <div class="flex items-center">
-                        <i class="fas fa-store text-purple-600 text-2xl mr-3"></i>
-                        <span class="text-xl font-bold text-gray-900">Shop Panel</span>
-                    </div>
-                </div>
                 <div class="flex items-center space-x-4">
-                    <div class="flex items-center space-x-3">
-                        <button onclick="logout()" class="text-gray-600 hover:text-gray-900">
-                            <i class="fas fa-sign-out-alt text-xl"></i>
-                        </button>
-                    </div>
+                    <h1 class="text-xl font-bold text-gray-900">Управление клиентами</h1>
+                </div>
+                <div>
+                    <a href="/shop" class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors">
+                        <i class="fas fa-home mr-2"></i>
+                        Вернуться на главную
+                    </a>
                 </div>
             </div>
         </div>
     </nav>
 
     <div class="shop-container">
-        <!-- Back Button -->
-        <div class="mb-6">
-            <a href="../index.html" class="inline-flex items-center space-x-2 text-purple-600 hover:text-purple-700 font-medium transition-colors group" style="text-decoration: none;">
-                <i class="fas fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
-                <span>Вернуться на главную</span>
-            </a>
-        </div>
-
-        <!-- Header -->
-        <div class="customers-header">
-            <h1>👥 Управление клиентами</h1>
-            <p>Анализируйте свою клиентскую базу и стройте долгосрочные отношения</p>
-        </div>
-
         <!-- Alert Container -->
         <div id="alertContainer"></div>
 
@@ -190,8 +175,12 @@
         </div>
     </div>
 
-    <script src="../../assets/js/core/config.js"></script>
+    <script src="../../assets/js/core/router.js"></script>
+    <script src="../../assets/js/core/config.js?v=999"></script>
     <script>
+        // Ensure API_URL is defined
+        const API_BASE_URL = (typeof API_URL !== 'undefined' ? API_URL : 'https://api.leema.kz') + '/api/v1';
+        
         // Global variables
         let customers = [];
         let filteredCustomers = [];
@@ -201,6 +190,36 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', async () => {
+            // Check if user is authenticated and is a shop
+            const token = localStorage.getItem('token');
+            const accountType = localStorage.getItem('accountType');
+            const userRole = localStorage.getItem('userRole');
+            
+            if (!token) {
+                if (typeof Router !== 'undefined') {
+                    Router.redirectToAuth();
+                } else {
+                    window.location.href = '/auth.html';
+                }
+                return;
+            }
+            
+            // Check if account type is shop
+            const isShop = accountType === 'shop' || userRole === 'shop';
+            
+            if (!isShop) {
+                if (typeof Router !== 'undefined') {
+                    if (accountType === 'admin' || userRole === 'admin') {
+                        Router.navigate(Router.paths.admin.dashboard, true);
+                    } else {
+                        Router.navigate(Router.paths.user.dashboard, true);
+                    }
+                } else {
+                    window.location.href = '/';
+                }
+                return;
+            }
+            
             await checkAuth();
             await loadCustomers();
             setupEventListeners();
@@ -208,14 +227,13 @@
 
         // Check authentication
         async function checkAuth() {
-            const token = localStorage.getItem('shop_token');
+            const token = localStorage.getItem('token');
             if (!token) {
-                console.warn('No shop token found');
                 return;
             }
 
             try {
-                const response = await fetch(`${API_URL}/api/v1/shops/me`, {
+                const response = await fetch(`${API_BASE_URL}/shops/me`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -226,28 +244,55 @@
                 }
 
                 const data = await response.json();
-                shopId = data.shop.id;
+                // API returns shop data directly, not nested in shop property
+                shopId = data.id || data.shop?.id;
             } catch (error) {
                 console.error('Auth error:', error);
+                // If authentication fails, redirect to login
+                localStorage.removeItem('token');
+                localStorage.removeItem('userRole');
+                localStorage.removeItem('accountType');
+                if (typeof Router !== 'undefined') {
+                    Router.redirectToAuth();
+                } else {
+                    window.location.href = '/auth.html';
+                }
             }
         }
 
         // Load customers from orders
         async function loadCustomers() {
             try {
-                const token = localStorage.getItem('shop_token');
-                const response = await fetch(`${API_URL}/api/v1/shops/me/orders`, {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    console.error('No token found');
+                    return;
+                }
+                
+                const response = await fetch(`${API_BASE_URL}/shops/me/orders`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to load orders');
+                    if (response.status === 401) {
+                        console.error('Unauthorized - token may be expired');
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('userRole');
+                        localStorage.removeItem('accountType');
+                        if (typeof Router !== 'undefined') {
+                            Router.redirectToAuth();
+                        } else {
+                            window.location.href = '/auth.html';
+                        }
+                        return;
+                    }
+                    throw new Error(`Failed to load orders: ${response.status}`);
                 }
 
                 const data = await response.json();
-                const orders = data.orders || [];
+                const orders = data.orders || data.data || [];
 
                 // Aggregate customer data from orders
                 const customerMap = new Map();
@@ -660,29 +705,25 @@
         }
 
         function showAlert(message, type = 'error') {
-            const alertContainer = document.getElementById('alertContainer');
-            const alertHTML = `
-                <div class="alert ${type}">
-                    <span>${type === 'error' ? '❌' : '✅'}</span>
-                    <span>${message}</span>
-                </div>
-            `;
-            alertContainer.innerHTML = alertHTML;
-
-            setTimeout(() => {
-                alertContainer.innerHTML = '';
-            }, 5000);
-        }
+            // Use unified alert system
+            if (window.showAlert) {
+                window.showAlert(message, type);
+                return;
+            }
+            
+            // Fallback for older browsers
+            }
 
         // Logout
         function logout() {
             if (confirm('Вы уверены, что хотите выйти?')) {
-                localStorage.removeItem('shop_token');
-                window.location.href = '../index.html';
+                localStorage.removeItem('token');
+                localStorage.removeItem('userRole');
+                localStorage.removeItem('accountType');
+                window.location.href = '/shop';
             }
         }
     </script>
-    <script defer src="../../assets/js/shared/navigation.js?v=1001"></script>
 </body>
 
 </html>

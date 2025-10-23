@@ -5,9 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мои товары - Fashion AI Platform</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Version: 1003 - Fixed navigation and redirects -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/assets/js/tailwind-config.js?v=999.1"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../../assets/css/alerts.css?v=1">
+    <link rel="stylesheet" href="../../assets/css/product-cards.css?v=2">
+    <script defer src="../../assets/js/core/unified-alerts.js?v=1000"></script>
 </head>
 
 <body class="bg-gray-50">
@@ -15,22 +19,16 @@
     <nav class="bg-white shadow-sm border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
-                <div class="flex items-center space-x-8">
-                    <div class="flex items-center">
-                        <i class="fas fa-store text-purple-600 text-2xl mr-3"></i>
-                        <span class="text-xl font-bold text-gray-900">Shop Panel</span>
-                    </div>
-                </div>
                 <div class="flex items-center space-x-4">
-                    <div class="flex items-center space-x-3">
-                        <div class="text-right">
-                            <p class="text-sm font-medium text-gray-900" id="shopName">My Shop</p>
-                            <p class="text-xs text-gray-500">Shop Owner</p>
-                        </div>
-                        <button onclick="logout()" class="text-gray-600 hover:text-gray-900">
-                            <i class="fas fa-sign-out-alt text-xl"></i>
-                        </button>
-                    </div>
+                    <h1 class="text-xl font-bold text-gray-900">
+                        <i class="fas fa-box text-purple-600 mr-3"></i>Мои товары
+                    </h1>
+                </div>
+                <div>
+                    <a href="/shop" class="inline-flex items-center space-x-2 text-purple-600 hover:text-purple-700 font-medium transition-colors group">
+                        <i class="fas fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
+                        <span>Вернуться на главную</span>
+                    </a>
                 </div>
             </div>
         </div>
@@ -38,22 +36,11 @@
 
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Back Button -->
-        <div class="mb-6">
-            <a href="../index.html" class="inline-flex items-center space-x-2 text-purple-600 hover:text-purple-700 font-medium transition-colors group" style="text-decoration: none;">
-                <i class="fas fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
-                <span>Вернуться на главную</span>
-            </a>
-        </div>
-
         <!-- Alert Container -->
         <div id="alertContainer" class="mb-6"></div>
 
-        <!-- Header with Add Button -->
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-900">
-                <i class="fas fa-box text-purple-600 mr-3"></i>Мои товары
-            </h1>
+        <!-- Add Product Button -->
+        <div class="flex justify-end mb-6">
             <button onclick="openAddProductModal()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2.5 rounded-lg transition-colors">
                 <i class="fas fa-plus mr-2"></i>Добавить товар
             </button>
@@ -87,7 +74,7 @@
         </div>
 
         <!-- Products Grid -->
-        <div id="productsList" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 mb-6"></div>
+        <div id="productsList" class="products-grid mb-6"></div>
 
         <!-- Pagination -->
         <div id="shopPaginationContainer" class="hidden flex justify-center items-center gap-4 mt-8">
@@ -128,13 +115,19 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Изображения товара</label>
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-purple-500 transition-colors cursor-pointer"
+                         onclick="document.getElementById('productImages').click()">
+                        <i class="fas fa-cloud-upload text-4xl text-gray-400 mb-2"></i>
+                        <p class="text-sm text-gray-600 mb-1">Нажмите для выбора изображений</p>
+                        <p class="text-xs text-gray-500">Рекомендуемый размер: 1080x1350px (4:5)</p>
+                        <p class="text-xs text-gray-500">JPEG, PNG, WEBP • Макс 5MB</p>
+                    </div>
                     <input type="file" id="productImages" accept="image/jpeg,image/jpg,image/png,image/webp" multiple
-                           onchange="previewAddProductImages(event)"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                    <small class="text-gray-500 text-sm mt-2 block">Можно выбрать несколько изображений (JPEG, PNG, WEBP)</small>
+                           onchange="previewAddProductImages(event)" class="hidden">
                     
                     <!-- Image Preview -->
-                    <div id="addProductImagePreview" class="mt-3 grid grid-cols-4 gap-2"></div>
+                    <div id="addProductImagePreview" class="image-upload-preview"></div>
+                    <div id="addProductImageWarnings" class="mt-2"></div>
                 </div>
                 <div class="flex gap-3 pt-4">
                     <button onclick="createProduct()" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition-colors font-medium">
@@ -174,16 +167,22 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Изображения товара</label>
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-purple-500 transition-colors cursor-pointer"
+                         onclick="document.getElementById('editProductImages').click()">
+                        <i class="fas fa-cloud-upload text-4xl text-gray-400 mb-2"></i>
+                        <p class="text-sm text-gray-600 mb-1">Нажмите для выбора новых изображений</p>
+                        <p class="text-xs text-gray-500">Рекомендуемый размер: 1080x1350px (4:5)</p>
+                        <p class="text-xs text-gray-500">JPEG, PNG, WEBP • Макс 5MB</p>
+                    </div>
                     <input type="file" id="editProductImages" accept="image/jpeg,image/jpg,image/png,image/webp" multiple
-                           onchange="previewEditProductImages(event)"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                    <small class="text-gray-500 text-sm mt-2 block">Можно выбрать несколько изображений (JPEG, PNG, WEBP). Чтобы удалить изображение, нажмите на крестик ✕</small>
+                           onchange="previewEditProductImages(event)" class="hidden">
                     
                     <!-- Current Images -->
-                    <div id="currentImages" class="mt-3 grid grid-cols-4 gap-2"></div>
+                    <div id="currentImages" class="image-upload-preview"></div>
                     
                     <!-- New Images Preview -->
-                    <div id="editProductImagePreview" class="mt-3 grid grid-cols-4 gap-2"></div>
+                    <div id="editProductImagePreview" class="image-upload-preview"></div>
+                    <div id="editProductImageWarnings" class="mt-2"></div>
                 </div>
                 <div class="flex gap-3 pt-4">
                     <button onclick="updateProduct()" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition-colors font-medium">
@@ -212,15 +211,16 @@
         </div>
     </div>
 
-    <script defer src="../../assets/js/core/config.js?v=1001"></script>
+    <script src="../../assets/js/core/router.js"></script>
+    <script src="../../assets/js/core/config.js?v=1001"></script>
     <script defer src="../../assets/js/core/auth.js?v=1001"></script>
     <script defer src="../../assets/js/core/websocket.js?v=1001"></script>
     <script defer src="../../assets/js/core/notifications.js?v=1001"></script>
     <script defer src="../../assets/js/shared/lazy-loader.js?v=1001"></script>
     <script defer src="../../assets/js/core/cache.js?v=1001"></script>
-    <script defer src="../../assets/js/shared/common-utils.js?v=1001"></script>
-    <script defer src="../../assets/js/shared/navigation.js?v=1001"></script>
-    <script defer src="../../assets/js/pages/shop/dashboard.js?v=1001"></script>
+    <script defer src="../../assets/js/shared/common-utils.js?v=1002"></script>
+    <script src="../../assets/js/utils/image-processor.js?v=1001"></script>
+    <script defer src="../../assets/js/pages/shop/dashboard.js?v=1002"></script>
     <script>
         // Initialize products page on load
         // Используем DOMContentLoaded + небольшую задержку для defer скриптов
@@ -237,7 +237,7 @@
             }
 
             if (!token || accountType !== 'shop') {
-                window.location.href = '../index.html';
+                window.location.href = '/shop';
                 return;
             }
 
@@ -294,53 +294,132 @@
             setTimeout(initProductsPage, 50);
         }
 
-        // Image preview functions
-        function previewAddProductImages(event) {
+        // Image preview functions with processor
+        let processedImages = [];
+        
+        async function previewAddProductImages(event) {
             const preview = document.getElementById('addProductImagePreview');
+            const warnings = document.getElementById('addProductImageWarnings');
             const files = event.target.files;
             preview.innerHTML = '';
+            warnings.innerHTML = '';
+            processedImages = [];
 
             if (files.length === 0) return;
 
+            if (!window.ProductImageProcessor) {
+                console.error('ProductImageProcessor not loaded');
+                showSimplePreview(files, preview);
+                return;
+            }
+
+            const processor = new ProductImageProcessor();
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                
+                try {
+                    const result = await processor.processImage(file, { mode: 'smart' });
+                    processedImages.push(result);
+                    
+                    const div = document.createElement('div');
+                    div.className = 'image-upload-preview-item';
+                    div.innerHTML = `
+                        <img src="${result.preview}" alt="Preview ${i + 1}">
+                        ${result.analysis.qualityLevel === 'hd' ? '<div class="image-quality-badge image-quality-hd">HD</div>' : ''}
+                        ${result.analysis.qualityLevel === 'sd' ? '<div class="image-quality-badge image-quality-sd">SD</div>' : ''}
+                        <button class="image-upload-preview-remove" onclick="removePreviewImage(${i}, 'add')" type="button">✕</button>
+                    `;
+                    preview.appendChild(div);
+                    
+                    if (result.analysis.recommendation.level === 'warning' || result.analysis.recommendation.level === 'info') {
+                        const warning = document.createElement('div');
+                        warning.className = 'aspect-ratio-warning';
+                        warning.innerHTML = `<i class="fas fa-exclamation-triangle"></i><span>${result.analysis.recommendation.message}</span>`;
+                        warnings.appendChild(warning);
+                    }
+                } catch (error) {
+                    console.error('Error processing image:', error);
+                    const div = document.createElement('div');
+                    div.className = 'aspect-ratio-warning';
+                    div.innerHTML = `<i class="fas fa-exclamation-circle"></i><span>Ошибка обработки ${file.name}</span>`;
+                    warnings.appendChild(div);
+                }
+            }
+        }
+
+        async function previewEditProductImages(event) {
+            const preview = document.getElementById('editProductImagePreview');
+            const warnings = document.getElementById('editProductImageWarnings');
+            const files = event.target.files;
+            preview.innerHTML = '';
+            warnings.innerHTML = '';
+            processedImages = [];
+
+            if (files.length === 0) return;
+
+            if (!window.ProductImageProcessor) {
+                console.error('ProductImageProcessor not loaded');
+                showSimplePreview(files, preview);
+                return;
+            }
+
+            const processor = new ProductImageProcessor();
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                
+                try {
+                    const result = await processor.processImage(file, { mode: 'smart' });
+                    processedImages.push(result);
+                    
+                    const div = document.createElement('div');
+                    div.className = 'image-upload-preview-item';
+                    div.innerHTML = `
+                        <img src="${result.preview}" alt="Preview ${i + 1}">
+                        ${result.analysis.qualityLevel === 'hd' ? '<div class="image-quality-badge image-quality-hd">HD</div>' : ''}
+                        ${result.analysis.qualityLevel === 'sd' ? '<div class="image-quality-badge image-quality-sd">SD</div>' : ''}
+                        <button class="image-upload-preview-remove" onclick="removePreviewImage(${i}, 'edit')" type="button">✕</button>
+                    `;
+                    preview.appendChild(div);
+                    
+                    if (result.analysis.recommendation.level === 'warning' || result.analysis.recommendation.level === 'info') {
+                        const warning = document.createElement('div');
+                        warning.className = 'aspect-ratio-warning';
+                        warning.innerHTML = `<i class="fas fa-exclamation-triangle"></i><span>${result.analysis.recommendation.message}</span>`;
+                        warnings.appendChild(warning);
+                    }
+                } catch (error) {
+                    console.error('Error processing image:', error);
+                    const div = document.createElement('div');
+                    div.className = 'aspect-ratio-warning';
+                    div.innerHTML = `<i class="fas fa-exclamation-circle"></i><span>Ошибка обработки ${file.name}</span>`;
+                    warnings.appendChild(div);
+                }
+            }
+        }
+        
+        function showSimplePreview(files, preview) {
             Array.from(files).forEach((file, index) => {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const div = document.createElement('div');
-                    div.className = 'relative group';
-                    div.innerHTML = `
-                        <img src="${e.target.result}" class="w-full h-20 object-contain bg-gray-50 rounded border border-gray-200" alt="Preview ${index + 1}">
-                        <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1 truncate">
-                            ${file.name}
-                        </div>
-                    `;
+                    div.className = 'image-upload-preview-item';
+                    div.innerHTML = `<img src="${e.target.result}" alt="Preview ${index + 1}">`;
                     preview.appendChild(div);
                 };
                 reader.readAsDataURL(file);
             });
         }
-
-        function previewEditProductImages(event) {
-            const preview = document.getElementById('editProductImagePreview');
-            const files = event.target.files;
-            preview.innerHTML = '';
-
-            if (files.length === 0) return;
-
-            Array.from(files).forEach((file, index) => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const div = document.createElement('div');
-                    div.className = 'relative group';
-                    div.innerHTML = `
-                        <img src="${e.target.result}" class="w-full h-20 object-contain bg-gray-50 rounded border border-gray-200" alt="Preview ${index + 1}">
-                        <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1 truncate">
-                            ${file.name}
-                        </div>
-                    `;
-                    preview.appendChild(div);
-                };
-                reader.readAsDataURL(file);
-            });
+        
+        function removePreviewImage(index, type) {
+            processedImages.splice(index, 1);
+            const event = { target: { files: processedImages.map(r => r.file) } };
+            if (type === 'add') {
+                previewAddProductImages(event);
+            } else {
+                previewEditProductImages(event);
+            }
         }
 
         // Expose functions globally

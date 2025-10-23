@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Демонстрация системы изображений 4:5</title>
+    <script src="/assets/js/tailwind-config.js?v=999.1"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/product-cards.css?v=1">
+</head>
+<body class="bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold mb-2">🎨 Демонстрация системы изображений товаров 4:5</h1>
+            <p class="text-gray-600">Примеры карточек товаров с правильным соотношением сторон</p>
+        </div>
+
+        <!-- Info Banner -->
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-8">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-info-circle text-blue-500 text-xl"></i>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-blue-800">О формате 4:5</h3>
+                    <div class="mt-2 text-sm text-blue-700">
+                        <p>Формат 4:5 (1080x1350px) - это стандарт Instagram для вертикальных постов. Идеально подходит для мобильных устройств и модных товаров.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Example Products Grid -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold mb-4">Примеры карточек товаров</h2>
+            <div class="products-grid">
+                <!-- Product 1 -->
+                <div class="product-card">
+                    <div class="product-image-container">
+                        <div class="product-status product-status-approved">✓ Одобрен</div>
+                        <div class="product-image-placeholder">
+                            <i class="fas fa-image"></i>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Красное вечернее платье</h3>
+                        <p class="product-description">Элегантное платье из премиального шелка с изящной драпировкой</p>
+                        <div class="mt-auto">
+                            <div class="product-price">$299.99</div>
+                        </div>
+                    </div>
+                    <div class="product-actions">
+                        <button class="product-action-btn product-action-btn-secondary">
+                            <i class="fas fa-edit mr-1"></i>Изменить
+                        </button>
+                        <button class="product-action-btn product-action-btn-danger">
+                            <i class="fas fa-trash mr-1"></i>Удалить
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Product 2 -->
+                <div class="product-card">
+                    <div class="product-image-container">
+                        <div class="product-status product-status-pending">⏱ На модерации</div>
+                        <div class="product-image-placeholder">
+                            <i class="fas fa-tshirt"></i>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Джинсовая куртка oversized</h3>
+                        <p class="product-description">Стильная куртка в стиле casual с винтажной отделкой</p>
+                        <div class="mt-auto">
+                            <div class="product-price">$149.99</div>
+                        </div>
+                    </div>
+                    <div class="product-actions">
+                        <button class="product-action-btn product-action-btn-secondary">
+                            <i class="fas fa-edit mr-1"></i>Изменить
+                        </button>
+                        <button class="product-action-btn product-action-btn-danger">
+                            <i class="fas fa-trash mr-1"></i>Удалить
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Product 3 -->
+                <div class="product-card">
+                    <div class="product-image-container">
+                        <div class="product-status product-status-approved">✓ Одобрен</div>
+                        <div class="image-quality-badge image-quality-hd">HD</div>
+                        <div class="product-image-placeholder">
+                            <i class="fas fa-shoe-prints"></i>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Кроссовки Nike Air Max</h3>
+                        <p class="product-description">Удобные спортивные кроссовки с амортизацией Air</p>
+                        <div class="mt-auto">
+                            <div class="product-price">$179.99</div>
+                        </div>
+                    </div>
+                    <div class="product-actions">
+                        <button class="product-action-btn product-action-btn-secondary">
+                            <i class="fas fa-edit mr-1"></i>Изменить
+                        </button>
+                        <button class="product-action-btn product-action-btn-danger">
+                            <i class="fas fa-trash mr-1"></i>Удалить
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Product 4 -->
+                <div class="product-card">
+                    <div class="product-image-container">
+                        <div class="product-status product-status-approved">✓ Одобрен</div>
+                        <div class="image-quality-badge image-quality-sd">SD</div>
+                        <div class="product-image-placeholder">
+                            <i class="fas fa-glasses"></i>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Солнцезащитные очки Ray-Ban</h3>
+                        <p class="product-description">Классические очки авиаторы с UV защитой</p>
+                        <div class="mt-auto">
+                            <div class="product-price">$199.99</div>
+                        </div>
+                    </div>
+                    <div class="product-actions">
+                        <button class="product-action-btn product-action-btn-secondary">
+                            <i class="fas fa-edit mr-1"></i>Изменить
+                        </button>
+                        <button class="product-action-btn product-action-btn-danger">
+                            <i class="fas fa-trash mr-1"></i>Удалить
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Product 5 -->
+                <div class="product-card">
+                    <div class="product-image-container">
+                        <div class="product-status product-status-rejected">✗ Отклонен</div>
+                        <div class="product-image-placeholder">
+                            <i class="fas fa-hat-cowboy"></i>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Летняя шляпа</h3>
+                        <p class="product-description">Соломенная шляпа с широкими полями для пляжа</p>
+                        <div class="mt-auto">
+                            <div class="product-price">$49.99</div>
+                        </div>
+                    </div>
+                    <div class="product-actions">
+                        <div class="text-center text-xs text-gray-500 py-2 w-full">
+                            Товар отклонен
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Aspect Ratio Demonstration -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold mb-4">Сравнение соотношений сторон</h2>
+            <div class="grid md:grid-cols-4 gap-4">
+                <!-- 4:5 -->
+                <div class="text-center">
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden mb-2 mx-auto" style="width: 160px;">
+                        <div class="bg-gradient-to-br from-green-400 to-green-600" style="width: 160px; height: 200px; display: flex; align-items: center; justify-content: center; color: white; font-bold;">
+                            4:5<br/>✓ Правильно
+                        </div>
+                    </div>
+                    <div class="text-sm font-semibold text-green-600">1080×1350px</div>
+                    <div class="text-xs text-gray-500">Instagram вертикальный</div>
+                </div>
+
+                <!-- 1:1 -->
+                <div class="text-center">
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden mb-2 mx-auto" style="width: 160px;">
+                        <div class="bg-gradient-to-br from-yellow-400 to-yellow-600" style="width: 160px; height: 160px; display: flex; align-items: center; justify-content: center; color: white; font-bold;">
+                            1:1<br/>Квадрат
+                        </div>
+                    </div>
+                    <div class="text-sm font-semibold text-yellow-600">1080×1080px</div>
+                    <div class="text-xs text-gray-500">Instagram классический</div>
+                </div>
+
+                <!-- 16:9 -->
+                <div class="text-center">
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden mb-2 mx-auto" style="width: 160px;">
+                        <div class="bg-gradient-to-br from-orange-400 to-orange-600" style="width: 160px; height: 90px; display: flex; align-items: center; justify-content: center; color: white; font-bold; font-size: 14px;">
+                            16:9<br/>Пейзаж
+                        </div>
+                    </div>
+                    <div class="text-sm font-semibold text-orange-600">1920×1080px</div>
+                    <div class="text-xs text-gray-500">YouTube, ТВ</div>
+                </div>
+
+                <!-- 9:16 -->
+                <div class="text-center">
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden mb-2 mx-auto" style="width: 90px;">
+                        <div class="bg-gradient-to-br from-red-400 to-red-600" style="width: 90px; height: 160px; display: flex; align-items: center; justify-content: center; color: white; font-bold; font-size: 14px;">
+                            9:16<br/>Узкий<br/>портрет
+                        </div>
+                    </div>
+                    <div class="text-sm font-semibold text-red-600">1080×1920px</div>
+                    <div class="text-xs text-gray-500">Instagram Stories</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <div class="bg-white rounded-xl p-8 shadow-sm mb-8">
+            <h2 class="text-2xl font-bold mb-6">Особенности системы</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="flex items-start">
+                    <div class="bg-purple-100 rounded-lg p-3 mr-4">
+                        <i class="fas fa-magic text-purple-600 text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold mb-1">Автоматическая обработка</h3>
+                        <p class="text-sm text-gray-600">Система автоматически обрезает и масштабирует изображения до правильного формата</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start">
+                    <div class="bg-purple-100 rounded-lg p-3 mr-4">
+                        <i class="fas fa-compress text-purple-600 text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold mb-1">Оптимизация размера</h3>
+                        <p class="text-sm text-gray-600">Сжатие файлов до 40% с сохранением визуального качества</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start">
+                    <div class="bg-purple-100 rounded-lg p-3 mr-4">
+                        <i class="fas fa-mobile-alt text-purple-600 text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold mb-1">Мобильная оптимизация</h3>
+                        <p class="text-sm text-gray-600">Идеальное отображение на всех устройствах от смартфонов до десктопов</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start">
+                    <div class="bg-purple-100 rounded-lg p-3 mr-4">
+                        <i class="fas fa-award text-purple-600 text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold mb-1">Индикаторы качества</h3>
+                        <p class="text-sm text-gray-600">HD/SD badges показывают качество загруженных изображений</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start">
+                    <div class="bg-purple-100 rounded-lg p-3 mr-4">
+                        <i class="fas fa-brain text-purple-600 text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold mb-1">Умная обрезка</h3>
+                        <p class="text-sm text-gray-600">Алгоритм сохраняет важные части изображения при обрезке</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start">
+                    <div class="bg-purple-100 rounded-lg p-3 mr-4">
+                        <i class="fas fa-check-circle text-purple-600 text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold mb-1">Валидация</h3>
+                        <p class="text-sm text-gray-600">Проверка формата, размера и качества перед загрузкой</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Links -->
+        <div class="grid md:grid-cols-3 gap-4">
+            <a href="/shop/products/index.html" class="block bg-purple-600 hover:bg-purple-700 text-white rounded-xl p-6 text-center transition-colors">
+                <i class="fas fa-box text-3xl mb-3"></i>
+                <div class="font-bold">Мои товары</div>
+                <div class="text-sm text-purple-200 mt-1">Загрузить товар</div>
+            </a>
+
+            <a href="/docs/image-guide.html" class="block bg-blue-600 hover:bg-blue-700 text-white rounded-xl p-6 text-center transition-colors">
+                <i class="fas fa-book text-3xl mb-3"></i>
+                <div class="font-bold">Руководство</div>
+                <div class="text-sm text-blue-200 mt-1">Как снимать фото</div>
+            </a>
+
+            <a href="/docs/PRODUCT_IMAGES_GUIDE.md" class="block bg-green-600 hover:bg-green-700 text-white rounded-xl p-6 text-center transition-colors">
+                <i class="fas fa-code text-3xl mb-3"></i>
+                <div class="font-bold">Документация</div>
+                <div class="text-sm text-green-200 mt-1">Для разработчиков</div>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

@@ -26,7 +26,6 @@ const CONFIG = {
         return this.wsUrls[this.environment];
     },
     
-    // Определение платформы на основе User Agent
     getPlatform() {
         const ua = navigator.userAgent;
         return /Android|iPhone|iPad|iPod/i.test(ua) ? 'mobile' : 'web';
@@ -39,16 +38,9 @@ const API_URL = CONFIG.getApiUrl();
 const WS_URL = CONFIG.getWsUrl();
 const PLATFORM = CONFIG.getPlatform();
 
-// КРИТИЧНО: Инициализировать platform НЕМЕДЛЕННО при загрузке config.js
 (function initPlatform() {
     if (!localStorage.getItem('platform')) {
-        const platform = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? 'mobile' : 'web';
+        const platform = CONFIG.getPlatform();
         localStorage.setItem('platform', platform);
-        console.log('[CONFIG] Platform initialized:', platform);
-    }
-    // Если есть token но нет platform - это старая сессия, установить platform
-    if (localStorage.getItem('token') && !localStorage.getItem('platform')) {
-        localStorage.setItem('platform', 'web');
-        console.log('[CONFIG] Platform restored for existing session');
     }
 })();
