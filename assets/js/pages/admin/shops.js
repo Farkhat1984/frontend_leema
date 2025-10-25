@@ -47,7 +47,7 @@ const AdminShopsModule = (function() {
             DOM.totalShops.textContent = dashboard.total_shops;
         }
         if (DOM.totalShopBalance) {
-            DOM.totalShopBalance.textContent = `$${dashboard.total_shop_balances.toFixed(2)}`;
+            DOM.totalShopBalance.textContent = `₸${dashboard.total_shop_balances.toFixed(2)}`;
         }
         
         const activeCount = shops.filter(s => s.is_active && s.is_approved).length;
@@ -133,7 +133,7 @@ const AdminShopsModule = (function() {
                 </td>
                 <td class="px-4 py-3 text-gray-600">${shop.email}</td>
                 <td class="px-4 py-3 text-right">
-                    <span class="font-semibold text-green-600">$${shop.balance.toFixed(2)}</span>
+                    <span class="font-semibold text-green-600">₸${shop.balance.toFixed(2)}</span>
                 </td>
                 <td class="px-4 py-3 text-center">${approvalStatus}</td>
                 <td class="px-4 py-3 text-center">${activeStatus}</td>

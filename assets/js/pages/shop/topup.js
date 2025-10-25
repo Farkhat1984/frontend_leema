@@ -51,7 +51,7 @@ const TopUpModule = (function() {
             DOM.accountInfo.textContent = `${accountInfo.label}: ${accountInfo.name}`;
         }
         if (DOM.currentBalance) {
-            DOM.currentBalance.textContent = `$${state.currentBalance.toFixed(2)}`;
+            DOM.currentBalance.textContent = `₸${state.currentBalance.toFixed(2)}`;
         }
     }
 
@@ -63,7 +63,7 @@ const TopUpModule = (function() {
     }
 
     function updateSummaryDisplay() {
-        const formattedAmount = `$${state.selectedAmount.toFixed(2)}`;
+        const formattedAmount = `₸${state.selectedAmount.toFixed(2)}`;
         if (DOM.summaryAmount) DOM.summaryAmount.textContent = formattedAmount;
         if (DOM.summaryTotal) DOM.summaryTotal.textContent = formattedAmount;
     }

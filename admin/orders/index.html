@@ -8,6 +8,13 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Заказы платформы - Admin Panel</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+
     <script src="/assets/js/tailwind-config.js?v=1003.1"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -79,7 +86,7 @@
                     <h3 class="text-sm font-medium text-gray-600">Общая сумма</h3>
                     <i class="fas fa-dollar-sign text-purple-600 text-xl"></i>
                 </div>
-                <div class="text-3xl font-bold text-purple-600 mb-1" id="statRevenue">$0</div>
+                <div class="text-3xl font-bold text-purple-600 mb-1" id="statRevenue"> ₸0</div>
                 <p class="text-xs text-gray-500">Доход платформы</p>
             </div>
         </div>
@@ -400,7 +407,7 @@
                         </div>
                     </td>
                     <td><span class="order-items">${itemsText}</span></td>
-                    <td><span class="order-amount">$${parseFloat(order.total_amount).toFixed(2)}</span></td>
+                    <td><span class="order-amount">₸${parseFloat(order.total_amount).toFixed(2)}</span></td>
                     <td>${getStatusBadge(order.status)}</td>
                     <td><span class="order-date">${formatDate(order.created_at)}</span></td>
                 `;
@@ -464,7 +471,7 @@
                 document.getElementById('detailOrderNumber').textContent = `#${order.order_number}`;
                 document.getElementById('detailStatus').innerHTML = getStatusBadge(order.status);
                 document.getElementById('detailCreatedAt').textContent = new Date(order.created_at).toLocaleString('ru-RU');
-                document.getElementById('detailTotalAmount').textContent = `$${parseFloat(order.total_amount).toFixed(2)}`;
+                document.getElementById('detailTotalAmount').textContent = `₸${parseFloat(order.total_amount).toFixed(2)}`;
 
                 if (user) {
                     document.getElementById('detailCustomerName').textContent = user.name || 'N/A';
@@ -485,10 +492,10 @@
                             <div class="item-shop">🏪 ${item.shop_name || 'Shop'}</div>
                             <div class="item-meta">
                                 <span>Кол-во: ${item.quantity}</span>
-                                <span>Цена: $${parseFloat(item.price).toFixed(2)}</span>
+                                <span>Цена: ₸${parseFloat(item.price).toFixed(2)}</span>
                             </div>
                         </div>
-                        <div class="item-price">$${parseFloat(item.subtotal).toFixed(2)}</div>
+                        <div class="item-price">₸${parseFloat(item.subtotal).toFixed(2)}</div>
                     `;
                     itemsList.appendChild(itemCard);
                 });
@@ -531,7 +538,7 @@
                 if (!response.ok) throw new Error('Refund failed');
 
                 const result = await response.json();
-                showSuccess(`Возврат выполнен: $${result.refunded_amount}`);
+                showSuccess(`Возврат выполнен: ₸${result.refunded_amount}`);
                 closeModal();
                 await loadOrders();
             } catch (error) {
@@ -562,7 +569,7 @@
             document.getElementById('statTotal').textContent = stats.total;
             document.getElementById('statCompleted').textContent = stats.completed;
             document.getElementById('statProcessing').textContent = stats.processing;
-            document.getElementById('statRevenue').textContent = `$${stats.revenue.toFixed(2)}`;
+            document.getElementById('statRevenue').textContent = `₸${stats.revenue.toFixed(2)}`;
         }
 
         function updatePagination() {

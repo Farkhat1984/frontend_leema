@@ -9,6 +9,13 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Возвраты - Admin Panel</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+
     <script src="/assets/js/tailwind-config.js?v=1003.1"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="../../assets/js/core/unified-alerts.js?v=1000"></script>
@@ -64,7 +71,7 @@
                 </div>
                 <div class="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl p-6 text-white shadow-lg">
                     <h3 class="text-lg font-semibold mb-2">💵 Общая сумма</h3>
-                    <div class="text-3xl font-bold mb-2" id="statTotal">$0</div>
+                    <div class="text-3xl font-bold mb-2" id="statTotal"> ₸0</div>
                     <div class="text-sm opacity-90">Возвращено клиентам</div>
                 </div>
             </div>
@@ -238,7 +245,7 @@
                         </div>
                         <div>
                             <span class="text-sm text-gray-500 block mb-1">Сумма возврата</span>
-                            <span class="text-base font-bold text-green-600">$${parseFloat(refund.amount).toFixed(2)}</span>
+                            <span class="text-base font-bold text-green-600">₸${parseFloat(refund.amount).toFixed(2)}</span>
                         </div>
                         <div>
                             <span class="text-sm text-gray-500 block mb-1">Дата запроса</span>
@@ -374,7 +381,7 @@
             document.getElementById('statRequested').textContent = stats.requested;
             document.getElementById('statApproved').textContent = stats.approved;
             document.getElementById('statRejected').textContent = stats.rejected;
-            document.getElementById('statTotal').textContent = `$${stats.totalAmount.toFixed(2)}`;
+            document.getElementById('statTotal').textContent = `₸${stats.totalAmount.toFixed(2)}`;
         }
 
         function showLoading() {

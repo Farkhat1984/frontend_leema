@@ -159,7 +159,7 @@ const AdminProductsModule = (function() {
                         <i class="fas fa-store mr-1"></i>${product.shop_name || 'Unknown'}
                     </div>
                     <div class="mt-auto">
-                        <div class="product-price">$${product.price ? product.price.toFixed(2) : '0.00'}</div>
+                        <div class="product-price">₸${product.price ? product.price.toFixed(2) : '0.00'}</div>
                     </div>
                 </div>
                 

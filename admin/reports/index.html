@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Financial Reports - Admin Panel</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+
     <script src="/assets/js/tailwind-config.js?v=1003.1"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -103,7 +110,7 @@
                     <span class="text-xs font-semibold px-2 py-1 bg-green-100 text-green-800 rounded-full" id="revenueChange">+0%</span>
                 </div>
                 <h3 class="text-sm text-gray-600 mb-1">Total Platform Revenue</h3>
-                <p class="text-2xl font-bold text-gray-900" id="totalRevenue">$0.00</p>
+                <p class="text-2xl font-bold text-gray-900" id="totalRevenue"> ₸0.00</p>
                 <p class="text-xs text-gray-500 mt-1">Gross sales across all shops</p>
             </div>
 
@@ -116,7 +123,7 @@
                     <span class="text-xs font-semibold px-2 py-1 bg-purple-100 text-purple-800 rounded-full" id="commissionChange">+0%</span>
                 </div>
                 <h3 class="text-sm text-gray-600 mb-1">Commission Earned</h3>
-                <p class="text-2xl font-bold text-gray-900" id="commissionEarned">$0.00</p>
+                <p class="text-2xl font-bold text-gray-900" id="commissionEarned"> ₸0.00</p>
                 <p class="text-xs text-gray-500 mt-1">Platform commission (5%)</p>
             </div>
 
@@ -189,7 +196,7 @@
                             </div>
                         </div>
                         <div class="text-right">
-                            <p class="font-bold text-gray-900" id="paypalRevenue">$0.00</p>
+                            <p class="font-bold text-gray-900" id="paypalRevenue"> ₸0.00</p>
                             <p class="text-sm text-gray-500" id="paypalPercent">0%</p>
                         </div>
                     </div>
@@ -204,7 +211,7 @@
                             </div>
                         </div>
                         <div class="text-right">
-                            <p class="font-bold text-gray-900" id="stripeRevenue">$0.00</p>
+                            <p class="font-bold text-gray-900" id="stripeRevenue"> ₸0.00</p>
                             <p class="text-sm text-gray-500" id="stripePercent">0%</p>
                         </div>
                     </div>
@@ -219,7 +226,7 @@
                             </div>
                         </div>
                         <div class="text-right">
-                            <p class="font-bold text-gray-900" id="cardRevenue">$0.00</p>
+                            <p class="font-bold text-gray-900" id="cardRevenue"> ₸0.00</p>
                             <p class="text-sm text-gray-500" id="cardPercent">0%</p>
                         </div>
                     </div>
@@ -235,7 +242,7 @@
                     <div class="flex items-center justify-between p-4 bg-red-50 rounded-lg">
                         <div>
                             <p class="text-sm text-gray-600">Total Refunded</p>
-                            <p class="text-2xl font-bold text-red-600" id="totalRefunded">$0.00</p>
+                            <p class="text-2xl font-bold text-red-600" id="totalRefunded"> ₸0.00</p>
                         </div>
                         <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
                             <i class="fas fa-undo text-red-600 text-xl"></i>
@@ -253,7 +260,7 @@
                     </div>
                     <div class="p-4 bg-yellow-50 rounded-lg">
                         <p class="text-sm text-gray-600 mb-1">Commission Lost</p>
-                        <p class="text-lg font-bold text-yellow-700" id="commissionLost">$0.00</p>
+                        <p class="text-lg font-bold text-yellow-700" id="commissionLost"> ₸0.00</p>
                         <p class="text-xs text-gray-500 mt-1">From refunded orders</p>
                     </div>
                 </div>
@@ -527,8 +534,8 @@
         }
 
         function updateSummaryCards(summary) {
-            document.getElementById('totalRevenue').textContent = `$${summary.totalRevenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
-            document.getElementById('commissionEarned').textContent = `$${summary.commission.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+            document.getElementById('totalRevenue').textContent = `₸${summary.totalRevenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+            document.getElementById('commissionEarned').textContent = `₸${summary.commission.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
             document.getElementById('totalOrders').textContent = summary.totalOrders.toLocaleString();
             document.getElementById('activeShops').textContent = summary.activeShops.toLocaleString();
             
@@ -622,10 +629,10 @@
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        $${shop.revenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                        ₸${shop.revenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-purple-600">
-                        $${shop.commission.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                        ₸${shop.commission.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         ${shop.orders}
@@ -648,10 +655,10 @@
                         ${month.month} 2025
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        $${month.revenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                        ₸${month.revenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-purple-600">
-                        $${month.commission.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                        ₸${month.commission.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         ${month.orders}
@@ -670,23 +677,23 @@
             const total = methods.paypal.revenue + methods.stripe.revenue + methods.card.revenue;
             
             document.getElementById('paypalOrders').textContent = `${methods.paypal.orders} orders`;
-            document.getElementById('paypalRevenue').textContent = `$${methods.paypal.revenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+            document.getElementById('paypalRevenue').textContent = `₸${methods.paypal.revenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
             document.getElementById('paypalPercent').textContent = `${((methods.paypal.revenue / total) * 100).toFixed(1)}%`;
             
             document.getElementById('stripeOrders').textContent = `${methods.stripe.orders} orders`;
-            document.getElementById('stripeRevenue').textContent = `$${methods.stripe.revenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+            document.getElementById('stripeRevenue').textContent = `₸${methods.stripe.revenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
             document.getElementById('stripePercent').textContent = `${((methods.stripe.revenue / total) * 100).toFixed(1)}%`;
             
             document.getElementById('cardOrders').textContent = `${methods.card.orders} orders`;
-            document.getElementById('cardRevenue').textContent = `$${methods.card.revenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+            document.getElementById('cardRevenue').textContent = `₸${methods.card.revenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
             document.getElementById('cardPercent').textContent = `${((methods.card.revenue / total) * 100).toFixed(1)}%`;
         }
 
         function renderRefundsOverview(refunds) {
-            document.getElementById('totalRefunded').textContent = `$${refunds.total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+            document.getElementById('totalRefunded').textContent = `₸${refunds.total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
             document.getElementById('refundCount').textContent = refunds.count;
             document.getElementById('refundRate').textContent = `${refunds.rate}%`;
-            document.getElementById('commissionLost').textContent = `$${refunds.commissionLost.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+            document.getElementById('commissionLost').textContent = `₸${refunds.commissionLost.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
         }
 
         function renderTransactions() {
@@ -704,10 +711,10 @@
                         ${escapeHtml(tx.shop)}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        $${tx.amount.toFixed(2)}
+                        ₸${tx.amount.toFixed(2)}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-purple-600">
-                        $${tx.commission.toFixed(2)}
+                        ₸${tx.commission.toFixed(2)}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         ${getPaymentMethodBadge(tx.paymentMethod)}

@@ -5,6 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Orders - Fashion AI Platform</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+
     <!-- Version: 1003 - Fixed navigation and redirects -->
     <script src="/assets/js/tailwind-config.js?v=1003.1"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -38,22 +45,22 @@
                 <div class="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl p-6 text-white shadow-lg">
                     <h3>Сегодня</h3>
                     <div class="text-3xl font-bold mb-2" id="todayOrders">0</div>
-                    <div class="text-sm opacity-90" id="todayRevenue">$0.00</div>
+                    <div class="text-sm opacity-90" id="todayRevenue"> ₸0.00</div>
                 </div>
                 <div class="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl p-6 text-white shadow-lg" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
                     <h3>Эта неделя</h3>
                     <div class="text-3xl font-bold mb-2" id="weekOrders">0</div>
-                    <div class="text-sm opacity-90" id="weekRevenue">$0.00</div>
+                    <div class="text-sm opacity-90" id="weekRevenue"> ₸0.00</div>
                 </div>
                 <div class="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl p-6 text-white shadow-lg" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
                     <h3>Этот месяц</h3>
                     <div class="text-3xl font-bold mb-2" id="monthOrders">0</div>
-                    <div class="text-sm opacity-90" id="monthRevenue">$0.00</div>
+                    <div class="text-sm opacity-90" id="monthRevenue"> ₸0.00</div>
                 </div>
                 <div class="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl p-6 text-white shadow-lg" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
                     <h3>Всего</h3>
                     <div class="text-3xl font-bold mb-2" id="totalOrders">0</div>
-                    <div class="text-sm opacity-90" id="totalRevenue">$0.00</div>
+                    <div class="text-sm opacity-90" id="totalRevenue"> ₸0.00</div>
                 </div>
             </div>
 
@@ -173,7 +180,7 @@
 
                 <!-- Итого -->
                 <div style="text-align: right; padding: 20px; background: #f8f9fa; border-radius: 8px; margin-top: 20px;">
-                    <h3 style="margin: 0;">Ваш доход: <span id="modalShopTotal">$0.00</span></h3>
+                    <h3 style="margin: 0;">Ваш доход: <span id="modalShopTotal"> ₸0.00</span></h3>
                     <p style="color: #666; font-size: 14px; margin: 5px 0 0 0;">Сумма за ваши товары в этом заказе</p>
                 </div>
             </div>

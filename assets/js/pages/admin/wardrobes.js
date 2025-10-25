@@ -376,7 +376,8 @@ function renderWardrobeItem(item) {
     const firstImage = item.images && item.images.length > 0 ? item.images[0] : null;
     // Simple SVG placeholder - no 404 errors
     const placeholderSvg = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%23e5e7eb" width="100" height="100"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="40" fill="%239ca3af"%3E👕%3C/text%3E%3C/svg%3E';
-    const imageUrl = firstImage || placeholderSvg;
+    // Prepend API_URL to relative image paths
+    const imageUrl = firstImage ? (firstImage.startsWith('http') ? firstImage : `${API_URL}${firstImage}`) : placeholderSvg;
     
     // Format date
     const date = new Date(item.created_at);
@@ -515,7 +516,7 @@ async function openItemModal(itemId) {
         
         // Fetch item details
         const token = localStorage.getItem('token');
-        const response = await fetch(`${API_URL}${window.API_ENDPOINTS.ADMIN.WARDROBES}?skip=0&limit=100`, {
+        const response = await fetch(`${API_URL}${window.API_ENDPOINTS.ADMIN.WARDROBES}/${itemId}`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
@@ -524,8 +525,7 @@ async function openItemModal(itemId) {
         
         if (!response.ok) throw new Error('Failed to load item');
         
-        const data = await response.json();
-        const item = data.items.find(i => i.id === itemId);
+        const item = await response.json();
         
         if (!item) throw new Error('Item not found');
         
@@ -562,14 +562,17 @@ function renderModalContent(item) {
                 <div>
                     <h4 class="text-sm font-semibold text-gray-900 mb-3">Изображения</h4>
                     <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        ${item.images.map(img => `
+                        ${item.images.map(img => {
+                            // Prepend API_URL to relative image paths
+                            const imgUrl = img.startsWith('http') ? img : `${API_URL}${img}`;
+                            return `
                             <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                                <img src="${img}" alt="${item.name}" 
+                                <img src="${imgUrl}" alt="${item.name}" 
                                      class="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
                                      onerror="this.style.display='none'"
-                                     onclick="window.open('${img}', '_blank')">
+                                     onclick="window.open('${imgUrl}', '_blank')">
                             </div>
-                        `).join('')}
+                        `}).join('')}
                     </div>
                 </div>
             ` : ''}
@@ -619,7 +622,7 @@ function renderModalContent(item) {
                     ` : ''}
                     ${item.price ? `
                         <p class="text-sm">
-                            <span class="font-medium">Цена:</span> $${item.price.toFixed(2)}
+                            <span class="font-medium">Цена:</span> ₸${item.price.toFixed(2)}
                         </p>
                     ` : ''}
                     <p class="text-sm">

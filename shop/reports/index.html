@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Financial Reports - Shop Panel</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+
     <!-- Version: 1003 - Fixed navigation and redirects -->
     <script src="/assets/js/tailwind-config.js?v=1003.1"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -96,7 +103,7 @@
                     </div>
                 </div>
                 <h3 class="text-gray-600 text-sm font-medium mb-1">Total Revenue</h3>
-                <p class="text-2xl font-bold text-gray-900" id="totalRevenue">$0.00</p>
+                <p class="text-2xl font-bold text-gray-900" id="totalRevenue"> ₸0.00</p>
                 <div class="mt-2 flex items-center text-sm">
                     <span id="revenueTrend" class="text-green-600 font-medium"></span>
                 </div>
@@ -110,7 +117,7 @@
                     </div>
                 </div>
                 <h3 class="text-gray-600 text-sm font-medium mb-1">Commission Paid</h3>
-                <p class="text-2xl font-bold text-gray-900" id="totalCommission">$0.00</p>
+                <p class="text-2xl font-bold text-gray-900" id="totalCommission"> ₸0.00</p>
                 <div class="mt-2 flex items-center text-sm">
                     <span id="commissionRate" class="text-gray-600"></span>
                 </div>
@@ -124,7 +131,7 @@
                     </div>
                 </div>
                 <h3 class="text-gray-600 text-sm font-medium mb-1">Net Income</h3>
-                <p class="text-2xl font-bold text-gray-900" id="netIncome">$0.00</p>
+                <p class="text-2xl font-bold text-gray-900" id="netIncome"> ₸0.00</p>
                 <div class="mt-2 flex items-center text-sm">
                     <span id="netMargin" class="text-gray-600"></span>
                 </div>
@@ -230,11 +237,11 @@
                 </div>
                 <div class="p-4 bg-green-50 rounded-lg">
                     <p class="text-sm text-gray-600 mb-1">Total Processed</p>
-                    <p class="text-2xl font-bold text-green-600" id="totalProcessed">$0.00</p>
+                    <p class="text-2xl font-bold text-green-600" id="totalProcessed"> ₸0.00</p>
                 </div>
                 <div class="p-4 bg-orange-50 rounded-lg">
                     <p class="text-sm text-gray-600 mb-1">Your Payout</p>
-                    <p class="text-2xl font-bold text-orange-600" id="totalPayout">$0.00</p>
+                    <p class="text-2xl font-bold text-orange-600" id="totalPayout"> ₸0.00</p>
                 </div>
             </div>
 
@@ -495,14 +502,14 @@
             const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
             const netMargin = totalRevenue > 0 ? (netIncome / totalRevenue * 100) : 0;
             
-            document.getElementById('totalRevenue').textContent = `$${totalRevenue.toFixed(2)}`;
-            document.getElementById('totalCommission').textContent = `$${totalCommission.toFixed(2)}`;
-            document.getElementById('netIncome').textContent = `$${netIncome.toFixed(2)}`;
+            document.getElementById('totalRevenue').textContent = `₸${totalRevenue.toFixed(2)}`;
+            document.getElementById('totalCommission').textContent = `₸${totalCommission.toFixed(2)}`;
+            document.getElementById('netIncome').textContent = `₸${netIncome.toFixed(2)}`;
             document.getElementById('totalOrders').textContent = totalOrders;
             
             document.getElementById('commissionRate').textContent = `${((totalCommission / totalRevenue * 100) || 0).toFixed(1)}% of revenue`;
             document.getElementById('netMargin').textContent = `${netMargin.toFixed(1)}% net margin`;
-            document.getElementById('averageOrderValue').textContent = `$${avgOrderValue.toFixed(2)} avg order`;
+            document.getElementById('averageOrderValue').textContent = `₸${avgOrderValue.toFixed(2)} avg order`;
             
             // Trend (compare with previous period)
             document.getElementById('revenueTrend').textContent = `${totalOrders} orders`;
@@ -653,10 +660,10 @@
                         ${getStatusBadge(t.status)}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium">
-                        $${t.revenue.toFixed(2)}
+                        ₸${t.revenue.toFixed(2)}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-orange-600 text-right font-medium">
-                        $${t.commission.toFixed(2)}
+                        ₸${t.commission.toFixed(2)}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 text-right font-bold">
                         $${t.net.toFixed(2)}
@@ -740,8 +747,8 @@
             const totalCommission = filteredTransactions.reduce((sum, t) => sum + t.commission, 0);
             const totalNet = filteredTransactions.reduce((sum, t) => sum + t.net, 0);
             
-            document.getElementById('totalProcessed').textContent = `$${totalRevenue.toFixed(2)}`;
-            document.getElementById('totalPayout').textContent = `$${totalNet.toFixed(2)}`;
+            document.getElementById('totalProcessed').textContent = `₸${totalRevenue.toFixed(2)}`;
+            document.getElementById('totalPayout').textContent = `₸${totalNet.toFixed(2)}`;
             
             // Group by month
             const groupedByMonth = {};
@@ -783,10 +790,10 @@
                             ${data.orders}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium">
-                            $${data.revenue.toFixed(2)}
+                            ₸${data.revenue.toFixed(2)}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-orange-600 text-right font-medium">
-                            $${data.commission.toFixed(2)}
+                            ₸${data.commission.toFixed(2)}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 text-right font-bold">
                             $${data.net.toFixed(2)}
@@ -813,9 +820,9 @@
                 csv += `#${t.order_number},`;
                 csv += `"${t.customer}",`;
                 csv += `${t.status},`;
-                csv += `$${t.revenue.toFixed(2)},`;
-                csv += `$${t.commission.toFixed(2)},`;
-                csv += `$${t.net.toFixed(2)}\n`;
+                csv += `₸${t.revenue.toFixed(2)},`;
+                csv += `₸${t.commission.toFixed(2)},`;
+                csv += `₸${t.net.toFixed(2)}\n`;
             });
             
             // Add summary
@@ -825,9 +832,9 @@
             
             csv += `\nSummary,,,,,\n`;
             csv += `Total Orders,${filteredTransactions.length},,,,\n`;
-            csv += `Total Revenue,$${totalRevenue.toFixed(2)},,,,\n`;
-            csv += `Total Commission,$${totalCommission.toFixed(2)},,,,\n`;
-            csv += `Net Income,$${totalNet.toFixed(2)},,,,\n`;
+            csv += `Total Revenue,₸${totalRevenue.toFixed(2)},,,,\n`;
+            csv += `Total Commission,₸${totalCommission.toFixed(2)},,,,\n`;
+            csv += `Net Income,₸${totalNet.toFixed(2)},,,,\n`;
             
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);
@@ -861,9 +868,9 @@
             
             doc.setFontSize(11);
             doc.text(`Total Orders: ${filteredTransactions.length}`, 14, 55);
-            doc.text(`Total Revenue: $${totalRevenue.toFixed(2)}`, 14, 62);
-            doc.text(`Total Commission (5%): $${totalCommission.toFixed(2)}`, 14, 69);
-            doc.text(`Net Income: $${totalNet.toFixed(2)}`, 14, 76);
+            doc.text(`Total Revenue: ₸${totalRevenue.toFixed(2)}`, 14, 62);
+            doc.text(`Total Commission (5%): ₸${totalCommission.toFixed(2)}`, 14, 69);
+            doc.text(`Net Income: ₸${totalNet.toFixed(2)}`, 14, 76);
             
             // Transactions (first 20)
             doc.setFontSize(14);
@@ -877,7 +884,7 @@
                     y = 20;
                 }
                 
-                doc.text(`${new Date(t.date).toLocaleDateString()} - #${t.order_number} - $${t.revenue.toFixed(2)} (Commission: $${t.commission.toFixed(2)}, Net: $${t.net.toFixed(2)})`, 14, y);
+                doc.text(`${new Date(t.date).toLocaleDateString()} - #${t.order_number} - ₸${t.revenue.toFixed(2)} (Commission: ₸${t.commission.toFixed(2)}, Net: ₸${t.net.toFixed(2)})`, 14, y);
                 y += 7;
             });
             

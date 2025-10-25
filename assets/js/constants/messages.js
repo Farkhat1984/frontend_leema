@@ -114,8 +114,8 @@ const MESSAGES = {
     },
 
     PAYMENT: {
-        RENT_PROMPT: (price) => `Product rental payment\n\nCost: $${price}/month\n\nHow many months to extend?`,
-        TOPUP_PROMPT: 'Enter top-up amount (USD):'
+        RENT_PROMPT: (price) => `Product rental payment\n\nCost: ₸${price}/month\n\nHow many months to extend?`,
+        TOPUP_PROMPT: 'Enter top-up amount (KZT):'
     }
 };
 

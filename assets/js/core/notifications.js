@@ -202,14 +202,14 @@ class NotificationManager {
 
             // === Balance Events ===
             case 'balance.updated':
-                const change = data.change_amount > 0 ? `+$${data.change_amount}` : `-$${Math.abs(data.change_amount)}`;
-                message = `Баланс обновлен: ${change}. Новый баланс: $${data.new_balance}`;
+                const change = data.change_amount > 0 ? `+₸${data.change_amount}` : `-₸${Math.abs(data.change_amount)}`;
+                message = `Баланс обновлен: ${change}. Новый баланс: ₸${data.new_balance}`;
                 type = data.change_amount > 0 ? 'success' : 'warning';
                 break;
 
             // === Transaction Events ===
             case 'transaction.completed':
-                message = `💰 Транзакция завершена: $${data.amount} (${this.getTransactionTypeName(data.transaction_type)})`;
+                message = `💰 Транзакция завершена: ₸${data.amount} (${this.getTransactionTypeName(data.transaction_type)})`;
                 type = 'success';
                 break;
 
@@ -220,7 +220,7 @@ class NotificationManager {
 
             // === Order Events ===
             case 'order.created':
-                message = `🛍️ Новый заказ на товар "${data.product_name}" ($${data.amount})`;
+                message = `🛍️ Новый заказ на товар "${data.product_name}" (₸${data.amount})`;
                 type = 'info';
                 break;
 

@@ -27,7 +27,7 @@ const AdminUsersModule = (function() {
             DOM.totalUsers.textContent = dashboard.total_users;
         }
         if (DOM.totalUserBalance) {
-            DOM.totalUserBalance.textContent = `$${dashboard.total_user_balances.toFixed(2)}`;
+            DOM.totalUserBalance.textContent = `₸${dashboard.total_user_balances.toFixed(2)}`;
         }
         if (DOM.activeUsers) {
             DOM.activeUsers.textContent = dashboard.total_users;
@@ -64,7 +64,7 @@ const AdminUsersModule = (function() {
                 <td style="padding: 10px;">${user.email}</td>
                 <td style="padding: 10px;">${user.name || 'N/A'}</td>
                 <td style="padding: 10px; text-align: right; font-weight: 600; color: #667eea;">
-                    $${user.balance.toFixed(2)}
+                    ₸${user.balance.toFixed(2)}
                 </td>
                 <td style="padding: 10px; text-align: center;">${user.free_generations}</td>
                 <td style="padding: 10px; text-align: center;">${user.free_try_ons}</td>

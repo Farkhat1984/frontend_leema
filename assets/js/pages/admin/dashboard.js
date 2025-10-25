@@ -32,8 +32,8 @@ const AdminDashboardModule = (function() {
         if (DOM.totalProducts) DOM.totalProducts.textContent = dashboard.total_products || 0;
         if (DOM.totalOrders) DOM.totalOrders.textContent = dashboard.total_orders || 0;
         if (DOM.pendingModeration) DOM.pendingModeration.textContent = dashboard.pending_moderation || 0;
-        if (DOM.userBalances) DOM.userBalances.textContent = `$${(dashboard.total_user_balances || 0).toFixed(2)}`;
-        if (DOM.shopBalances) DOM.shopBalances.textContent = `$${(dashboard.total_shop_balances || 0).toFixed(2)}`;
+        if (DOM.userBalances) DOM.userBalances.textContent = `₸${(dashboard.total_user_balances || 0).toFixed(2)}`;
+        if (DOM.shopBalances) DOM.shopBalances.textContent = `₸${(dashboard.total_shop_balances || 0).toFixed(2)}`;
     }
 
     function createUserRow(user) {
@@ -43,7 +43,7 @@ const AdminDashboardModule = (function() {
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${user.email}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${user.name || 'N/A'}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-semibold text-purple-600">
-                    $${user.balance.toFixed(2)}
+                    ₸${user.balance.toFixed(2)}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-900">${user.free_generations}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-900">${user.free_try_ons}</td>
@@ -81,7 +81,7 @@ const AdminDashboardModule = (function() {
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">${shop.shop_name}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${shop.email}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-semibold text-green-600">
-                    $${shop.balance.toFixed(2)}
+                    ₸${shop.balance.toFixed(2)}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${date}</td>
             </tr>
@@ -126,7 +126,7 @@ const AdminDashboardModule = (function() {
                 
                 <div class="p-6">
                     <h3 class="text-lg font-semibold text-gray-900 mb-2">${product.name || 'Untitled'}</h3>
-                    <div class="text-2xl font-bold text-purple-600 mb-4">$${product.price ? product.price.toFixed(2) : '0.00'}</div>
+                    <div class="text-2xl font-bold text-purple-600 mb-4">₸${product.price ? product.price.toFixed(2) : '0.00'}</div>
                     
                     <div class="space-y-3 mb-4">
                         <div>

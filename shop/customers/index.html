@@ -6,6 +6,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Customers - Fashion AI Platform</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+
     <!-- Version: 1003 - Fixed navigation and redirects -->
     <script src="/assets/js/tailwind-config.js?v=1003.1"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -121,7 +128,7 @@
             <div class="stat-card vip">
                 <h3>VIP клиенты</h3>
                 <div class="text-3xl font-bold mb-2" id="vipCustomers">0</div>
-                <div class="text-sm opacity-90">Потратили > $1000</div>
+                <div class="text-sm opacity-90">Потратили > ₸1000</div>
             </div>
             <div class="stat-card regular">
                 <h3>Постоянные</h3>
@@ -437,11 +444,11 @@
                                 </div>
                                 <div class="customer-stat">
                                     <div class="label">Потрачено</div>
-                                    <div class="text-3xl font-bold mb-2">$${customer.total_spent.toFixed(2)}</div>
+                                    <div class="text-3xl font-bold mb-2">₸${customer.total_spent.toFixed(2)}</div>
                                 </div>
                                 <div class="customer-stat">
                                     <div class="label">Средний чек</div>
-                                    <div class="text-3xl font-bold mb-2">$${customer.avg_order_value.toFixed(2)}</div>
+                                    <div class="text-3xl font-bold mb-2">₸${customer.avg_order_value.toFixed(2)}</div>
                                 </div>
                             </div>
                         </div>
@@ -512,11 +519,11 @@
                                     </div>
                                     <div class="detail-item">
                                         <div class="label">Общая сумма</div>
-                                        <div class="text-3xl font-bold mb-2">$${customer.total_spent.toFixed(2)}</div>
+                                        <div class="text-3xl font-bold mb-2">₸${customer.total_spent.toFixed(2)}</div>
                                     </div>
                                     <div class="detail-item">
                                         <div class="label">Средний чек</div>
-                                        <div class="text-3xl font-bold mb-2">$${customer.avg_order_value.toFixed(2)}</div>
+                                        <div class="text-3xl font-bold mb-2">₸${customer.avg_order_value.toFixed(2)}</div>
                                     </div>
                                     <div class="detail-item">
                                         <div class="label">Дней с первого заказа</div>
@@ -544,7 +551,7 @@
                                                 <td>${formatDate(order.created_at)}</td>
                                                 <td><strong>#${order.order_number}</strong></td>
                                                 <td>${order.items?.filter(i => i.product?.shop_id === shopId).length || 0}</td>
-                                                <td><strong>$${order.shop_amount.toFixed(2)}</strong></td>
+                                                <td><strong>₸${order.shop_amount.toFixed(2)}</strong></td>
                                                 <td>
                                                     <span class="status-badge ${order.status}">
                                                         ${getStatusText(order.status)}

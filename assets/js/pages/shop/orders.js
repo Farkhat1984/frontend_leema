@@ -74,7 +74,7 @@ function onNewOrder(data) {
     if (data.data && data.data.shop_id === currentShop?.id) {
         playNotificationSound();
         
-        showDesktopNotification('New Order!', `Order #${data.data.order_number || ''} for $${data.data.shop_amount || data.data.amount || '0'}`);
+        showDesktopNotification('New Order!', `Order #${data.data.order_number || ''} for ₸${data.data.shop_amount || data.data.amount || '0'}`);
         
         loadOrders();
     }
@@ -413,7 +413,7 @@ async function viewOrderDetail(orderId) {
         if (modalStatus) modalStatus.innerHTML = `<span class="status-badge status-${order.status}">${formatStatus(order.status)}</span>`;
         if (modalDate) modalDate.textContent = formatDateTime(order.created_at);
         if (modalPayment) modalPayment.textContent = formatPaymentMethod(order.payment_method);
-        if (modalTotal) modalTotal.innerHTML = `<strong>$${order.total_amount?.toFixed(2) || '0.00'}</strong>`;
+        if (modalTotal) modalTotal.innerHTML = `<strong>₸${order.total_amount?.toFixed(2) || '0.00'}</strong>`;
         
         // Customer info
         if (modalCustomer) {
@@ -432,8 +432,8 @@ async function viewOrderDetail(orderId) {
                 <div class="item-details">
                     <div class="item-name">${item.product?.name || 'Неofвестный product'}</div>
                     <div class="item-price">
-                        Quantity: ${item.quantity} × $${item.price?.toFixed(2) || '0.00'} 
-                        = <strong>$${(item.subtotal || item.price * item.quantity)?.toFixed(2) || '0.00'}</strong>
+                        Quantity: ${item.quantity} × ₸${item.price?.toFixed(2) || '0.00'} 
+                        = <strong>₸${(item.subtotal || item.price * item.quantity)?.toFixed(2) || '0.00'}</strong>
                     </div>
                 </div>
             </div>

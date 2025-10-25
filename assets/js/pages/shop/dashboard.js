@@ -66,7 +66,7 @@ async function loadShopDashboard() {
             'balance.updated': (data) => {
                 const balanceElement = document.getElementById('shopBalance');
                 if (balanceElement && data.data && data.data.new_balance !== undefined) {
-                    balanceElement.textContent = `$${data.data.new_balance.toFixed(2)}`;
+                    balanceElement.textContent = `₸${data.data.new_balance.toFixed(2)}`;
                 }
                 loadShopTransactions();
             },
@@ -112,8 +112,8 @@ async function loadShopDashboard() {
 
             const shopBalanceEl = document.getElementById('shopBalance');
             const shopTotalEarningsEl = document.getElementById('shopTotalEarnings');
-            if (shopBalanceEl) shopBalanceEl.textContent = `$${shopInfo.balance.toFixed(2)}`;
-            if (shopTotalEarningsEl) shopTotalEarningsEl.textContent = `$${analytics.total_revenue || 0}`;
+            if (shopBalanceEl) shopBalanceEl.textContent = `₸${shopInfo.balance.toFixed(2)}`;
+            if (shopTotalEarningsEl) shopTotalEarningsEl.textContent = `₸${analytics.total_revenue || 0}`;
         });
 
         await loadShopTransactions();
@@ -241,7 +241,7 @@ function renderShopProductsPage() {
                     <h3 class="product-title">${product.name || 'Untitled'}</h3>
                     <p class="product-description">${product.description || 'No description'}</p>
                     <div class="mt-auto">
-                        <div class="product-price">$${product.price ? product.price.toFixed(2) : '0.00'}</div>
+                        <div class="product-price">₸${product.price ? product.price.toFixed(2) : '0.00'}</div>
                     </div>
                 </div>
                 
@@ -775,7 +775,7 @@ async function loadShopTransactions() {
                                 <td style="padding: 10px;">${date}</td>
                                 <td style="padding: 10px;">${MESSAGES.TRANSACTION.TYPE[t.type.toUpperCase().replace(/_/g, '_')] || t.type}</td>
                                 <td style="padding: 10px; text-align: right; font-weight: 600; color: ${t.amount > 0 ? '#10b981' : '#ef4444'};">
-                                    ${t.amount > 0 ? '+' : ''}$${t.amount.toFixed(2)}
+                                    ${t.amount > 0 ? '+' : ''}₸${t.amount.toFixed(2)}
                                 </td>
                                 <td style="padding: 10px; text-align: center;">
                                     <span style="padding: 4px 12px; background: ${t.status === 'completed' ? '#d1fae5' : '#fee2e2'}; color: ${t.status === 'completed' ? '#065f46' : '#991b1b'}; border-radius: 12px; font-size: 12px;">

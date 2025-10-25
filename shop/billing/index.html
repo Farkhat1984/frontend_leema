@@ -5,6 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Billing & Payments - Fashion AI Platform</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+
     <!-- Version: 1003 - Fixed navigation and redirects -->
     <script src="/assets/js/tailwind-config.js?v=1003.1"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -42,7 +49,7 @@
                     <h3 class="text-sm font-medium text-gray-600">Доступный баланс</h3>
                     <i class="fas fa-wallet text-purple-600 text-xl"></i>
                 </div>
-                <div class="text-3xl font-bold text-purple-600 mb-4" id="shopBalance">$0.00</div>
+                <div class="text-3xl font-bold text-purple-600 mb-4" id="shopBalance"> ₸0.00</div>
                 <button onclick="Router.navigate(Router.paths.shop.topup)" 
                         class="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors">
                     <i class="fas fa-plus mr-2"></i>Пополнить баланс
@@ -54,7 +61,7 @@
                     <h3 class="text-sm font-medium text-gray-600">Заработано всего</h3>
                     <i class="fas fa-chart-line text-green-600 text-xl"></i>
                 </div>
-                <div class="text-3xl font-bold text-green-600" id="shopTotalEarnings">$0.00</div>
+                <div class="text-3xl font-bold text-green-600" id="shopTotalEarnings"> ₸0.00</div>
             </div>
         </div>
 
@@ -137,8 +144,8 @@
                 // Load balance and billing
                 const shopBalanceEl = document.getElementById('shopBalance');
                 const shopTotalEarningsEl = document.getElementById('shopTotalEarnings');
-                if (shopBalanceEl) shopBalanceEl.textContent = `$${shopInfo.balance.toFixed(2)}`;
-                if (shopTotalEarningsEl) shopTotalEarningsEl.textContent = `$${analytics.total_revenue || 0}`;
+                if (shopBalanceEl) shopBalanceEl.textContent = `₸${shopInfo.balance.toFixed(2)}`;
+                if (shopTotalEarningsEl) shopTotalEarningsEl.textContent = `₸${analytics.total_revenue || 0}`;
 
                 // Load transactions
                 if (typeof loadShopTransactions !== 'undefined') {
