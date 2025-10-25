@@ -1,31 +1,22 @@
-// Страница настроек платформы
+const AdminSettingsModule = (function() {
+    if (!localStorage.getItem('platform')) {
+        localStorage.setItem('platform', 'web');
+    }
 
-// Инициализировать platform перед любыми запросами
-if (!localStorage.getItem('platform')) {
-    localStorage.setItem('platform', 'web');
-}
+    const DOM = {
+        get settingsList() { return document.getElementById('settingsList'); }
+    };
 
-async function loadPageData() {
-    try {
-        // WebSocket для обновления в реальном времени от других администраторов
+    function initializeWebSocket() {
         if (typeof CommonUtils !== 'undefined' && CommonUtils.initWebSocket) {
             CommonUtils.initWebSocket('admin', {
-                'settings.updated': (data) => { onSettingsUpdate(data); }
+                'settings.updated': (data) => { handleSettingsUpdate(data); }
             });
         }
-        
-        await loadSettings();
-    } catch (error) {
-        showAlert('Ошибка загрузки данных: ' + error.message, 'error');
     }
-}
 
-async function loadSettings() {
-    try {
-        const settings = await apiRequest('/api/v1/admin/settings');
-        const container = document.getElementById('settingsList');
-
-        container.innerHTML = settings.map(setting => `
+    function createSettingRow(setting) {
+        return `
             <div class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200 transition-all" id="setting_group_${setting.key}">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">
                     ${setting.description || setting.key}
@@ -39,74 +30,127 @@ async function loadSettings() {
                     >
                     <button 
                         class="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors shadow-sm hover:shadow-md whitespace-nowrap min-w-[140px]" 
-                        onclick="updateSetting('${setting.key}')"
+                        onclick="AdminSettingsModule.updateSetting('${setting.key}')"
                     >
-                        <i class="fas fa-save mr-2"></i>Сохранить
+                        <i class="fas fa-save mr-2"></i>Save
                     </button>
                 </div>
             </div>
-        `).join('');
-    } catch (error) {
-        showAlert('Ошибка загрузки настроек: ' + error.message, 'error');
+        `;
     }
-}
 
-async function updateSetting(key) {
-    const buttonElement = event.target.closest('button');
-    const originalButtonHtml = buttonElement.innerHTML;
-    
-    try {
-        // Show loading state
-        buttonElement.disabled = true;
-        buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Сохранение...';
+    function updateButtonState(button, state) {
+        const states = {
+            loading: {
+                html: '<i class="fas fa-spinner fa-spin mr-2"></i>Saving...',
+                disabled: true,
+                classes: { add: [], remove: [] }
+            },
+            success: {
+                html: '<i class="fas fa-check mr-2"></i>Saved',
+                disabled: true,
+                classes: { 
+                    add: ['bg-green-600'], 
+                    remove: ['bg-purple-600', 'hover:bg-purple-700'] 
+                }
+            },
+            reset: {
+                html: null,
+                disabled: false,
+                classes: { 
+                    add: ['bg-purple-600', 'hover:bg-purple-700'], 
+                    remove: ['bg-green-600'] 
+                }
+            }
+        };
+
+        const config = states[state];
+        if (!config) return;
+
+        if (config.html) {
+            button.innerHTML = config.html;
+        }
+        button.disabled = config.disabled;
         
-        const value = document.getElementById(`setting_${key}`).value;
-        await apiRequest(`/api/v1/admin/settings/${key}`, 'PUT', { key, value });
-        
-        // Show success state
-        buttonElement.innerHTML = '<i class="fas fa-check mr-2"></i>Сохранено';
-        buttonElement.classList.remove('bg-purple-600', 'hover:bg-purple-700');
-        buttonElement.classList.add('bg-green-600');
-        
-        // Reset button after 2 seconds
-        setTimeout(() => {
-            buttonElement.innerHTML = originalButtonHtml;
-            buttonElement.classList.remove('bg-green-600');
-            buttonElement.classList.add('bg-purple-600', 'hover:bg-purple-700');
-            buttonElement.disabled = false;
-        }, 2000);
-        
-    } catch (error) {
-        // Reset button on error
-        buttonElement.innerHTML = originalButtonHtml;
-        buttonElement.disabled = false;
-        showAlert('Ошибка обновления настройки: ' + error.message, 'error');
+        if (config.classes.add.length) {
+            button.classList.add(...config.classes.add);
+        }
+        if (config.classes.remove.length) {
+            button.classList.remove(...config.classes.remove);
+        }
     }
-}
 
-// WebSocket handlers - обновляет поле когда другой админ меняет настройку
-function onSettingsUpdate(data) {
-    if (data.data && data.data.key) {
-        const inputElement = document.getElementById(`setting_${data.data.key}`);
-        const groupElement = document.getElementById(`setting_group_${data.data.key}`);
-        
-        if (inputElement && data.data.new_value !== undefined) {
-            // Обновляем значение
-            inputElement.value = data.data.new_value;
+    function highlightSettingUpdate(key) {
+        const groupElement = document.getElementById(`setting_group_${key}`);
+        if (groupElement) {
+            groupElement.classList.add('ring-2', 'ring-blue-500', 'ring-opacity-50');
+            setTimeout(() => {
+                groupElement.classList.remove('ring-2', 'ring-blue-500', 'ring-opacity-50');
+            }, 2000);
+        }
+    }
+
+    function handleSettingsUpdate(data) {
+        if (data.data && data.data.key) {
+            const inputElement = document.getElementById(`setting_${data.data.key}`);
             
-            // Показываем визуальную индикацию обновления
-            if (groupElement) {
-                groupElement.classList.add('ring-2', 'ring-blue-500', 'ring-opacity-50');
-                setTimeout(() => {
-                    groupElement.classList.remove('ring-2', 'ring-blue-500', 'ring-opacity-50');
-                }, 2000);
+            if (inputElement && data.data.new_value !== undefined) {
+                inputElement.value = data.data.new_value;
+                highlightSettingUpdate(data.data.key);
             }
         }
     }
-}
 
-// Make functions globally accessible
-window.updateSetting = updateSetting;
+    async function loadSettings() {
+        try {
+            const settings = await apiRequest(API_ENDPOINTS.ADMIN.SETTINGS);
+            
+            if (!DOM.settingsList) return;
+            
+            DOM.settingsList.innerHTML = settings.map(setting => createSettingRow(setting)).join('');
+        } catch (error) {
+            showAlert(MESSAGES.ERROR.LOADING_SETTINGS + ': ' + error.message, 'error');
+        }
+    }
 
-// Автоматическая загрузка данных при инициализации страницы
-loadPageData();
+    async function updateSetting(key) {
+        const buttonElement = event.target.closest('button');
+        const originalButtonHtml = buttonElement.innerHTML;
+        
+        try {
+            updateButtonState(buttonElement, 'loading');
+            
+            const value = document.getElementById(`setting_${key}`).value;
+            await apiRequest(`/api/v1/admin/settings/${key}`, 'PUT', { key, value });
+            
+            updateButtonState(buttonElement, 'success');
+            
+            setTimeout(() => {
+                buttonElement.innerHTML = originalButtonHtml;
+                updateButtonState(buttonElement, 'reset');
+            }, 2000);
+            
+        } catch (error) {
+            buttonElement.innerHTML = originalButtonHtml;
+            buttonElement.disabled = false;
+            showAlert(MESSAGES.ERROR.UPDATING_SETTINGS + ': ' + error.message, 'error');
+        }
+    }
+
+    async function init() {
+        try {
+            initializeWebSocket();
+            await loadSettings();
+        } catch (error) {
+            showAlert(MESSAGES.ERROR.LOADING_DATA + ': ' + error.message, 'error');
+        }
+    }
+
+    return {
+        init,
+        updateSetting
+    };
+})();
+
+window.AdminSettingsModule = AdminSettingsModule;
+AdminSettingsModule.init();

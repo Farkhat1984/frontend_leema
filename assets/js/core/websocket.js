@@ -57,7 +57,6 @@ class WebSocketManager {
             this.ws.onclose = this.handleClose;
             this.ws.onerror = this.handleError;
         } catch (error) {
-            console.error('[WebSocket] Connection failed:', error);
             this.isConnecting = false;
             this.scheduleReconnect();
         }
@@ -119,20 +118,13 @@ class WebSocketManager {
 
         this.notifyConnectionState('disconnected');
 
-        // Не пытаемся переподключиться если:
-        // 1. Закрытие вручную
-        // 2. Код ошибки указывает на проблему авторизации или конфигурации (1008, 1002, 1003)
         if (!this.isManualClose && ![1008, 1002, 1003].includes(event.code)) {
             this.scheduleReconnect();
-        } else if ([1008, 1002, 1003].includes(event.code)) {
-        } else if (this.isManualClose) {
         }
     }
 
     handleError(error) {
-        // Suppress console error spam for connection issues
         if (this.reconnectAttempts < this.maxReconnectAttempts) {
-            console.warn('[WebSocket] Connection error, will retry');
         }
         this.notifyConnectionState('error');
     }
@@ -142,9 +134,7 @@ class WebSocketManager {
             return;
         }
 
-        // Stop reconnecting after max attempts
         if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-            console.warn('[WebSocket] Max reconnection attempts reached. Stopping reconnect.');
             this.notifyConnectionState('disconnected');
             return;
         }

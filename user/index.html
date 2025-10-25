@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Каталог товаров - Leema</title>
-    <script src="/assets/js/tailwind-config.js?v=999.1"></script>
+    <script src="/assets/js/tailwind-config.js?v=1003.1"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50">
@@ -40,19 +40,9 @@
         const itemsPerPage = 12;
         let allProducts = [];
 
-        // Проверка авторизации
-        const token = localStorage.getItem('token');
-        const accountType = localStorage.getItem('accountType');
-
-        if (!token) {
-            window.location.href = '/public';
-        } else if (accountType === 'admin') {
-            window.location.href = '/admin';
-        } else if (accountType === 'shop') {
-            window.location.href = '/public';
-        }
-
         async function loadProducts() {
+            const token = AuthService.getToken();
+            
             try {
                 const response = await fetch(`${API_URL}/api/v1/products/?skip=0&limit=100`, {
                     headers: {
@@ -150,19 +140,30 @@ document.getElementById('productsContent').innerHTML = `
         }
 
         function logout() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('accountType');
-            localStorage.removeItem('refresh_token');
-            window.location.href = '/public';
+            AuthService.logout();
         }
 
         // Загрузка при старте
         document.addEventListener('DOMContentLoaded', function() {
-            // Проверка авторизации
+            // Проверка авторизации используя AuthService
             if (!AuthService.isAuthenticated()) {
                 window.location.href = '/public';
                 return;
             }
+            
+            const role = AuthService.getUserRole();
+            const accountType = AuthService.getAccountType();
+            
+            // Редирект на правильную страницу если не user
+            if (accountType === 'admin' || role === 'admin') {
+                window.location.href = '/admin';
+                return;
+            } else if (accountType === 'shop' || role === 'shop_owner') {
+                window.location.href = '/shop';
+                return;
+            }
+            
+            // Все ок, загружаем продукты
             loadProducts();
         });
     </script>

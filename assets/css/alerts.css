@@ -1,20 +1,9 @@
-/* Modern Unified Alert System for Fashion AI Platform */
-/* This file is now DEPRECATED - using unified-alerts.js with Tailwind classes */
-
-/* Legacy support for old alert containers - hide them */
-.alert {
-    display: none !important;
-}
-
-#alertContainer:not(#unifiedAlertContainer) {
-    display: none !important;
-}
-
+.alert,
+#alertContainer:not(#unifiedAlertContainer),
 .alert-container:not(#unifiedAlertContainer) {
     display: none !important;
 }
 
-/* Ensure unified alert container is always visible and properly positioned */
 #unifiedAlertContainer {
     display: flex !important;
     position: fixed !important;
@@ -27,7 +16,6 @@
     pointer-events: none !important;
 }
 
-/* Mobile responsiveness */
 @media (max-width: 768px) {
     #unifiedAlertContainer {
         top: 70px !important;
@@ -36,7 +24,6 @@
     }
 }
 
-/* Ensure alerts within the unified container are visible */
 #unifiedAlertContainer > * {
     pointer-events: auto !important;
 }

@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мои заказы - Fashion AI Platform</title>
+    <title>My Orders - Fashion AI Platform</title>
     <!-- Version: 1003 - Fixed navigation and redirects -->
-    <script src="/assets/js/tailwind-config.js?v=999.1"></script>
+    <script src="/assets/js/tailwind-config.js?v=1003.1"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -63,7 +63,7 @@
                     <input type="text" 
                            id="searchInput" 
                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                           placeholder="🔍 Поиск по номеру заказа или имени клиента..."
+                           placeholder="🔍 Search по номеру заказа или customer name..."
                            oninput="handleSearch()">
                     
                     <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white" onchange="handleFilter()">
@@ -89,12 +89,12 @@
                     </select>
                 </div>
 
-                <!-- Таблица заказов -->
+                <!-- Orders table -->
                 <div id="ordersTableContainer">
                     <table class="w-full overflow-x-auto">
                         <thead>
                             <tr>
-                                <th>Номер заказа</th>
+                                <th>Order number</th>
                                 <th>Дата</th>
                                 <th>Клиент</th>
                                 <th>Товары</th>
@@ -178,7 +178,7 @@
                 </div>
             </div>
             <div class="border-t border-gray-200 px-6 py-4 flex justify-end space-x-3">
-                <button class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors" onclick="closeOrderDetail()">Закрыть</button>
+                <button class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors" onclick="closeOrderDetail()">Close</button>
             </div>
         </div>
     </div>

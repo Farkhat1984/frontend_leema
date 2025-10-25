@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Авторизация...</title>
-    <script src="/assets/js/tailwind-config.js?v=999.1"></script>
+    <script src="/assets/js/tailwind-config.js?v=1003.1"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @keyframes spin {
@@ -24,8 +24,8 @@
         <p class="text-lg">Завершаем авторизацию...</p>
     </div>
 
-    <script src="../../assets/js/core/router.js"></script>
-    <script src="../../assets/js/core/config.js"></script>
+    <script src="../../assets/js/core/router.js?v=1004"></script>
+    <script src="../../assets/js/core/config.js?v=1003"></script>
     <script>
 
         async function handleCallback() {
@@ -79,45 +79,50 @@
                 localStorage.setItem('platform', platformValue);
 
                 // Сохраняем данные пользователя/магазина
+                let finalAccountType = 'user';
+                let redirectPath = Router.paths.user.dashboard;
+                
                 if (data.user) {
                     localStorage.setItem('user', JSON.stringify(data.user));
                     localStorage.setItem('userData', JSON.stringify(data.user));
                     localStorage.setItem('userRole', data.user.role);
                     
-                    // Определяем accountType на основе запроса и роли
-                    if (requestedType === 'admin' && data.user.role === 'admin') {
-                        localStorage.setItem('accountType', 'admin');
-                        localStorage.setItem('account_type', 'admin');
+                    // Определяем accountType на основе роли пользователя
+                    // Если роль admin - accountType всегда admin, независимо от запроса
+                    if (data.user.role === 'admin') {
+                        finalAccountType = 'admin';
+                        redirectPath = Router.paths.admin.dashboard;
+                    } else if (data.user.role === 'shop_owner') {
+                        finalAccountType = 'shop';
+                        redirectPath = Router.paths.shop.dashboard;
                     } else {
-                        localStorage.setItem('accountType', 'user');
-                        localStorage.setItem('account_type', 'user');
+                        finalAccountType = 'user';
+                        redirectPath = Router.paths.user.dashboard;
                     }
+                    
+                    localStorage.setItem('accountType', finalAccountType);
+                    localStorage.setItem('account_type', finalAccountType);
                 } else if (data.shop) {
                     localStorage.setItem('shop', JSON.stringify(data.shop));
                     localStorage.setItem('userData', JSON.stringify(data.shop));
+                    localStorage.setItem('userRole', 'shop_owner');
                     localStorage.setItem('accountType', 'shop');
                     localStorage.setItem('account_type', 'shop');
+                    finalAccountType = 'shop';
+                    redirectPath = Router.paths.shop.dashboard;
                 }
 
                 // Очистка
                 localStorage.removeItem('requestedAccountType');
 
-                // Redirect based on requested type and actual role
-                
-                if (requestedType === 'admin') {
-                    // Проверяем что у пользователя действительно есть роль admin
-                    if (data.user && data.user.role === 'admin') {
-                        Router.navigate(Router.paths.admin.dashboard, true);
-                    } else {
-                        showError('У вас нет прав администратора. Попробуйте войти как пользователь.');
-                        return;
-                    }
-                } else if (requestedType === 'shop') {
-                    Router.navigate(Router.paths.shop.dashboard, true);
-                } else {
-                    // user
-                    Router.navigate(Router.paths.user.dashboard, true);
+                // Проверка прав доступа
+                if (requestedType === 'admin' && finalAccountType !== 'admin') {
+                    showError('У вас нет прав администратора. Попробуйте войти как пользователь.');
+                    return;
                 }
+                
+                // Redirect на правильную страницу в зависимости от роли
+                Router.navigate(redirectPath, true);
             } catch (error) {
 showError(error.message);
             }

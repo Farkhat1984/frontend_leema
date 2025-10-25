@@ -80,6 +80,31 @@
                     </button>
                 </div>
             </div>
+
+            <!-- Deactivated Status -->
+            <div id="deactivatedStatus" class="hidden bg-white rounded-2xl shadow-lg border border-gray-200 p-8 text-center">
+                <div class="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-ban text-orange-600 text-3xl"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Shop Deactivated</h2>
+                <p class="text-gray-600 text-lg mb-6">
+                    Your shop has been temporarily deactivated by the administrator.
+                </p>
+                <div class="bg-orange-50 rounded-xl p-6 mb-6">
+                    <p class="text-sm text-gray-700">
+                        <i class="fas fa-info-circle text-orange-600 mr-2"></i>
+                        Please contact the administrator for more information or to reactivate your shop.
+                    </p>
+                </div>
+                <div class="text-center space-y-4">
+                    <button onclick="checkStatus()" class="w-full bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg transition-colors font-medium">
+                        <i class="fas fa-sync-alt mr-2"></i>Refresh Status
+                    </button>
+                    <button onclick="logout()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 px-8 py-3 rounded-lg transition-colors font-medium">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Registration Form -->
@@ -133,6 +158,28 @@
                         >
                     </div>
 
+                    <!-- Shop Logo/Avatar (Optional) -->
+                    <div>
+                        <label for="shopAvatar" class="block text-sm font-semibold text-gray-900 mb-2">
+                            <i class="fas fa-image text-purple-600 mr-2"></i>Shop Logo/Avatar
+                        </label>
+                        <div class="flex items-center space-x-4">
+                            <div id="avatarPreview" class="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300 overflow-hidden flex-shrink-0">
+                                <i class="fas fa-store text-gray-400 text-3xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <input 
+                                    type="file" 
+                                    id="shopAvatar" 
+                                    accept="image/jpeg,image/jpg,image/png,image/webp"
+                                    onchange="previewAvatar(event)"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                                >
+                                <p class="text-xs text-gray-500 mt-2">JPEG, PNG, or WEBP. Max 5MB (optional)</p>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Phone -->
                     <div>
                         <label for="phone" class="block text-sm font-semibold text-gray-900 mb-2">
@@ -144,10 +191,26 @@
                             name="phone" 
                             required
                             maxlength="50"
-                            placeholder="+1 (555) 123-4567"
+                            placeholder="+7 707 123 45 67"
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                         >
-                        <p class="text-xs text-gray-500 mt-1">We'll use this for important notifications</p>
+                        <p class="text-xs text-gray-500 mt-1">Формат: +7 XXX XXX XX XX (обязательно)</p>
+                    </div>
+
+                    <!-- WhatsApp Number (Optional) -->
+                    <div>
+                        <label for="whatsappNumber" class="block text-sm font-semibold text-gray-900 mb-2">
+                            <i class="fab fa-whatsapp text-green-600 mr-2"></i>WhatsApp Number <span class="text-gray-500 font-normal">(Optional)</span>
+                        </label>
+                        <input 
+                            type="tel" 
+                            id="whatsappNumber" 
+                            name="whatsappNumber" 
+                            maxlength="50"
+                            placeholder="+7 707 123 45 67"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                        >
+                        <p class="text-xs text-gray-500 mt-1">Для связи с покупателями через WhatsApp</p>
                     </div>
 
                     <!-- Address -->
@@ -254,8 +317,11 @@
     <!-- Scripts -->
     <script src="../assets/js/core/config.js"></script>
     <script src="../assets/js/core/auth.js"></script>
+    <script src="https://unpkg.com/imask"></script>
     <script>
         let shopData = null;
+        let phoneMask = null;
+        let whatsappMask = null;
 
         // Character counter for description
         document.addEventListener('DOMContentLoaded', () => {
@@ -265,6 +331,26 @@
             if (descTextarea) {
                 descTextarea.addEventListener('input', (e) => {
                     descCount.textContent = e.target.value.length;
+                });
+            }
+
+            // Initialize phone input masks
+            const phoneInput = document.getElementById('phone');
+            const whatsappInput = document.getElementById('whatsappNumber');
+            
+            if (phoneInput && typeof IMask !== 'undefined') {
+                phoneMask = IMask(phoneInput, {
+                    mask: '+{7} 000 000 00 00',
+                    lazy: true,  // Show mask only on focus
+                    placeholderChar: '_'
+                });
+            }
+            
+            if (whatsappInput && typeof IMask !== 'undefined') {
+                whatsappMask = IMask(whatsappInput, {
+                    mask: '+{7} 000 000 00 00',
+                    lazy: true,  // Show mask only on focus
+                    placeholderChar: '_'
                 });
             }
 
@@ -278,6 +364,35 @@
             const preview = document.getElementById('avatarPreview');
             
             if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Avatar Preview" class="w-full h-full object-cover rounded-lg">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Preview avatar for registration form
+        function previewAvatar(event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById('avatarPreview');
+            
+            if (file) {
+                // Validate file size (5MB max)
+                if (file.size > 5 * 1024 * 1024) {
+                    showAlert('File is too large. Maximum size is 5MB.', 'error');
+                    event.target.value = '';
+                    return;
+                }
+                
+                // Validate file type
+                const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+                if (!validTypes.includes(file.type)) {
+                    showAlert('Invalid file type. Please upload JPEG, PNG, or WEBP image.', 'error');
+                    event.target.value = '';
+                    return;
+                }
+                
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     preview.innerHTML = `<img src="${e.target.result}" alt="Avatar Preview" class="w-full h-full object-cover rounded-lg">`;
@@ -307,10 +422,17 @@
                     // Hide loading
                     document.getElementById('loadingState').classList.add('hidden');
 
-                    // Check if shop is approved
-                    if (shopData.is_approved === true) {
-                        // Approved - redirect to shop dashboard
+                    // Check if shop is approved and active
+                    if (shopData.is_approved === true && shopData.is_active === true) {
+                        // Approved and active - redirect to shop dashboard
                         window.location.href = '/shop';
+                        return;
+                    }
+
+                    // Check if shop is approved but deactivated
+                    if (shopData.is_approved === true && shopData.is_active === false) {
+                        // Approved but deactivated - show deactivated status
+                        showDeactivatedStatus();
                         return;
                     }
 
@@ -346,6 +468,7 @@
             document.getElementById('statusContainer').classList.remove('hidden');
             document.getElementById('pendingStatus').classList.remove('hidden');
             document.getElementById('rejectedStatus').classList.add('hidden');
+            document.getElementById('deactivatedStatus').classList.add('hidden');
             document.getElementById('registrationForm').classList.add('hidden');
         }
 
@@ -354,8 +477,18 @@
             document.getElementById('statusContainer').classList.remove('hidden');
             document.getElementById('rejectedStatus').classList.remove('hidden');
             document.getElementById('pendingStatus').classList.add('hidden');
+            document.getElementById('deactivatedStatus').classList.add('hidden');
             document.getElementById('registrationForm').classList.add('hidden');
             document.getElementById('rejectionReason').textContent = reason || 'No reason provided';
+        }
+
+        // Show deactivated status
+        function showDeactivatedStatus() {
+            document.getElementById('statusContainer').classList.remove('hidden');
+            document.getElementById('deactivatedStatus').classList.remove('hidden');
+            document.getElementById('pendingStatus').classList.add('hidden');
+            document.getElementById('rejectedStatus').classList.add('hidden');
+            document.getElementById('registrationForm').classList.add('hidden');
         }
 
         // Show registration form
@@ -367,9 +500,25 @@
             if (shopData) {
                 document.getElementById('shopName').value = shopData.shop_name || '';
                 document.getElementById('ownerName').value = shopData.owner_name || '';
-                document.getElementById('phone').value = shopData.phone || '';
                 document.getElementById('address').value = shopData.address || '';
                 document.getElementById('description').value = shopData.description || '';
+                
+                // Set phone values through masks
+                if (phoneMask && shopData.phone) {
+                    phoneMask.unmaskedValue = shopData.phone.replace(/^\+7/, '');
+                }
+                
+                if (whatsappMask && shopData.whatsapp_number) {
+                    whatsappMask.unmaskedValue = shopData.whatsapp_number.replace(/^\+7/, '');
+                }
+                
+                // Show existing avatar if available
+                if (shopData.avatar_url) {
+                    const avatarPreview = document.getElementById('avatarPreview');
+                    if (avatarPreview) {
+                        avatarPreview.innerHTML = `<img src="${shopData.avatar_url}" alt="Shop Avatar" class="w-full h-full object-cover rounded-lg">`;
+                    }
+                }
                 
                 // Update character count
                 const descCount = document.getElementById('descriptionCount');
@@ -391,7 +540,7 @@
                 
                 // Upload avatar first if provided
                 let avatarUrl = null;
-                const avatarFile = document.getElementById('avatar').files[0];
+                const avatarFile = document.getElementById('shopAvatar').files[0];
                 if (avatarFile) {
                     const avatarFormData = new FormData();
                     avatarFormData.append('file', avatarFile);
@@ -410,19 +559,45 @@
                     }
                 }
 
+                // Clean phone numbers (remove formatting, keep only +7XXXXXXXXXX)
+                const cleanPhone = (value) => {
+                    if (!value) return null;
+                    // Remove all non-digit characters except the leading +
+                    const cleaned = value.replace(/[^\d+]/g, '');
+                    // If only +7 without digits, treat as empty
+                    if (cleaned === '+7' || cleaned === '+') return null;
+                    // Must have +7 and 10 digits
+                    return cleaned.match(/^\+7\d{10}$/) ? cleaned : null;
+                };
+                
+                const phoneValue = cleanPhone(document.getElementById('phone').value);
+                const whatsappValue = cleanPhone(document.getElementById('whatsappNumber').value);
+                
+                // Validate phone (required)
+                if (!phoneValue) {
+                    throw new Error('Пожалуйста, укажите корректный номер телефона в формате +7 XXX XXX XX XX');
+                }
+
                 // Prepare update data
                 const formData = {
                     shop_name: document.getElementById('shopName').value.trim(),
                     owner_name: document.getElementById('ownerName').value.trim(),
-                    phone: document.getElementById('phone').value.trim(),
+                    phone: phoneValue,
                     address: document.getElementById('address').value.trim(),
                     description: document.getElementById('description').value.trim()
                 };
+                
+                // Add whatsapp only if provided
+                if (whatsappValue) {
+                    formData.whatsapp_number = whatsappValue;
+                }
 
                 // Add avatar URL if uploaded
                 if (avatarUrl) {
                     formData.avatar_url = avatarUrl;
                 }
+
+                console.log('[REGISTER] Sending data:', formData);
 
                 // Update shop info - this submits for approval
                 const response = await fetch(`${API_URL}/api/v1/shops/me`, {
@@ -441,6 +616,17 @@
                     }, 2000);
                 } else {
                     const error = await response.json();
+                    console.error('[REGISTER] Error response:', error);
+                    
+                    // Check if it's a validation error
+                    if (error.detail && Array.isArray(error.detail)) {
+                        const validationErrors = error.detail.map(e => {
+                            const field = e.loc.join('.');
+                            return `${field}: ${e.msg}`;
+                        }).join('\n');
+                        throw new Error(`Ошибка валидации:\n${validationErrors}`);
+                    }
+                    
                     throw new Error(error.detail || 'Failed to submit application');
                 }
             } catch (error) {

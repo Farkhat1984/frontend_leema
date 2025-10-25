@@ -4,12 +4,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Профиль магазина - Fashion AI Platform</title>
-    <!-- Version: 1003 - Fixed navigation and redirects -->
-    <script src="/assets/js/tailwind-config.js?v=999.1"></script>
+    <title>Shop Profile - Fashion AI Platform</title>
+    <!-- Version: 1730652624 - Fixed avatar_url and whatsapp_number saving -->
+    <script src="/assets/js/tailwind-config.js?v=1003.1"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="../../assets/js/core/unified-alerts.js?v=1000"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- International Telephone Input -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.6/build/css/intlTelInput.css">
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.6/build/js/intlTelInput.min.js"></script>
+    
+    <style>
+        /* Custom styles for intl-tel-input integration with Tailwind */
+        .iti { 
+            width: 100%; 
+        }
+        
+        .iti__flag-container {
+            padding: 0;
+        }
+        
+        .iti__selected-flag {
+            padding: 0 0 0 12px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .iti__country-list {
+            max-height: 200px;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        
+        input[type="tel"] {
+            padding-left: 52px !important;
+        }
+        
+        .iti__selected-flag:hover,
+        .iti__selected-flag:focus {
+            background-color: transparent;
+        }
+        
+        /* Phone input styling */
+        .phone-input-wrapper {
+            position: relative;
+        }
+        
+        .phone-input-wrapper input[type="tel"] {
+            width: 100%;
+            padding: 0.5rem 1rem 0.5rem 52px;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+        }
+        
+        .phone-input-wrapper input[type="tel"]:focus {
+            outline: none;
+            border-color: #9333ea;
+            box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
+        }
+    </style>
 </head>
 
 <body class="bg-gray-50">
@@ -95,10 +151,28 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">
                         <i class="fas fa-phone text-purple-600 mr-2"></i>Телефон
                     </label>
-                    <input type="tel" id="profilePhone" 
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                           placeholder="+7 (XXX) XXX-XX-XX">
+                    <div class="phone-input-wrapper">
+                        <input type="tel" id="profilePhone" 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">
+                        <i class="fas fa-info-circle mr-1"></i>Выберите страну и введите номер
+                    </p>
                 </div>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fab fa-whatsapp text-green-600 mr-2"></i>WhatsApp номер
+                </label>
+                <div class="phone-input-wrapper">
+                    <input type="tel" id="profileWhatsApp" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                </div>
+                <p class="text-xs text-gray-500 mt-2">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    На этот номер покупатели смогут отправлять запросы о товарах через WhatsApp
+                </p>
             </div>
 
             <div class="mb-6">
@@ -127,14 +201,19 @@
     </div>
 
     <script src="../../assets/js/core/router.js"></script>
-    <script src="../../assets/js/core/config.js?v=999"></script>
-    <script defer src="../../assets/js/core/auth.js?v=999"></script>
+    <script src="../../assets/js/core/config.js?v=1003"></script>
+    <!-- Constants and Messages -->
+    <script src="../../assets/js/constants/api-endpoints.js?v=1003"></script>
+    <script src="../../assets/js/constants/app-constants.js?v=1003"></script>
+    <script src="../../assets/js/constants/messages.js?v=1003"></script>
+    <script defer src="../../assets/js/core/auth.js?v=1003"></script>
     <script defer src="../../assets/js/core/websocket.js?v=999"></script>
     <script defer src="../../assets/js/core/notifications.js?v=999"></script>
     <script defer src="../../assets/js/shared/lazy-loader.js?v=999"></script>
-    <script defer src="../../assets/js/core/cache.js?v=999"></script>
+    <script defer src="../../assets/js/core/cache.js?v=1004"></script>    <script defer src="../../assets/js/shared/security-utils.js?v=999"></script>
+
     <script defer src="../../assets/js/shared/common-utils.js?v=999"></script>
-    <script defer src="../../assets/js/pages/shop/dashboard.js?v=999"></script>
+    <script defer src="../../assets/js/pages/shop/dashboard.js?v=1003"></script>
     <script>
         // Preview profile avatar
         function previewProfileAvatar(event) {
@@ -180,7 +259,12 @@
                 }
                 
                 // Load shop info
+                console.log('[SHOP PROFILE] 📥 Loading shop info from server...');
                 const shopInfo = await apiRequest('/api/v1/shops/me');
+                console.log('[SHOP PROFILE] 📦 Shop info loaded:', shopInfo);
+                console.log('[SHOP PROFILE] 📞 Phone from server:', shopInfo.phone);
+                console.log('[SHOP PROFILE] 💬 WhatsApp from server:', shopInfo.whatsapp_number);
+                console.log('[SHOP PROFILE] 🖼️ Avatar from server:', shopInfo.avatar_url);
                 
                 // Update header
                 const shopNameEl = document.getElementById('shopName');
@@ -193,6 +277,7 @@
                 const profileOwnerNameEl = document.getElementById('profileOwnerName');
                 const profileEmailEl = document.getElementById('profileEmail');
                 const profilePhoneEl = document.getElementById('profilePhone');
+                const profileWhatsAppEl = document.getElementById('profileWhatsApp');
                 const profileAddressEl = document.getElementById('profileAddress');
                 const profileDescriptionEl = document.getElementById('profileDescription');
                 const avatarPreview = document.getElementById('avatarPreviewProfile');
@@ -200,13 +285,75 @@
                 if (profileShopNameEl) profileShopNameEl.value = shopInfo.shop_name;
                 if (profileOwnerNameEl) profileOwnerNameEl.value = shopInfo.owner_name || '';
                 if (profileEmailEl) profileEmailEl.value = shopInfo.email;
-                if (profilePhoneEl) profilePhoneEl.value = shopInfo.phone || '';
                 if (profileAddressEl) profileAddressEl.value = shopInfo.address || '';
                 if (profileDescriptionEl) profileDescriptionEl.value = shopInfo.description || '';
                 
+                // Initialize international phone inputs with intl-tel-input
+                let phoneIti = null;
+                let whatsappIti = null;
+                
+                console.log('[SHOP PROFILE] 🔧 Initializing intl-tel-input for phone fields...');
+                
+                if (profilePhoneEl) {
+                    phoneIti = window.intlTelInput(profilePhoneEl, {
+                        initialCountry: "kz", // Kazakhstan by default
+                        preferredCountries: ["kz", "ru", "us", "gb"],
+                        separateDialCode: true,
+                        utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.6/build/js/utils.js",
+                        formatOnDisplay: true,
+                        nationalMode: false,
+                        autoPlaceholder: "aggressive"
+                    });
+                    
+                    // Wait for utils to load, then set value
+                    if (shopInfo.phone) {
+                        console.log('[SHOP PROFILE] 📞 Waiting for utils to load before setting phone value:', shopInfo.phone);
+                        // Give utils.js time to load
+                        setTimeout(() => {
+                            phoneIti.setNumber(shopInfo.phone);
+                            console.log('[SHOP PROFILE] 📞 Phone value set. Current value:', phoneIti.getNumber());
+                        }, 500);
+                    } else {
+                        console.log('[SHOP PROFILE] 📞 No phone number in shop info');
+                    }
+                }
+                
+                if (profileWhatsAppEl) {
+                    whatsappIti = window.intlTelInput(profileWhatsAppEl, {
+                        initialCountry: "kz", // Kazakhstan by default
+                        preferredCountries: ["kz", "ru", "us", "gb"],
+                        separateDialCode: true,
+                        utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.6/build/js/utils.js",
+                        formatOnDisplay: true,
+                        nationalMode: false,
+                        autoPlaceholder: "aggressive"
+                    });
+                    
+                    // Wait for utils to load, then set value
+                    if (shopInfo.whatsapp_number) {
+                        console.log('[SHOP PROFILE] 💬 Waiting for utils to load before setting WhatsApp value:', shopInfo.whatsapp_number);
+                        // Give utils.js time to load
+                        setTimeout(() => {
+                            whatsappIti.setNumber(shopInfo.whatsapp_number);
+                            console.log('[SHOP PROFILE] 💬 WhatsApp value set. Current value:', whatsappIti.getNumber());
+                        }, 500);
+                    } else {
+                        console.log('[SHOP PROFILE] 💬 No WhatsApp number in shop info');
+                    }
+                }
+                
+                // Store instances globally for use in update function
+                window.phoneIti = phoneIti;
+                window.whatsappIti = whatsappIti;
+                // Store shop info globally for use in update function
+                window.currentShopInfo = shopInfo;
+                
                 // Show current avatar if exists
                 if (shopInfo.avatar_url && avatarPreview) {
+                    console.log('[SHOP PROFILE] 🖼️ Setting avatar preview:', shopInfo.avatar_url);
                     avatarPreview.innerHTML = `<img src="${shopInfo.avatar_url}" alt="Shop Avatar" class="w-full h-full object-cover rounded-lg">`;
+                } else {
+                    console.log('[SHOP PROFILE] 🖼️ No avatar URL in shop info');
                 }
             } catch (error) {
                 console.error('[SHOP] Error:', error);
@@ -218,12 +365,17 @@
 
         // Update shop profile
         async function updateShopProfile() {
+            console.log('🔴 [SHOP PROFILE] ========== UPDATE BUTTON CLICKED ==========');
+            console.log('🔍 [SHOP PROFILE] Checking window.currentShopInfo:', window.currentShopInfo);
             try {
-                // Wait for scripts to load
-                if (typeof apiRequest === 'undefined') {
+                // Wait for API_URL to be defined
+                if (typeof API_URL === 'undefined') {
+                    console.log('⏳ [SHOP PROFILE] Waiting for API_URL...');
                     await new Promise(resolve => setTimeout(resolve, 100));
                     return updateShopProfile();
                 }
+                
+                console.log('✅ [SHOP PROFILE] API_URL defined:', API_URL);
 
                 const token = localStorage.getItem('token');
                 if (!token) {
@@ -234,17 +386,119 @@
                 const profileShopNameEl = document.getElementById('profileShopName');
                 const profileOwnerNameEl = document.getElementById('profileOwnerName');
                 const profilePhoneEl = document.getElementById('profilePhone');
+                const profileWhatsAppEl = document.getElementById('profileWhatsApp');
                 const profileAddressEl = document.getElementById('profileAddress');
                 const profileDescriptionEl = document.getElementById('profileDescription');
 
                 if (!profileShopNameEl || !profileOwnerNameEl) {
+                    console.error('Required form elements not found');
                     return;
                 }
-
-                // Upload avatar if changed
+                
+                // Validate required fields
+                if (!profileShopNameEl.value || !profileShopNameEl.value.trim()) {
+                    throw new Error('Название магазина обязательно');
+                }
+                if (!profileOwnerNameEl.value || !profileOwnerNameEl.value.trim()) {
+                    throw new Error('Имя владельца обязательно');
+                }
+                
+                // Get phone numbers from intl-tel-input
+                let phoneValue = null;
+                let whatsappValue = null;
+                
+                console.log('[SHOP PROFILE] Getting phone values from intl-tel-input');
+                
+                if (window.phoneIti) {
+                    // Get the full international number
+                    const phoneNumber = window.phoneIti.getNumber();
+                    console.log('[SHOP PROFILE] Phone raw:', phoneNumber);
+                    console.log('[SHOP PROFILE] Phone is valid:', window.phoneIti.isValidNumber());
+                    
+                    // Get the selected country data
+                    const countryData = window.phoneIti.getSelectedCountryData();
+                    console.log('[SHOP PROFILE] Phone country code:', countryData.dialCode);
+                    
+                    // Check if user entered digits beyond the country code
+                    // Remove + and country code to see if there are user digits
+                    const digitsOnly = phoneNumber.replace(/\D/g, ''); // Remove all non-digits
+                    const countryCodeLength = countryData.dialCode.length;
+                    const userDigits = digitsOnly.substring(countryCodeLength);
+                    
+                    console.log('[SHOP PROFILE] Phone digits only:', digitsOnly);
+                    console.log('[SHOP PROFILE] Phone user digits:', userDigits);
+                    
+                    // Only validate if user entered something
+                    if (userDigits && userDigits.length > 0) {
+                        if (window.phoneIti.isValidNumber()) {
+                            phoneValue = phoneNumber;
+                            console.log('[SHOP PROFILE] ✅ Phone validated:', phoneValue);
+                        } else {
+                            console.error('[SHOP PROFILE] ❌ Phone invalid:', phoneNumber);
+                            throw new Error('Номер телефона введен некорректно. Проверьте формат.');
+                        }
+                    } else {
+                        console.log('[SHOP PROFILE] Phone is empty, will be set to null');
+                    }
+                }
+                
+                if (window.whatsappIti) {
+                    // Get the full international number
+                    const whatsappNumber = window.whatsappIti.getNumber();
+                    console.log('[SHOP PROFILE] WhatsApp raw:', whatsappNumber);
+                    console.log('[SHOP PROFILE] WhatsApp is valid:', window.whatsappIti.isValidNumber());
+                    
+                    // Get the selected country data
+                    const countryData = window.whatsappIti.getSelectedCountryData();
+                    console.log('[SHOP PROFILE] WhatsApp country code:', countryData.dialCode);
+                    
+                    // Check if user entered digits beyond the country code
+                    const digitsOnly = whatsappNumber.replace(/\D/g, ''); // Remove all non-digits
+                    const countryCodeLength = countryData.dialCode.length;
+                    const userDigits = digitsOnly.substring(countryCodeLength);
+                    
+                    console.log('[SHOP PROFILE] WhatsApp digits only:', digitsOnly);
+                    console.log('[SHOP PROFILE] WhatsApp user digits:', userDigits);
+                    
+                    // Only validate if user entered something
+                    if (userDigits && userDigits.length > 0) {
+                        if (window.whatsappIti.isValidNumber()) {
+                            whatsappValue = whatsappNumber;
+                            console.log('[SHOP PROFILE] ✅ WhatsApp validated:', whatsappValue);
+                        } else {
+                            console.error('[SHOP PROFILE] ❌ WhatsApp invalid:', whatsappNumber);
+                            throw new Error('Номер WhatsApp введен некорректно. Проверьте формат.');
+                        }
+                    } else {
+                        console.log('[SHOP PROFILE] WhatsApp is empty, will be set to null');
+                    }
+                }
+                
+                console.log('[SHOP PROFILE] Final phone value:', phoneValue);
+                console.log('[SHOP PROFILE] Final WhatsApp value:', whatsappValue);
+                
+                // Get current avatar URL - prioritize from currentShopInfo, then from page
                 let avatarUrl = null;
+                
+                // First, try to get from stored shop info
+                if (window.currentShopInfo && window.currentShopInfo.avatar_url) {
+                    avatarUrl = window.currentShopInfo.avatar_url;
+                    console.log('[SHOP PROFILE] Using avatar URL from currentShopInfo:', avatarUrl);
+                } else {
+                    // Fallback: try to get from page preview
+                    const currentAvatarImg = document.querySelector('#avatarPreviewProfile img');
+                    if (currentAvatarImg) {
+                        avatarUrl = currentAvatarImg.src;
+                        console.log('[SHOP PROFILE] Using avatar URL from page preview:', avatarUrl);
+                    } else {
+                        console.log('[SHOP PROFILE] No avatar URL found');
+                    }
+                }
+                
+                // Handle new avatar upload
                 const avatarFile = document.getElementById('profileAvatar').files[0];
                 if (avatarFile) {
+                    console.log('[SHOP PROFILE] New avatar file selected, uploading...');
                     const avatarFormData = new FormData();
                     avatarFormData.append('file', avatarFile);
 
@@ -259,6 +513,7 @@
                     if (avatarResponse.ok) {
                         const avatarData = await avatarResponse.json();
                         avatarUrl = avatarData.url;
+                        console.log('[SHOP PROFILE] New avatar uploaded:', avatarUrl);
                     } else {
                         const error = await avatarResponse.json();
                         throw new Error(error.detail || 'Failed to upload avatar');
@@ -266,17 +521,24 @@
                 }
 
                 // Update shop data
+                // Build update data - ALWAYS include ALL fields including avatar_url
                 const data = {
-                    shop_name: profileShopNameEl.value,
-                    owner_name: profileOwnerNameEl.value,
-                    phone: profilePhoneEl.value || null,
-                    address: profileAddressEl.value || null,
-                    description: profileDescriptionEl.value || null
+                    shop_name: profileShopNameEl.value.trim(),
+                    owner_name: profileOwnerNameEl.value.trim(),
+                    address: profileAddressEl.value?.trim() || null,
+                    description: profileDescriptionEl.value?.trim() || null,
+                    phone: phoneValue,
+                    whatsapp_number: whatsappValue,
+                    avatar_url: avatarUrl  // ALWAYS include current avatar URL
                 };
 
-                if (avatarUrl) {
-                    data.avatar_url = avatarUrl;
-                }
+                console.log('[SHOP PROFILE] 📤 DATA TO SEND:', JSON.stringify(data, null, 2));
+                console.log('[SHOP PROFILE] 📤 avatar_url value:', data.avatar_url);
+                console.log('[SHOP PROFILE] 📤 whatsapp_number value:', data.whatsapp_number);
+
+                console.log('[SHOP PROFILE] 📤 Sending update request...');
+                console.log('[SHOP PROFILE] 📦 Request payload:', JSON.stringify(data, null, 2));
+                console.log('[SHOP PROFILE] 🌐 API URL:', `${API_URL}/api/v1/shops/me`);
 
                 const response = await fetch(`${API_URL}/api/v1/shops/me`, {
                     method: 'PUT',
@@ -287,10 +549,28 @@
                     body: JSON.stringify(data)
                 });
 
+                console.log('[SHOP PROFILE] 📨 Response status:', response.status);
+                console.log('[SHOP PROFILE] 📨 Response ok:', response.ok);
+
                 if (!response.ok) {
                     const error = await response.json();
+                    console.error('[SHOP PROFILE] ❌ Error response:', error);
+                    console.error('[SHOP PROFILE] ❌ Full error details:', JSON.stringify(error, null, 2));
+                    
+                    // Check if it's a validation error
+                    if (error.detail && Array.isArray(error.detail)) {
+                        const validationErrors = error.detail.map(e => `${e.loc.join('.')}: ${e.msg}`).join('\n');
+                        throw new Error(`Ошибка валидации:\n${validationErrors}`);
+                    }
+                    
                     throw new Error(error.detail || 'Failed to update profile');
                 }
+
+                const responseData = await response.json();
+                console.log('[SHOP PROFILE] ✅ Success response:', responseData);
+                console.log('[SHOP PROFILE] ✅ Phone in response:', responseData.phone);
+                console.log('[SHOP PROFILE] ✅ WhatsApp in response:', responseData.whatsapp_number);
+                console.log('[SHOP PROFILE] ✅ Avatar in response:', responseData.avatar_url);
 
                 // Show success message
                 const alertContainer = document.getElementById('alertContainer');
@@ -310,6 +590,7 @@
                 }
 
                 // Reload shop info
+                console.log('[SHOP PROFILE] 🔄 Reloading shop info from server...');
                 const shopInfoResponse = await fetch(`${API_URL}/api/v1/shops/me`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -318,6 +599,14 @@
 
                 if (shopInfoResponse.ok) {
                     const shopInfo = await shopInfoResponse.json();
+                    console.log('[SHOP PROFILE] 📥 Reloaded shop info:', shopInfo);
+                    console.log('[SHOP PROFILE] 📥 Phone from server:', shopInfo.phone);
+                    console.log('[SHOP PROFILE] 📥 WhatsApp from server:', shopInfo.whatsapp_number);
+                    console.log('[SHOP PROFILE] 📥 Avatar from server:', shopInfo.avatar_url);
+                    
+                    // Update global shop info
+                    window.currentShopInfo = shopInfo;
+                    
                     const shopNameEl = document.getElementById('shopName');
                     const shopAvatarEl = document.getElementById('shopAvatar');
                     if (shopNameEl) shopNameEl.textContent = shopInfo.shop_name;
@@ -328,10 +617,30 @@
                         const avatarPreview = document.getElementById('avatarPreviewProfile');
                         if (avatarPreview) {
                             avatarPreview.innerHTML = `<img src="${shopInfo.avatar_url}" alt="Shop Avatar" class="w-full h-full object-cover rounded-lg">`;
+                            console.log('[SHOP PROFILE] ✅ Avatar preview updated');
                         }
+                    }
+                    
+                    // Update phone displays
+                    if (shopInfo.phone && window.phoneIti) {
+                        setTimeout(() => {
+                            window.phoneIti.setNumber(shopInfo.phone);
+                            console.log('[SHOP PROFILE] ✅ Phone field updated with:', shopInfo.phone);
+                        }, 300);
+                    }
+                    
+                    if (shopInfo.whatsapp_number && window.whatsappIti) {
+                        setTimeout(() => {
+                            window.whatsappIti.setNumber(shopInfo.whatsapp_number);
+                            console.log('[SHOP PROFILE] ✅ WhatsApp field updated with:', shopInfo.whatsapp_number);
+                        }, 300);
                     }
                 }
             } catch (error) {
+                console.error('❌ [SHOP PROFILE] ========== ERROR OCCURRED ==========');
+                console.error('[SHOP PROFILE] Error type:', error.constructor.name);
+                console.error('[SHOP PROFILE] Error message:', error.message);
+                console.error('[SHOP PROFILE] Error stack:', error.stack);
                 console.error('[SHOP] Error updating profile:', error);
                 const alertContainer = document.getElementById('alertContainer');
                 if (alertContainer) {

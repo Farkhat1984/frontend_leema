@@ -1,97 +1,119 @@
-// Страница управления пользователями
+const AdminUsersModule = (function() {
+    if (!localStorage.getItem('platform')) {
+        localStorage.setItem('platform', 'web');
+    }
 
-// Инициализировать platform перед любыми запросами
-if (!localStorage.getItem('platform')) {
-    localStorage.setItem('platform', 'web');
-}
+    const DOM = {
+        get totalUsers() { return document.getElementById('totalUsers'); },
+        get totalUserBalance() { return document.getElementById('totalUserBalance'); },
+        get activeUsers() { return document.getElementById('activeUsers'); },
+        get newUsers() { return document.getElementById('newUsers'); },
+        get usersList() { return document.getElementById('usersList'); }
+    };
 
-async function loadPageData() {
-    try {
+    function initializeWebSocket() {
         if (typeof CommonUtils !== 'undefined' && CommonUtils.initWebSocket) {
             CommonUtils.initWebSocket('admin', {
-                'balance.updated': () => { loadUsersStats(); loadUsersList(); }
+                'balance.updated': () => { 
+                    loadUsersStats(); 
+                    loadUsersList(); 
+                }
             });
         }
-        
-        await loadUsersStats();
-        await loadUsersList();
-    } catch (error) {
-        showAlert('Ошибка загрузки данных: ' + error.message, 'error');
     }
-}
 
-async function loadUsersStats() {
-    try {
-        const dashboard = await apiRequest('/api/v1/admin/dashboard');
-        const totalUsersEl = document.getElementById('totalUsers');
-        const totalUserBalanceEl = document.getElementById('totalUserBalance');
-        const activeUsersEl = document.getElementById('activeUsers');
-        const newUsersEl = document.getElementById('newUsers');
-        if (totalUsersEl) totalUsersEl.textContent = dashboard.total_users;
-        if (totalUserBalanceEl) totalUserBalanceEl.textContent = `$${dashboard.total_user_balances.toFixed(2)}`;
-        
-        // Approximations (можно добавить эти данные в API)
-        if (activeUsersEl) activeUsersEl.textContent = dashboard.total_users;
-        if (newUsersEl) newUsersEl.textContent = '0';
-    } catch (error) {
-    }
-}
-
-async function loadUsersList() {
-    try {
-        const users = await apiRequest('/api/v1/admin/users');
-        const container = document.getElementById('usersList');
-
-        if (users.length === 0) {
-            container.innerHTML = '<p style="color: #999;">Пользователей нет</p>';
-            return;
+    function updateStatsDisplay(dashboard) {
+        if (DOM.totalUsers) {
+            DOM.totalUsers.textContent = dashboard.total_users;
         }
+        if (DOM.totalUserBalance) {
+            DOM.totalUserBalance.textContent = `$${dashboard.total_user_balances.toFixed(2)}`;
+        }
+        if (DOM.activeUsers) {
+            DOM.activeUsers.textContent = dashboard.total_users;
+        }
+        if (DOM.newUsers) {
+            DOM.newUsers.textContent = '0';
+        }
+    }
 
-        container.innerHTML = `
+    function createUsersTable(users) {
+        return `
             <table style="width: 100%; border-collapse: collapse;">
                 <thead>
                     <tr style="border-bottom: 2px solid #e0e0e0;">
                         <th style="padding: 10px; text-align: left;">Email</th>
-                        <th style="padding: 10px; text-align: left;">Имя</th>
-                        <th style="padding: 10px; text-align: right;">Баланс</th>
-                        <th style="padding: 10px; text-align: center;">Бесплатно генераций</th>
-                        <th style="padding: 10px; text-align: center;">Бесплатно примерок</th>
-                        <th style="padding: 10px; text-align: left;">Дата регистрации</th>
+                        <th style="padding: 10px; text-align: left;">Name</th>
+                        <th style="padding: 10px; text-align: right;">Balance</th>
+                        <th style="padding: 10px; text-align: center;">Free Generations</th>
+                        <th style="padding: 10px; text-align: center;">Free Try-ons</th>
+                        <th style="padding: 10px; text-align: left;">Registration Date</th>
                     </tr>
                 </thead>
                 <tbody>
-                    ${users.map(user => {
-            const date = new Date(user.created_at).toLocaleDateString('ru-RU');
-            return `
-                            <tr style="border-bottom: 1px solid #f0f0f0;">
-                                <td style="padding: 10px;">${user.email}</td>
-                                <td style="padding: 10px;">${user.name || 'N/A'}</td>
-                                <td style="padding: 10px; text-align: right; font-weight: 600; color: #667eea;">
-                                    $${user.balance.toFixed(2)}
-                                </td>
-                                <td style="padding: 10px; text-align: center;">${user.free_generations}</td>
-                                <td style="padding: 10px; text-align: center;">${user.free_try_ons}</td>
-                                <td style="padding: 10px;">${date}</td>
-                            </tr>
-                        `;
-        }).join('')}
+                    ${users.map(user => createUserRow(user)).join('')}
                 </tbody>
             </table>
         `;
-    } catch (error) {
     }
-}
 
-// WebSocket handlers
-function onBalanceUpdate(data) {
-    loadUsersStats();
-    loadUsersList();
-}
+    function createUserRow(user) {
+        const date = new Date(user.created_at).toLocaleDateString('en-US');
+        return `
+            <tr style="border-bottom: 1px solid #f0f0f0;">
+                <td style="padding: 10px;">${user.email}</td>
+                <td style="padding: 10px;">${user.name || 'N/A'}</td>
+                <td style="padding: 10px; text-align: right; font-weight: 600; color: #667eea;">
+                    $${user.balance.toFixed(2)}
+                </td>
+                <td style="padding: 10px; text-align: center;">${user.free_generations}</td>
+                <td style="padding: 10px; text-align: center;">${user.free_try_ons}</td>
+                <td style="padding: 10px;">${date}</td>
+            </tr>
+        `;
+    }
 
-function onTransactionUpdate(data) {
-    loadUsersStats();
-    loadUsersList();
-}
+    async function loadUsersStats() {
+        try {
+            const dashboard = await apiRequest(API_ENDPOINTS.ADMIN.DASHBOARD);
+            updateStatsDisplay(dashboard);
+        } catch (error) {
+            CommonUtils.logError('loadUsersStats', error);
+        }
+    }
 
-// Автоматическая загрузка данных при инициализации страницы
-loadPageData();
+    async function loadUsersList() {
+        try {
+            const users = await apiRequest(API_ENDPOINTS.ADMIN.USERS);
+            
+            if (!DOM.usersList) return;
+
+            if (users.length === 0) {
+                DOM.usersList.innerHTML = '<p style="color: #999;">No users found</p>';
+                return;
+            }
+
+            DOM.usersList.innerHTML = createUsersTable(users);
+        } catch (error) {
+            CommonUtils.logError('loadUsersList', error);
+        }
+    }
+
+    async function init() {
+        try {
+            initializeWebSocket();
+            await loadUsersStats();
+            await loadUsersList();
+        } catch (error) {
+            showAlert(MESSAGES.ERROR.LOADING_DATA + ': ' + error.message, 'error');
+        }
+    }
+
+    return {
+        init,
+        loadUsersStats,
+        loadUsersList
+    };
+})();
+
+AdminUsersModule.init();

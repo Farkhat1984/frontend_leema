@@ -4,12 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Отзывы на товары - Fashion AI Platform</title>
+    <title>Product Reviews - Fashion AI Platform</title>
     <!-- Version: 1003 - Fixed navigation and redirects -->
-    <script src="/assets/js/tailwind-config.js?v=999.1"></script>
+    <script src="/assets/js/tailwind-config.js?v=1003.1"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="../../assets/js/core/router.js"></script>
-    <script src="../../assets/js/core/config.js?v=999"></script>
+    <script src="../../assets/js/core/config.js?v=1003"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
 
@@ -561,7 +561,7 @@
             <input type="text" 
                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" 
                    id="searchInput" 
-                   placeholder="🔍 Поиск по отзывам, товарам, покупателям...">
+                   placeholder="🔍 Search по отзывам, товарам, покупателям...">
             
             <select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white" id="ratingFilter">
                 <option value="">Все рейтинги</option>
@@ -963,36 +963,8 @@
                 return;
             }
 
-            // NOTE: Reply functionality not yet implemented on backend
             showNotification('Reply functionality is coming soon!', 'info');
             return;
-
-            /* TODO: Uncomment when backend implements reply endpoint
-            try {
-                const response = await fetch(`${API_BASE}/reviews/${reviewId}/reply`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${shopToken}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ reply: replyText })
-                });
-
-                if (response.ok) {
-                    showNotification('Reply sent successfully!', 'success');
-                    loadReviews(); // Reload to show updated data
-                } else if (response.status === 401) {
-                    console.error('Unauthorized');
-                    logout();
-                } else {
-                    const error = await response.json();
-                    showNotification(error.message || 'Failed to send reply', 'error');
-                }
-            } catch (error) {
-                console.error('Error submitting reply:', error);
-                showNotification('Error submitting reply', 'error');
-            }
-            */
         }
 
         // Pagination

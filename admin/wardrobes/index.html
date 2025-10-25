@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Гардеробы пользователей - Панель администратора</title>
+    <script src="/assets/js/tailwind-config.js?v=1003.1"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .transition-transform {
+                transition-property: transform;
+                transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+                transition-duration: 150ms;
+            }
+            .skeleton {
+                @apply animate-pulse bg-gray-200 rounded;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-xl font-bold text-gray-900">
+                        <i class="fas fa-shirt text-pink-600 mr-2"></i>
+                        Гардеробы пользователей
+                    </h1>
+                </div>
+                <div>
+                    <a href="/admin" class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors">
+                        <i class="fas fa-home mr-2"></i>
+                        Вернуться на главную
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Alert Container -->
+        <div id="adminAlertContainer" class="mb-6"></div>
+
+        <!-- Statistics -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-sm font-medium text-gray-600">Всего вещей</h3>
+                    <i class="fas fa-shirt text-pink-600 text-xl"></i>
+                </div>
+                <div class="text-3xl font-bold text-pink-600" id="totalItems">
+                    <div class="skeleton h-10 w-24"></div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-sm font-medium text-gray-600">Пользователей с гардеробом</h3>
+                    <i class="fas fa-users text-purple-600 text-xl"></i>
+                </div>
+                <div class="text-3xl font-bold text-purple-600" id="totalUsersWithItems">
+                    <div class="skeleton h-10 w-24"></div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-sm font-medium text-gray-600">Средне на пользователя</h3>
+                    <i class="fas fa-chart-line text-blue-600 text-xl"></i>
+                </div>
+                <div class="text-3xl font-bold text-blue-600" id="avgItemsPerUser">
+                    <div class="skeleton h-10 w-24"></div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-sm font-medium text-gray-600">Избранных</h3>
+                    <i class="fas fa-star text-yellow-600 text-xl"></i>
+                </div>
+                <div class="text-3xl font-bold text-yellow-600" id="favoritesCount">
+                    <div class="skeleton h-10 w-24"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Source Distribution -->
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-8">
+            <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                <i class="fas fa-chart-pie mr-3 text-pink-600"></i>
+                Распределение по источникам
+            </h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="sourceDistribution">
+                <div class="skeleton h-20"></div>
+                <div class="skeleton h-20"></div>
+                <div class="skeleton h-20"></div>
+                <div class="skeleton h-20"></div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-8">
+            <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                <i class="fas fa-filter mr-3 text-pink-600"></i>
+                Фильтры
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Поиск</label>
+                    <input type="text" id="searchInput" placeholder="Название или описание..." 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Пользователь</label>
+                    <select id="userFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent">
+                        <option value="">Все пользователи</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Источник</label>
+                    <select id="sourceFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent">
+                        <option value="">Все источники</option>
+                        <option value="shop_product">Из магазина</option>
+                        <option value="generated">AI генерация</option>
+                        <option value="uploaded">Загружено</option>
+                        <option value="purchased">Куплено</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Папка</label>
+                    <select id="folderFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent">
+                        <option value="">Все папки</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Избранное</label>
+                    <select id="favoriteFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent">
+                        <option value="">Все</option>
+                        <option value="true">Только избранное</option>
+                        <option value="false">Не избранное</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-4 flex justify-end">
+                <button id="resetFiltersBtn" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">
+                    <i class="fas fa-redo mr-2"></i>
+                    Сбросить фильтры
+                </button>
+            </div>
+        </div>
+
+        <!-- Wardrobes List -->
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-gray-900 flex items-center">
+                    <i class="fas fa-list mr-3 text-pink-600"></i>
+                    Список вещей
+                </h2>
+                <div class="text-sm text-gray-600">
+                    Всего: <span id="itemsCount" class="font-semibold">0</span>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="hidden">
+                <div class="space-y-4">
+                    <div class="skeleton h-24"></div>
+                    <div class="skeleton h-24"></div>
+                    <div class="skeleton h-24"></div>
+                    <div class="skeleton h-24"></div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden text-center py-12">
+                <i class="fas fa-shirt text-gray-300 text-6xl mb-4"></i>
+                <p class="text-gray-500 text-lg">Нет вещей для отображения</p>
+                <p class="text-gray-400 text-sm mt-2">Попробуйте изменить фильтры</p>
+            </div>
+
+            <!-- Items Grid -->
+            <div id="wardrobesList" class="grid grid-cols-1 gap-4">
+                <!-- Items will be inserted here -->
+            </div>
+
+            <!-- Pagination -->
+            <div id="paginationContainer" class="mt-6 flex justify-between items-center">
+                <button id="prevPageBtn" disabled class="px-4 py-2 bg-gray-200 text-gray-500 rounded-lg cursor-not-allowed">
+                    <i class="fas fa-chevron-left mr-2"></i>
+                    Предыдущая
+                </button>
+                <div class="text-sm text-gray-600">
+                    Страница <span id="currentPage">1</span>
+                </div>
+                <button id="nextPageBtn" disabled class="px-4 py-2 bg-gray-200 text-gray-500 rounded-lg cursor-not-allowed">
+                    Следующая
+                    <i class="fas fa-chevron-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Item Details -->
+    <div id="itemModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+                <h3 class="text-xl font-bold text-gray-900" id="modalItemName">Детали вещи</h3>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <div id="modalContent" class="p-6">
+                <!-- Content will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script defer src="../../assets/js/core/auth.js?v=1003"></script>
+    <script src="../../assets/js/core/router.js"></script>
+    <script src="../../assets/js/core/config.js?v=1003"></script>
+    <script defer src="../../assets/js/core/websocket.js?v=999"></script>
+    <script defer src="../../assets/js/core/notifications.js?v=999"></script>
+    <script defer src="../../assets/js/shared/lazy-loader.js?v=999"></script>
+    <script defer src="../../assets/js/core/cache.js?v=1004"></script>
+    <script defer src="../../assets/js/shared/security-utils.js?v=999"></script>
+    <script defer src="../../assets/js/constants/api-endpoints.js?v=999"></script>
+    <script defer src="../../assets/js/constants/messages.js?v=999"></script>
+    <script defer src="../../assets/js/shared/common-utils.js?v=999"></script>
+    <script defer src="../../assets/js/shared/navigation.js?v=1001"></script>
+    <script defer src="../../assets/js/pages/admin/wardrobes.js?v=1000"></script>
+</body>
+
+</html>

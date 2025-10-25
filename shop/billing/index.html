@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Биллинг и платежи - Fashion AI Platform</title>
+    <title>Billing & Payments - Fashion AI Platform</title>
     <!-- Version: 1003 - Fixed navigation and redirects -->
-    <script src="/assets/js/tailwind-config.js?v=999.1"></script>
+    <script src="/assets/js/tailwind-config.js?v=1003.1"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="../../assets/js/core/unified-alerts.js?v=1000"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -62,7 +62,7 @@
         <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-8">
             <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
                 <i class="fas fa-repeat mr-3 text-purple-600"></i>
-                Активные подписки на товары
+                Active подписки на товары
             </h3>
             <div id="activeRents"></div>
         </div>
@@ -78,14 +78,19 @@
     </div>
 
     <script src="../../assets/js/core/router.js"></script>
-    <script src="../../assets/js/core/config.js?v=999"></script>
-    <script defer src="../../assets/js/core/auth.js?v=999"></script>
+    <script src="../../assets/js/core/config.js?v=1003"></script>
+    <!-- Constants and Messages -->
+    <script src="../../assets/js/constants/api-endpoints.js?v=1003"></script>
+    <script src="../../assets/js/constants/app-constants.js?v=1003"></script>
+    <script src="../../assets/js/constants/messages.js?v=1003"></script>
+    <script defer src="../../assets/js/core/auth.js?v=1003"></script>
     <script defer src="../../assets/js/core/websocket.js?v=999"></script>
     <script defer src="../../assets/js/core/notifications.js?v=999"></script>
     <script defer src="../../assets/js/shared/lazy-loader.js?v=999"></script>
-    <script defer src="../../assets/js/core/cache.js?v=999"></script>
+    <script defer src="../../assets/js/core/cache.js?v=1004"></script>    <script defer src="../../assets/js/shared/security-utils.js?v=999"></script>
+
     <script defer src="../../assets/js/shared/common-utils.js?v=999"></script>
-    <script defer src="../../assets/js/pages/shop/dashboard.js?v=999"></script>
+    <script defer src="../../assets/js/pages/shop/dashboard.js?v=1003"></script>
     <script>
         // Initialize billing page on load
         async function initBillingPage() {

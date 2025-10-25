@@ -1,66 +1,33 @@
-// Shop Analytics - Advanced Analytics Page
-
-// Use API_URL from config.js
-const API_BASE_URL = (typeof API_URL !== 'undefined' ? API_URL : 'https://api.leema.kz') + '/api/v1';
-
 let revenueChart, ordersChart, categoryChart;
 let analyticsData = {};
 let currentPeriod = 7;
 let currentRevenueView = 'daily';
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // Fast auth check to prevent visible page load before redirect
-    const token = getToken();
-    if (!token) {
-        Router.redirectToAuth();
-        return;
-    }
-    
-    const accountType = localStorage.getItem('accountType');
-    const userRole = localStorage.getItem('userRole');
-    const isShop = accountType === 'shop' || userRole === 'shop';
-    
-    if (!isShop) {
-        // Immediate redirect without showing content
-        if (accountType === 'admin' || userRole === 'admin') {
-            Router.navigate(Router.paths.admin.dashboard, true);
-        } else if (accountType === 'user' || userRole === 'user') {
-            Router.navigate(Router.paths.user.dashboard, true);
-        } else {
-            Router.redirectToAuth();
-        }
+    if (!Router.protectPage('shop')) {
         return;
     }
 
-    // Only now load data - user has access
-    loadShopInfo(); // Don't await - load in parallel
+    loadShopInfo();
     await loadAnalytics();
 });
 
 async function loadShopInfo() {
     try {
-        const response = await fetch(`${API_BASE_URL}/shops/me`, {
-            headers: {
-                'Authorization': `Bearer ${getToken()}`
-            }
-        });
-
-        if (!response.ok) throw new Error('Failed to load shop info');
-
-        const shop = await response.json();
+        const shop = await apiRequest(API_ENDPOINTS.SHOPS.ME);
         
         const shopNameEl = document.getElementById('shopName');
         if (shopNameEl) {
-            shopNameEl.textContent = shop.name || 'Мой магазин';
+            shopNameEl.textContent = shop.name || 'My Shop';
         }
         
         const avatar = document.getElementById('shopAvatar');
         if (avatar) {
-            avatar.textContent = (shop.name || 'М').charAt(0).toUpperCase();
+            avatar.textContent = (shop.name || 'M').charAt(0).toUpperCase();
         }
         
     } catch (error) {
-        console.error('❌ Failed to load shop info:', error);
+        showAlert(MESSAGES.ERROR.LOADING_SHOP_INFO + ': ' + error.message, 'error');
     }
 }
 
@@ -94,29 +61,15 @@ async function loadAnalytics() {
         updateUI();
         
     } catch (error) {
-        console.error('❌ Failed to load analytics:', error);
-        showAlert('Ошибка загрузки аналитики', 'error');
+        showAlert(MESSAGES.ERROR.LOADING_ANALYTICS, 'error');
     } finally {
         hideLoading();
     }
 }
 
-// Fetch orders
 async function fetchOrders(dateFrom, dateTo) {
     try {
-        const url = new URL(`${API_BASE_URL}/shops/me/orders`);
-        url.searchParams.set('page', '1');
-        url.searchParams.set('limit', '1000');
-        
-        const response = await fetch(url, {
-            headers: {
-                'Authorization': `Bearer ${getToken()}`
-            }
-        });
-
-        if (!response.ok) return [];
-
-        const data = await response.json();
+        const data = await apiRequest(`${API_ENDPOINTS.SHOPS.ORDERS}?page=1&limit=${APP_CONSTANTS.LIMITS.PRODUCTS_QUERY_LIMIT}`);
         
         // Filter by date range
         const filtered = (data.orders || data.data || []).filter(order => {
@@ -126,33 +79,21 @@ async function fetchOrders(dateFrom, dateTo) {
 
         return filtered;
     } catch (error) {
-        console.error('Failed to fetch orders:', error);
         return [];
     }
 }
 
-// Fetch products
 async function fetchProducts() {
     try {
-        const response = await fetch(`${API_BASE_URL}/shops/me/products?limit=1000`, {
-            headers: {
-                'Authorization': `Bearer ${getToken()}`
-            }
-        });
-
-        if (!response.ok) return [];
-
-        const data = await response.json();
+        const data = await apiRequest(`${API_ENDPOINTS.SHOPS.PRODUCTS}?limit=${APP_CONSTANTS.LIMITS.PRODUCTS_QUERY_LIMIT}`);
         const products = data.products || data.data || [];
         
         return products;
     } catch (error) {
-        console.error('Failed to fetch products:', error);
         return [];
     }
 }
 
-// Fetch customers
 async function fetchCustomers() {
     try {
         const customers = new Map();
@@ -177,7 +118,6 @@ async function fetchCustomers() {
         const customersArray = Array.from(customers.values());
         return customersArray;
     } catch (error) {
-        console.error('Failed to process customers:', error);
         return [];
     }
 }
@@ -185,7 +125,6 @@ async function fetchCustomers() {
 function calculateMetrics() {
     const { orders, products, customers } = analyticsData;
     
-    // Revenue metrics
     const totalRevenue = orders
         .filter(o => o.status === 'completed')
         .reduce((sum, o) => sum + parseFloat(o.total_amount || 0), 0);
@@ -193,26 +132,22 @@ function calculateMetrics() {
     const totalOrders = orders.length;
     const averageOrder = totalOrders > 0 ? totalRevenue / totalOrders : 0;
     
-    // Customer metrics
     const totalCustomers = customers.length;
     const newCustomers = customers.filter(c => c.orders.length === 1).length;
     const returningCustomers = customers.filter(c => c.orders.length > 1).length;
     const customerLTV = totalCustomers > 0 ? totalRevenue / totalCustomers : 0;
     const retentionRate = totalCustomers > 0 ? (returningCustomers / totalCustomers) * 100 : 0;
     
-    // Product metrics
     const activeProducts = products.filter(p => p.status === 'approved').length;
     const pendingProducts = products.filter(p => p.status === 'pending').length;
     const totalViews = products.reduce((sum, p) => sum + (p.views_count || 0), 0);
     const totalTryOns = products.reduce((sum, p) => sum + (p.try_on_count || 0), 0);
     
-    // Order status breakdown
     const completedOrders = orders.filter(o => o.status === 'completed').length;
     const pendingOrders = orders.filter(o => o.status === 'pending').length;
     const cancelledOrders = orders.filter(o => o.status === 'cancelled').length;
     const refundedOrders = orders.filter(o => o.status === 'refunded').length;
     
-    // Conversion rate
     const productViews = totalViews || 0;
     const productSales = totalOrders;
     const conversionRate = productViews > 0 ? (productSales / productViews) * 100 : 0;
@@ -221,7 +156,6 @@ function calculateMetrics() {
     const previousRevenue = 0;
     const revenueChange = previousRevenue > 0 ? ((totalRevenue - previousRevenue) / previousRevenue) * 100 : 0;
     
-    // Store calculated metrics
     analyticsData.metrics = {
         totalRevenue,
         totalOrders,
@@ -251,49 +185,44 @@ function calculateMetrics() {
 function updateUI() {
     const { metrics } = analyticsData;
     
-    // Key metrics
-    document.getElementById('totalRevenue').textContent = formatCurrency(metrics.totalRevenue);
-    document.getElementById('totalOrders').textContent = metrics.totalOrders;
-    document.getElementById('averageOrder').textContent = formatCurrency(metrics.averageOrder);
-    document.getElementById('totalCustomers').textContent = metrics.totalCustomers;
-    
-    // Trends
-    updateTrend('revenueTrend', metrics.revenueChange);
-    updateTrend('ordersTrend', 0); // Would need historical data
-    updateTrend('avgTrend', 0);
-    updateTrend('customersTrend', 0);
-    
-    // Comparison section
-    document.getElementById('comparisonRevenue').textContent = formatPercent(metrics.revenueChange);
-    document.getElementById('currentPeriodRevenue').textContent = formatCurrency(metrics.totalRevenue);
-    document.getElementById('previousPeriodRevenue').textContent = formatCurrency(metrics.previousRevenue);
-    
-    // Conversion
-    document.getElementById('conversionRate').textContent = formatPercent(metrics.conversionRate);
-    document.getElementById('productViews').textContent = metrics.productViews;
-    document.getElementById('productSales').textContent = metrics.productSales;
-    
-    // Customer metrics
-    document.getElementById('newCustomers').textContent = metrics.newCustomers;
-    document.getElementById('returningCustomers').textContent = metrics.returningCustomers;
-    document.getElementById('customerLTV').textContent = formatCurrency(metrics.customerLTV);
-    document.getElementById('retentionRate').textContent = formatPercent(metrics.retentionRate);
-    
-    // Product metrics
-    document.getElementById('activeProducts').textContent = metrics.activeProducts;
-    document.getElementById('pendingProducts').textContent = metrics.pendingProducts;
-    document.getElementById('totalViews').textContent = metrics.totalViews;
-    document.getElementById('totalTryOns').textContent = metrics.totalTryOns;
-    
-    // Order metrics
-    document.getElementById('completedOrders').textContent = metrics.completedOrders;
-    document.getElementById('pendingOrders').textContent = metrics.pendingOrders;
-    document.getElementById('cancelledOrders').textContent = metrics.cancelledOrders;
-    document.getElementById('refundedOrders').textContent = metrics.refundedOrders;
+    // Batch all DOM updates together for better performance
+    CommonUtils.batchDOMUpdates(() => {
+        document.getElementById('totalRevenue').textContent = formatCurrency(metrics.totalRevenue);
+        document.getElementById('totalOrders').textContent = metrics.totalOrders;
+        document.getElementById('averageOrder').textContent = formatCurrency(metrics.averageOrder);
+        document.getElementById('totalCustomers').textContent = metrics.totalCustomers;
+        
+        updateTrend('revenueTrend', metrics.revenueChange);
+        updateTrend('ordersTrend', 0);
+        updateTrend('avgTrend', 0);
+        updateTrend('customersTrend', 0);
+        
+        document.getElementById('comparisonRevenue').textContent = formatPercent(metrics.revenueChange);
+        document.getElementById('currentPeriodRevenue').textContent = formatCurrency(metrics.totalRevenue);
+        document.getElementById('previousPeriodRevenue').textContent = formatCurrency(metrics.previousRevenue);
+        
+        document.getElementById('conversionRate').textContent = formatPercent(metrics.conversionRate);
+        document.getElementById('productViews').textContent = metrics.productViews;
+        document.getElementById('productSales').textContent = metrics.productSales;
+        
+        document.getElementById('newCustomers').textContent = metrics.newCustomers;
+        document.getElementById('returningCustomers').textContent = metrics.returningCustomers;
+        document.getElementById('customerLTV').textContent = formatCurrency(metrics.customerLTV);
+        document.getElementById('retentionRate').textContent = formatPercent(metrics.retentionRate);
+        
+        document.getElementById('activeProducts').textContent = metrics.activeProducts;
+        document.getElementById('pendingProducts').textContent = metrics.pendingProducts;
+        document.getElementById('totalViews').textContent = metrics.totalViews;
+        document.getElementById('totalTryOns').textContent = metrics.totalTryOns;
+        
+        document.getElementById('completedOrders').textContent = metrics.completedOrders;
+        document.getElementById('pendingOrders').textContent = metrics.pendingOrders;
+        document.getElementById('cancelledOrders').textContent = metrics.cancelledOrders;
+        document.getElementById('refundedOrders').textContent = metrics.refundedOrders;
+    });
     
     updateTopProducts();
     
-    // Generate insights
     generateInsights();
 }
 
@@ -337,7 +266,6 @@ function updateTopProducts() {
         });
     });
     
-    // Sort by revenue
     const topProducts = Object.values(productSales)
         .sort((a, b) => b.revenue - a.revenue)
         .slice(0, 10);
@@ -348,14 +276,15 @@ function updateTopProducts() {
         tbody.innerHTML = `
             <tr>
                 <td colspan="5" class="text-center py-10 text-gray-400">
-                    Нет данных о продажах
+                    No sales data
                 </td>
             </tr>
         `;
         return;
     }
     
-    tbody.innerHTML = topProducts.map((product, index) => `
+    // Build table rows for DocumentFragment
+    const rows = topProducts.map((product, index) => `
         <tr class="border-b border-gray-100 hover:bg-gray-50">
             <td class="py-3 px-4 font-semibold text-purple-600">${index + 1}</td>
             <td class="py-3 px-4 text-gray-900">${escapeHtml(product.name)}</td>
@@ -363,11 +292,18 @@ function updateTopProducts() {
             <td class="py-3 px-4 font-semibold text-gray-900">${formatCurrency(product.revenue)}</td>
             <td class="py-3 px-4 text-gray-700">${formatCurrency(product.revenue / product.quantity)}</td>
         </tr>
-    `).join('');
+    `);
+
+    // Use DocumentFragment for better performance
+    if (CommonUtils && CommonUtils.createDocumentFragment) {
+        tbody.innerHTML = '';
+        tbody.appendChild(CommonUtils.createDocumentFragment(rows));
+    } else {
+        tbody.innerHTML = rows.join('');
+    }
 }
 
 async function renderCharts() {
-    // Wait for Chart.js to be loaded (since it's deferred)
     if (typeof Chart === 'undefined') {
         await new Promise(resolve => {
             const checkChart = setInterval(() => {
@@ -388,7 +324,6 @@ function renderRevenueChart() {
     const ctx = document.getElementById('revenueChart');
     if (!ctx) return;
     
-    // Destroy existing chart
     if (revenueChart) {
         revenueChart.destroy();
     }
@@ -400,7 +335,7 @@ function renderRevenueChart() {
         data: {
             labels: chartData.labels,
             datasets: [{
-                label: 'Выручка',
+                label: 'Revenue',
                 data: chartData.data,
                 borderColor: '#667eea',
                 backgroundColor: 'rgba(102, 126, 234, 0.1)',
@@ -425,7 +360,7 @@ function renderRevenueChart() {
                     titleFont: { size: 14 },
                     bodyFont: { size: 13 },
                     callbacks: {
-                        label: (context) => `Выручка: ${formatCurrency(context.parsed.y)}`
+                        label: (context) => `Revenue: ${formatCurrency(context.parsed.y)}`
                     }
                 }
             },
@@ -449,11 +384,9 @@ function renderRevenueChart() {
     });
 }
 
-// Prepare revenue chart data
 function prepareRevenueChartData() {
     const { orders, dateFrom, dateTo } = analyticsData;
     
-    // Group by view type
     const groupedData = {};
     
     orders.forEach(order => {
@@ -478,7 +411,6 @@ function prepareRevenueChartData() {
         groupedData[key] += parseFloat(order.total_amount || 0);
     });
     
-    // Sort and format
     const sortedKeys = Object.keys(groupedData).sort();
     const labels = sortedKeys.map(key => formatChartLabel(key));
     const data = sortedKeys.map(key => groupedData[key]);
@@ -486,7 +418,6 @@ function prepareRevenueChartData() {
     return { labels, data };
 }
 
-// Format chart label
 function formatChartLabel(key) {
     if (currentRevenueView === 'daily') {
         const date = new Date(key);
@@ -505,7 +436,6 @@ function renderOrdersChart() {
     const ctx = document.getElementById('ordersChart');
     if (!ctx) return;
     
-    // Destroy existing chart
     if (ordersChart) {
         ordersChart.destroy();
     }
@@ -517,7 +447,7 @@ function renderOrdersChart() {
         data: {
             labels: chartData.labels,
             datasets: [{
-                label: 'Заказы',
+                label: 'Orders',
                 data: chartData.data,
                 backgroundColor: '#10b981',
                 borderRadius: 8,
@@ -556,7 +486,6 @@ function renderOrdersChart() {
     });
 }
 
-// Prepare orders chart data
 function prepareOrdersChartData() {
     const { orders } = analyticsData;
     
@@ -586,7 +515,6 @@ function renderCategoryChart() {
     const ctx = document.getElementById('categoryChart');
     if (!ctx) return;
     
-    // Destroy existing chart
     if (categoryChart) {
         categoryChart.destroy();
     }
@@ -640,7 +568,6 @@ function renderCategoryChart() {
     });
 }
 
-// Prepare category chart data
 function prepareCategoryChartData() {
     const { orders, products } = analyticsData;
     
@@ -651,7 +578,7 @@ function prepareCategoryChartData() {
         
         (order.items || []).forEach(item => {
             const product = products.find(p => p.id === item.product_id);
-            const category = product?.category || 'Другое';
+            const category = product?.category || 'Other';
             
             if (!categoryRevenue[category]) {
                 categoryRevenue[category] = 0;
@@ -666,7 +593,6 @@ function prepareCategoryChartData() {
     return { labels, data };
 }
 
-// Generate insights
 function generateInsights() {
     const { metrics } = analyticsData;
     const insights = [];
@@ -694,7 +620,6 @@ function generateInsights() {
     }
 }
 
-// Change period
 function changePeriod(days) {
     currentPeriod = days;
     
@@ -776,7 +701,7 @@ function exportToCSV() {
     csv += `Total Customers,${metrics.totalCustomers}\n`;
     
     downloadFile(csv, `analytics-${Date.now()}.csv`, 'text/csv');
-    showAlert('Данные экспортированы в CSV', 'success');
+    showAlert('Data exported to CSV', 'success');
 }
 
 // Export to JSON
@@ -793,7 +718,7 @@ function exportToJSON() {
     
     const json = JSON.stringify(exportData, null, 2);
     downloadFile(json, `analytics-${Date.now()}.json`, 'application/json');
-    showAlert('Данные экспортированы в JSON', 'success');
+    showAlert('Data exported to JSON', 'success');
 }
 
 // Download file helper
@@ -843,32 +768,10 @@ function hideLoading() {
     }
 }
 
-// Show alert - использует notificationManager
-function showAlert(message, type = 'info') {
-    if (window.notificationManager) {
-        window.notificationManager.showToast(message, type);
-    }
-}
-
-function checkAuth() {
-    return !!getToken();
-}
-
-function getToken() {
-    return localStorage.getItem('token');
-}
-
 // Escape HTML
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
-}
-
-// Logout
-function logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userRole');
-    Router.redirectToAuth();
 }
 

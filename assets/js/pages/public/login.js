@@ -2,16 +2,22 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Если уже авторизован, редирект
     if (AuthService.isAuthenticated()) {
-        const accountType = localStorage.getItem('accountType');
+        const userData = AuthService.getUserData();
         const role = AuthService.getUserRole();
+        const accountType = AuthService.getAccountType();
         
-        if (accountType === 'shop') {
-            Router.navigate(Router.paths.shop.dashboard);
-        } else if (role === 'admin') {
-            Router.navigate(Router.paths.admin.dashboard);
+        // Определяем куда редиректить на основе роли и типа аккаунта
+        let redirectPath;
+        
+        if (accountType === 'admin' || role === 'admin') {
+            redirectPath = Router.paths.admin.dashboard;
+        } else if (accountType === 'shop' || role === 'shop_owner') {
+            redirectPath = Router.paths.shop.dashboard;
         } else {
-            Router.navigate(Router.paths.user.dashboard);
+            redirectPath = Router.paths.user.dashboard;
         }
+        
+        Router.navigate(redirectPath);
         return;
     }
 });

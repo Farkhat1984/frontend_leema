@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Admin Dashboard - Fashion AI Platform</title>
-    <script src="/assets/js/tailwind-config.js?v=999.1"></script>
+    <script src="/assets/js/tailwind-config.js?v=1003.1"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css?v=999.0">
 </head>
@@ -123,6 +123,15 @@
                         <p class="text-sm text-gray-500">Manage products</p>
                     </div>
                 </a>
+                <a href="/admin/categories" class="flex items-center p-4 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200">
+                    <div class="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                        <i class="fas fa-tags text-pink-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-gray-900">Categories</h3>
+                        <p class="text-sm text-gray-500">Product categories</p>
+                    </div>
+                </a>
                 <a href="/admin/shops" class="flex items-center p-4 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200">
                     <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
                         <i class="fas fa-store text-green-600"></i>
@@ -213,20 +222,33 @@
                         <p class="text-sm text-gray-500">Platform settings</p>
                     </div>
                 </a>
+                <a href="/admin/wardrobes" class="flex items-center p-4 rounded-lg hover:bg-gray-50 transition-colors border border-pink-200">
+                    <div class="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                        <i class="fas fa-shirt text-pink-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-gray-900">Wardrobes</h3>
+                        <p class="text-sm text-gray-500">User wardrobes</p>
+                    </div>
+                </a>
             </div>
         </div>
     </div>
 
-    <script defer src="../assets/js/core/router.js?v=999"></script>
-    <script defer src="../assets/js/core/config.js?v=999"></script>
-    <script defer src="../assets/js/core/auth.js?v=999"></script>
+    <script src="../assets/js/core/router.js?v=1004"></script>
+    <script defer src="../assets/js/core/config.js?v=1003"></script>
+    <script defer src="../assets/js/core/auth.js?v=1003"></script>
     <script defer src="../assets/js/core/websocket.js?v=999"></script>
     <script defer src="../assets/js/core/notifications.js?v=999"></script>
     <script defer src="../assets/js/shared/lazy-loader.js?v=999"></script>
-    <script defer src="../assets/js/core/cache.js?v=999"></script>
+    <script defer src="../assets/js/core/cache.js?v=1004"></script>
+    <script defer src="../assets/js/shared/security-utils.js?v=999"></script>
+    <script src="../assets/js/constants/api-endpoints.js?v=999"></script>
+    <script src="../assets/js/constants/app-constants.js?v=1003"></script>
+    <script src="../assets/js/constants/messages.js?v=999"></script>
     <script defer src="../assets/js/shared/common-utils.js?v=999"></script>
     <script defer src="../assets/js/shared/navigation.js?v=1001"></script>
-    <script defer src="../assets/js/pages/admin/dashboard.js?v=999"></script>
+    <script defer src="../assets/js/pages/admin/dashboard.js?v=1003"></script>
 
     <script>
         function logout() {

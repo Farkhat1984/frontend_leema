@@ -1,22 +1,12 @@
-// Shop Orders Page JavaScript
-const API_BASE_URL = (typeof API_URL !== 'undefined' ? API_URL : 'https://api.leema.kz') + '/api/v1';
-
 let currentPage = 1;
-const ordersPerPage = 50;
 let allOrders = [];
 let filteredOrders = [];
 let currentShop = null;
 
-// Notification sound
 const notificationSound = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTcIGWi77eeeTRAMUKfj8LZjHAY4ktfyzHksBSR3yPDekEAKFF606+uoVRQKRp/g8r5sIQYsdMrz3I4+ChhluOvsp1cVDEyn4u+1YhoIOpPY88x3KwUldsjw3pBAChRdtOvqqVUSC0edHv/CUl0bfpzw8LZjHAY4ktfyzHksBSR3yPDekEAKFF606+uoVRQKRp/g8r5sIQYsdMrz3I4+ChhluOvsp1cVDEyn4u+1YhoIOpPY88x3KwUldsjw3pBAChRdtOvqqVUSC0ed4PK+bCEGLHTK89yOPgoYZbjr7KdXFQxMp+LvtWIaCDqT2PPMdysFJXbI8N6QQAoUXbTr6qlVEgtHneDyvmwhBix0yvPcjj4KGGW46+ynVxUMTKfi77ViGgg6k9jzzHcrBSV2yPDekEAKFF206+qpVRILR53g8r5sIQYsdMrz3I4+ChhluOvsp1cVDEyn4u+1YhoIOpPY88x3KwUldsjw3pBAChRdtOvqqVUSC0ed4PK+bCEGLHTK89yOPgoYZbjr7KdXFQxMp+LvtWIaCDqT2PPMdysFJXbI8N6QQAoUXbTr6qlVEgtHneDyvmwhBix0yvPcjj4KGGW46+ynVxUMTKfi77ViGgg6k9jzzHcrBSV2yPDekEAKFF206+qpVRILR53g8r5sIQYsdMrz3I4+ChhluOvsp1cVDEyn4u+1YhoIOpPY88x3KwUldsjw3pBAChRdtOvqqVUSC0ed4PK+bCEGLHTK89yOPgoYZbjr7KdXFQxMp+LvtWIaCDqT2PPMdysFJXbI8N6QQAoUXbTr6qlVEgtHneDyvmwhBix0yvPcjj4KGGW46+ynVxUMTKfi77ViGgg6k9jzzHcrBSV2yPDekEAKFF206+qpVRILR53g8r5sIQYsdMrz3I4+ChhluOvsp1cVDEyn4u+1YhoIOpPY88x3KwUldsjw3pBAChRdtOvqqVUSC0ed4PK+bCEGLHTK89yOPgoYZbjr7KdXFQxMp+LvtWIaCDqT2PPMdysFJXbI8N6QQAoUXbTr6qlVEgtHneDyvmwhBix0yvPcjj4KGGW46+ynVxUMTKfi77ViGgg=');
 
-// Page initialization
 window.onload = async function() {
-    const token = localStorage.getItem('token');
-    const accountType = localStorage.getItem('accountType');
-
-    if (!token || accountType !== 'shop') {
-        Router.redirectToAuth();
+    if (!Router.protectPage('shop')) {
         return;
     }
 
@@ -28,8 +18,7 @@ window.onload = async function() {
         await loadOrders();
         
     } catch (error) {
-        console.error('Initialization error:', error);
-        showAlert('Ошибка загрузки данных', 'error');
+        showAlert(MESSAGES.ERROR.LOADING_DATA, 'error');
     }
 };
 
@@ -64,7 +53,6 @@ async function loadShopInfo() {
         
         return shop;
     } catch (error) {
-        console.error('Error loading shop info:', error);
         throw error;
     }
 }
@@ -77,7 +65,6 @@ function initializeWebSocket() {
             'order.cancelled': onOrderCancelled,
             'order.refunded': onOrderRefunded,
         });
-    } else {
     }
 }
 
@@ -85,13 +72,10 @@ function initializeWebSocket() {
 function onNewOrder(data) {
     
     if (data.data && data.data.shop_id === currentShop?.id) {
-        // Play notification sound
         playNotificationSound();
         
-        // Desktop notification
-        showDesktopNotification('Новый заказ!', `Заказ #${data.data.order_number || ''} на $${data.data.shop_amount || data.data.amount || '0'}`);
+        showDesktopNotification('New Order!', `Order #${data.data.order_number || ''} for $${data.data.shop_amount || data.data.amount || '0'}`);
         
-        // Reload orders
         loadOrders();
     }
 }
@@ -128,7 +112,7 @@ function showDesktopNotification(title, body) {
         new Notification(title, {
             body: body,
             icon: '/assets/images/logo.png',
-            badge: '/assets/images/logo.png'
+            badge: '/assets/images/logo.png',
         });
     } else if ('Notification' in window && Notification.permission !== 'denied') {
         Notification.requestPermission().then(permission => {
@@ -165,8 +149,7 @@ async function loadOrders() {
         applyFiltersAndSort();
         
     } catch (error) {
-        console.error('Error loading orders:', error);
-        showAlert('Ошибка загрузки заказов', 'error');
+        showAlert(MESSAGES.ERROR.LOADING_ORDERS, 'error');
         
         // Show empty state
         const emptyState = document.getElementById('emptyState');
@@ -211,17 +194,20 @@ function calculateStatistics(orders) {
         }
     });
     
-    document.getElementById('todayOrders').textContent = todayCount;
-    document.getElementById('todayRevenue').textContent = '$' + todayRevenue.toFixed(2);
-    
-    document.getElementById('weekOrders').textContent = weekCount;
-    document.getElementById('weekRevenue').textContent = '$' + weekRevenue.toFixed(2);
-    
-    document.getElementById('monthOrders').textContent = monthCount;
-    document.getElementById('monthRevenue').textContent = '$' + monthRevenue.toFixed(2);
-    
-    document.getElementById('totalOrders').textContent = totalCount;
-    document.getElementById('totalRevenue').textContent = '$' + totalRevenue.toFixed(2);
+    // Batch all DOM updates together
+    CommonUtils.batchDOMUpdates(() => {
+        document.getElementById('todayOrders').textContent = todayCount;
+        document.getElementById('todayRevenue').textContent = '$' + todayRevenue.toFixed(2);
+        
+        document.getElementById('weekOrders').textContent = weekCount;
+        document.getElementById('weekRevenue').textContent = '$' + weekRevenue.toFixed(2);
+        
+        document.getElementById('monthOrders').textContent = monthCount;
+        document.getElementById('monthRevenue').textContent = '$' + monthRevenue.toFixed(2);
+        
+        document.getElementById('totalOrders').textContent = totalCount;
+        document.getElementById('totalRevenue').textContent = '$' + totalRevenue.toFixed(2);
+    });
 }
 
 function calculateShopAmount(order) {
@@ -308,22 +294,29 @@ function renderOrders() {
     const tbody = document.getElementById('ordersTableBody');
     const emptyState = document.getElementById('emptyState');
     const tableContainer = document.getElementById('ordersTableContainer');
+    const paginationContainer = document.getElementById('paginationContainer');
     
     if (filteredOrders.length === 0) {
-        emptyState.style.display = 'block';
-        tableContainer.style.display = 'none';
-        document.getElementById('paginationContainer').style.display = 'none';
+        // Batch style updates
+        CommonUtils.batchDOMUpdates(() => {
+            emptyState.style.display = 'block';
+            tableContainer.style.display = 'none';
+            paginationContainer.style.display = 'none';
+        });
         return;
     }
     
-    emptyState.style.display = 'none';
-    tableContainer.style.display = 'block';
+    CommonUtils.batchDOMUpdates(() => {
+        emptyState.style.display = 'none';
+        tableContainer.style.display = 'block';
+    });
     
-    const startIndex = (currentPage - 1) * ordersPerPage;
-    const endIndex = startIndex + ordersPerPage;
+    const startIndex = (currentPage - 1) * APP_CONSTANTS.PAGINATION.ORDERS_PER_PAGE;
+    const endIndex = startIndex + APP_CONSTANTS.PAGINATION.ORDERS_PER_PAGE;
     const pageOrders = filteredOrders.slice(startIndex, endIndex);
     
-    tbody.innerHTML = pageOrders.map(order => {
+    // Build rows array for DocumentFragment
+    const rowsHTML = pageOrders.map(order => {
         const shopAmount = calculateShopAmount(order);
         const shopItems = order.items?.filter(item => item.product?.shop_id === currentShop?.id) || [];
         
@@ -335,25 +328,33 @@ function renderOrders() {
                     </span>
                 </td>
                 <td>${formatDate(order.created_at)}</td>
-                <td>${order.user?.full_name || 'Неизвестно'}</td>
-                <td>${shopItems.length} ${pluralize(shopItems.length, 'товар', 'товара', 'товаров')}</td>
+                <td>${order.user?.full_name || 'Unknown'}</td>
+                <td>${shopItems.length} ${pluralize(shopItems.length, 'product', 'productа', 'productов')}</td>
                 <td><strong>$${shopAmount.toFixed(2)}</strong></td>
                 <td>${formatPaymentMethod(order.payment_method)}</td>
                 <td><span class="status-badge status-${order.status}">${formatStatus(order.status)}</span></td>
                 <td>
                     <button class="btn btn-sm btn-primary" onclick="viewOrderDetail(${order.id})">
-                        Подробнее
+                        Details
                     </button>
                 </td>
             </tr>
         `;
-    }).join('');
+    });
+    
+    // Use DocumentFragment if available in CommonUtils
+    if (CommonUtils.createDocumentFragment) {
+        tbody.innerHTML = '';
+        tbody.appendChild(CommonUtils.createDocumentFragment(rowsHTML));
+    } else {
+        tbody.innerHTML = rowsHTML.join('');
+    }
     
     updatePagination();
 }
 
 function updatePagination() {
-    const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
+    const totalPages = Math.ceil(filteredOrders.length / APP_CONSTANTS.PAGINATION.ORDERS_PER_PAGE);
     const paginationContainer = document.getElementById('paginationContainer');
     const prevBtn = document.getElementById('prevPageBtn');
     const nextBtn = document.getElementById('nextPageBtn');
@@ -365,7 +366,7 @@ function updatePagination() {
     }
     
     paginationContainer.style.display = 'flex';
-    pageInfo.textContent = `Страница ${currentPage} из ${totalPages}`;
+    pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
     
     prevBtn.disabled = currentPage === 1;
     nextBtn.disabled = currentPage === totalPages;
@@ -373,7 +374,7 @@ function updatePagination() {
 
 // Change page
 function changePage(direction) {
-    const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
+    const totalPages = Math.ceil(filteredOrders.length / APP_CONSTANTS.PAGINATION.ORDERS_PER_PAGE);
     const newPage = currentPage + direction;
     
     if (newPage >= 1 && newPage <= totalPages) {
@@ -408,7 +409,7 @@ async function viewOrderDetail(orderId) {
         const modalItems = document.getElementById('modalItems');
         const modalShopTotal = document.getElementById('modalShopTotal');
         
-        if (modalOrderNumber) modalOrderNumber.textContent = `Заказ #${order.order_number || order.id}`;
+        if (modalOrderNumber) modalOrderNumber.textContent = `Order #${order.order_number || order.id}`;
         if (modalStatus) modalStatus.innerHTML = `<span class="status-badge status-${order.status}">${formatStatus(order.status)}</span>`;
         if (modalDate) modalDate.textContent = formatDateTime(order.created_at);
         if (modalPayment) modalPayment.textContent = formatPaymentMethod(order.payment_method);
@@ -417,7 +418,7 @@ async function viewOrderDetail(orderId) {
         // Customer info
         if (modalCustomer) {
             modalCustomer.innerHTML = `
-                <strong>${order.user?.full_name || 'Неизвестно'}</strong><br>
+                <strong>${order.user?.full_name || 'Unknown'}</strong><br>
                 <span style="color: #666;">${order.user?.email || ''}</span>
             `;
         }
@@ -429,16 +430,16 @@ async function viewOrderDetail(orderId) {
                      class="item-image" 
                      alt="${item.product?.name || 'Product'}">
                 <div class="item-details">
-                    <div class="item-name">${item.product?.name || 'Неизвестный товар'}</div>
+                    <div class="item-name">${item.product?.name || 'Неofвестный product'}</div>
                     <div class="item-price">
-                        Количество: ${item.quantity} × $${item.price?.toFixed(2) || '0.00'} 
+                        Quantity: ${item.quantity} × $${item.price?.toFixed(2) || '0.00'} 
                         = <strong>$${(item.subtotal || item.price * item.quantity)?.toFixed(2) || '0.00'}</strong>
                     </div>
                 </div>
             </div>
         `).join('');
         
-        if (modalItems) modalItems.innerHTML = itemsHtml || '<p>Нет товаров</p>';
+        if (modalItems) modalItems.innerHTML = itemsHtml || '<p>Нет productов</p>';
         
         const shopTotal = calculateShopAmount(order);
         if (modalShopTotal) modalShopTotal.textContent = '$' + shopTotal.toFixed(2);
@@ -448,8 +449,7 @@ async function viewOrderDetail(orderId) {
         if (modal) modal.classList.add('show');
         
     } catch (error) {
-        console.error('Error loading order details:', error);
-        showAlert('Ошибка загрузки деталей заказа', 'error');
+        showAlert('Error loading order details', 'error');
     }
 }
 
@@ -459,8 +459,10 @@ function closeOrderDetail() {
 }
 
 // Event handlers
+const debouncedSearch = window.debounce ? window.debounce(applyFiltersAndSort, 300) : applyFiltersAndSort;
+
 function handleSearch() {
-    applyFiltersAndSort();
+    debouncedSearch();
 }
 
 function handleFilter() {
@@ -479,9 +481,9 @@ function formatDate(dateString) {
     yesterday.setDate(yesterday.getDate() - 1);
     
     if (date.toDateString() === today.toDateString()) {
-        return 'Сегодня ' + date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+        return 'Today ' + date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
     } else if (date.toDateString() === yesterday.toDateString()) {
-        return 'Вчера ' + date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+        return 'Yesterday ' + date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
     } else {
         return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' +
                date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
@@ -501,10 +503,10 @@ function formatDateTime(dateString) {
 
 function formatStatus(status) {
     const statusMap = {
-        'pending': 'В обработке',
-        'completed': 'Выполнен',
-        'cancelled': 'Отменен',
-        'refunded': 'Возвращен'
+        'pending': 'Processing',
+        'completed': 'Completed',
+        'cancelled': 'Cancelled',
+        'refunded': 'Refunded'
     };
     return statusMap[status] || status;
 }
@@ -512,10 +514,10 @@ function formatStatus(status) {
 function formatPaymentMethod(method) {
     const methodMap = {
         'paypal': 'PayPal',
-        'balance': 'Баланс',
-        'card': 'Карта'
+        'balance': 'Balance',
+        'card': 'Card'
     };
-    return methodMap[method] || method || 'Неизвестно';
+    return methodMap[method] || method || 'Unknown';
 }
 
 function pluralize(count, one, few, many) {
@@ -528,13 +530,6 @@ function pluralize(count, one, few, many) {
         return few;
     } else {
         return many;
-    }
-}
-
-function showAlert(message, type = 'info') {
-    // Используем notificationManager вместо старой системы алертов
-    if (window.notificationManager) {
-        window.notificationManager.showToast(message, type);
     }
 }
 

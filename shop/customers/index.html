@@ -5,9 +5,9 @@
     <!-- Redesigned with Tailwind CSS -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мои клиенты - Fashion AI Platform</title>
+    <title>My Customers - Fashion AI Platform</title>
     <!-- Version: 1003 - Fixed navigation and redirects -->
-    <script src="/assets/js/tailwind-config.js?v=999.1"></script>
+    <script src="/assets/js/tailwind-config.js?v=1003.1"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="../../assets/js/core/unified-alerts.js?v=1000"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -137,7 +137,7 @@
 
         <!-- Filters -->
         <div class="flex flex-wrap gap-4 mb-6">
-            <input type="text" id="searchInput" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="🔍 Поиск по имени или email...">
+            <input type="text" id="searchInput" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="🔍 Search по имени или email...">
             
             <select id="tierFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white">
                 <option value="">Все сегменты</option>
@@ -176,7 +176,7 @@
     </div>
 
     <script src="../../assets/js/core/router.js"></script>
-    <script src="../../assets/js/core/config.js?v=999"></script>
+    <script src="../../assets/js/core/config.js?v=1003"></script>
     <script>
         // Ensure API_URL is defined
         const API_BASE_URL = (typeof API_URL !== 'undefined' ? API_URL : 'https://api.leema.kz') + '/api/v1';
@@ -532,7 +532,7 @@
                                     <thead>
                                         <tr>
                                             <th>Дата</th>
-                                            <th>Номер заказа</th>
+                                            <th>Order number</th>
                                             <th>Товаров</th>
                                             <th>Сумма</th>
                                             <th>Статус</th>

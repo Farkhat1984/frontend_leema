@@ -9,7 +9,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Возвраты - Admin Panel</title>
-    <script src="/assets/js/tailwind-config.js?v=999.1"></script>
+    <script src="/assets/js/tailwind-config.js?v=1003.1"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="../../assets/js/core/unified-alerts.js?v=1000"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -121,7 +121,7 @@
                 </div>
             </div>
             <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
-                <button class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors" onclick="closeModal('approveModal')">Отмена</button>
+                <button class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors" onclick="closeModal('approveModal')">Cancel</button>
                 <button class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors" onclick="confirmApprove()">Одобрить возврат</button>
             </div>
         </div>
@@ -141,19 +141,20 @@
                 </div>
             </div>
             <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
-                <button class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors" onclick="closeModal('rejectModal')">Отмена</button>
+                <button class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors" onclick="closeModal('rejectModal')">Cancel</button>
                 <button class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors" onclick="confirmReject()">Отклонить запрос</button>
             </div>
         </div>
     </div>
 
-    <script defer src="../../assets/js/core/auth.js?v=999"></script>
+    <script defer src="../../assets/js/core/auth.js?v=1003"></script>
     <script src="../../assets/js/core/router.js"></script>
-    <script src="../../assets/js/core/config.js?v=999"></script>
+    <script src="../../assets/js/core/config.js?v=1003"></script>
     <script defer src="../../assets/js/core/websocket.js?v=999"></script>
     <script defer src="../../assets/js/core/notifications.js?v=999"></script>
     <script defer src="../../assets/js/shared/lazy-loader.js?v=999"></script>
-    <script defer src="../../assets/js/core/cache.js?v=999"></script>
+    <script defer src="../../assets/js/core/cache.js?v=1004"></script>    <script defer src="../../assets/js/shared/security-utils.js?v=999"></script>
+
     <script defer src="../../assets/js/shared/common-utils.js?v=999"></script>
     <script>
         let refunds = [];
